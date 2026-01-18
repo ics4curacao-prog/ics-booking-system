@@ -1,0 +1,26 @@
+# ============================================================
+# ICS Website - Robots.txt
+# ============================================================
+# This file tells search engine crawlers which pages to index
+
+# Allow all crawlers
+User-agent: *
+
+# Allow indexing of main pages
+Allow: /
+
+# Disallow admin and API paths (if any exist on same domain)
+Disallow: /admin
+Disallow: /api/
+Disallow: /login
+
+# Disallow temporary and private pages
+Disallow: /temp/
+Disallow: /private/
+Disallow: /test/
+
+# Sitemap location (update with your actual domain)
+# Sitemap: https://ics-website.onrender.com/sitemap.xml
+
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1

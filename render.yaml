@@ -1,0 +1,59 @@
+# ============================================================
+# Render Blueprint - ICS Booking System
+# ============================================================
+# Place this file in the ROOT of your repository (CLEAN_PACKAGE/)
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  # ===========================================
+  # API Backend Service (Flask Application)
+  # ===========================================
+  - type: web
+    name: ics-api
+    runtime: python
+    region: ohio                          # Closest to Caribbean/Curaçao
+    plan: free                            # Change to 'starter' for production
+    rootDir: api                          # ← Points to api/ subfolder
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn api:app --bind 0.0.0.0:$PORT --workers 2
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: SECRET_KEY
+        generateValue: true               # Auto-generate secure key
+      - key: JWT_SECRET_KEY
+        generateValue: true               # Auto-generate secure key
+      - key: FLASK_ENV
+        value: production
+      # Email - Set these manually in Render Dashboard
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_ENABLED
+        value: "true"
+
+  # ===========================================
+  # Customer Website (Static Site)
+  # ===========================================
+  - type: web
+    name: ics-website
+    runtime: static
+    region: ohio
+    plan: free
+    rootDir: website                      # ← Points to website/ subfolder
+    buildCommand: ""                      # No build needed
+    staticPublishPath: .                  # Publish everything in website/
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

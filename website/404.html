@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - Intelligence Cleaning Services</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-container {
+            text-align: center;
+            max-width: 500px;
+            background: white;
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            max-width: 180px;
+            margin-bottom: 30px;
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 700;
+            color: #1FAFB8;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .error-title {
+            font-size: 28px;
+            color: #2D3E50;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .home-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #1FAFB8, #17a2b8);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(31, 175, 184, 0.3);
+        }
+        
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(31, 175, 184, 0.4);
+        }
+        
+        .contact-info {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .contact-info a {
+            color: #1FAFB8;
+            text-decoration: none;
+        }
+        
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Cleaning animation */
+        .cleaning-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: clean 2s ease-in-out infinite;
+        }
+        
+        @keyframes clean {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <!-- Logo -->
+        <img src="images/ics_logo.png" alt="ICS Logo" class="logo" onerror="this.style.display='none'">
+        
+        <!-- Cleaning Icon -->
+        <div class="cleaning-icon">🧹</div>
+        
+        <!-- Error Code -->
+        <div class="error-code">404</div>
+        
+        <!-- Error Title -->
+        <h1 class="error-title">Page Not Found</h1>
+        
+        <!-- Error Message -->
+        <p class="error-message">
+            Oops! It looks like this page has been cleaned away. 
+            The page you're looking for doesn't exist or has been moved.
+        </p>
+        
+        <!-- Home Button -->
+        <a href="index.html" class="home-button">Back to Home</a>
+        
+        <!-- Contact Info -->
+        <div class="contact-info">
+            <p>Need help? Contact us:</p>
+            <p>
+                <a href="tel:+5999684029">+599 968 402 98</a> | 
+                <a href="mailto:info@ics.cw">info@ics.cw</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

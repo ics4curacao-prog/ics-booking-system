@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Intelligence Cleaning Solutions</title>
+    
+    <!-- Admin Configuration - Must load first -->
+    <script src="admin_config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 450px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #1FAFB8 0%, #188a92 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            opacity: 0.95;
+            font-size: 1rem;
+        }
+
+        .login-body {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1FAFB8;
+            box-shadow: 0 0 0 3px rgba(31, 175, 184, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1FAFB8 0%, #188a92 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(31, 175, 184, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .default-credentials {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .default-credentials h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .default-credentials p {
+            color: #856404;
+            margin: 5px 0;
+        }
+
+        .default-credentials strong {
+            color: #333;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .quick-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .quick-links h4 {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .quick-link {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #1FAFB8;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quick-link:hover {
+            background: #1FAFB8;
+            color: white;
+            border-color: #1FAFB8;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 Admin Login</h1>
+            <p>Intelligence Cleaning Solutions</p>
+        </div>
+        
+        <div class="login-body">
+            <div id="message" class="message"></div>
+
+            <div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" value="admin@ics-curacao.com" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+                </div>
+
+                <button type="button" class="btn-login" id="loginBtn" onclick="handleLogin()">
+                    Login
+                </button>
+            </div>
+
+            <div class="default-credentials">
+                <h4>⚠️ Default Credentials</h4>
+                <p><strong>Email:</strong> admin@ics-curacao.com</p>
+                <p><strong>Password:</strong> admin123</p>
+                <p style="margin-top: 10px; color: #d63031;">
+                    <strong>Important:</strong> Change the default password after first login!
+                </p>
+            </div>
+
+            <div class="quick-links">
+                <h4>Quick Access (After Login)</h4>
+                <div class="links-grid">
+                    <a href="admin_bookings.html" class="quick-link">📅 Bookings</a>
+                    <a href="pricing_management.html" class="quick-link">💰 Pricing</a>
+                    <a href="user_management.html" class="quick-link">👥 Users</a>
+                    <a href="website.html" class="quick-link" target="_blank">🌐 Website</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = ADMIN_CONFIG.API_BASE_URL;
+
+        // Show message
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            const loginBtn = document.getElementById('loginBtn');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            if (loading) {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
+                emailInput.disabled = true;
+                passwordInput.disabled = true;
+            } else {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Login';
+                emailInput.disabled = false;
+                passwordInput.disabled = false;
+            }
+        }
+
+        // Handle login
+        async function handleLogin() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Validate inputs
+            if (!email || !password) {
+                showMessage('Please enter both email and password', 'error');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                console.log('Attempting login...');
+                
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                console.log('Login response:', data);
+
+                if (response.ok && data.success) {
+                    // Check if user is admin
+                    if (data.user.role !== 'admin') {
+                        showMessage('Access denied. Admin credentials required.', 'error');
+                        setLoading(false);
+                        return;
+                    }
+
+                    // Store session
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                    
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    console.log('Login successful, redirecting...');
+                    
+                    // Redirect to admin bookings
+                    setTimeout(() => {
+                        window.location.href = 'admin_bookings.html';
+                    }, 1000);
+                } else {
+                    showMessage(data.message || 'Login failed. Please check your credentials.', 'error');
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('Unable to connect to server. Is the API running?', 'error');
+                setLoading(false);
+            }
+        }
+
+        // Handle Enter key
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+
+        document.getElementById('email').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    if (user.role === 'admin') {
+                        showMessage('Already logged in. Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'admin_bookings.html';
+                        }, 1000);
+                    }
+                } catch (e) {
+                    // Invalid session data, continue to login
+                    console.error('Invalid session data:', e);
+                }
+            }
+        });
+
+        console.log('Admin login page loaded. API URL:', API_BASE_URL);
+    </script>
+</body>
+</html>

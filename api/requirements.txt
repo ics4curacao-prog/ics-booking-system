@@ -1,0 +1,34 @@
+# Flask and Extensions
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-JWT-Extended==4.6.0
+
+# Authentication
+bcrypt==4.1.2
+PyJWT==2.8.0
+
+# Database
+# Note: SQLite is built into Python, no package needed
+# If migrating to PostgreSQL, uncomment below:
+# psycopg2-binary==2.9.9
+
+# PDF Generation
+reportlab==4.1.0
+
+# Email
+# Note: smtplib is built into Python, no package needed
+
+# Production Server
+gunicorn==21.2.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Utilities
+Werkzeug==3.0.1
+itsdangerous==2.1.2
+Jinja2==3.1.2
+MarkupSafe==2.1.3
+
+# Date/Time handling
+python-dateutil==2.8.2

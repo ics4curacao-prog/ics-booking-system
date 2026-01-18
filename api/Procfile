@@ -1,0 +1,4 @@
+# Procfile for Render deployment
+# This tells Render how to start your application
+
+web: gunicorn api:app --bind 0.0.0.0:$PORT --workers 2
