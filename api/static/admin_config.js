@@ -7,6 +7,7 @@
 const ADMIN_CONFIG = {
     // API URL - Update this to your production API URL
     API_BASE_URL: 'https://ics-api-72kz.onrender.com',
+    API_URL: 'https://ics-api-72kz.onrender.com',  // Alias for compatibility
     
     // Company Information
     COMPANY_NAME: 'Intelligence Cleaning Services',
@@ -22,8 +23,9 @@ const ADMIN_CONFIG = {
     TAX_NAME: 'OB'
 };
 
-// Also define API_BASE_URL directly for backwards compatibility
+// Also define these directly for backwards compatibility
 const API_BASE_URL = ADMIN_CONFIG.API_BASE_URL;
+const API_URL = ADMIN_CONFIG.API_URL;
 
 // Log config loaded (for debugging)
-console.log('Admin config loaded. API URL:', API_BASE_URL);
+console.log('Admin config loaded. API URL:', API_URL);
