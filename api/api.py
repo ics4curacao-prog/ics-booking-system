@@ -194,8 +194,7 @@ def run_migrations():
     except Exception as e:
         logger.error(f"Migration error: {e}")
 
-# Run migrations on startup
-run_migrations()
+# NOTE: init_database() is defined and called first, then run_migrations()
 
 def init_database():
     """Initialize database tables if they don't exist"""
@@ -298,8 +297,11 @@ def init_database():
     conn.close()
     logger.info("Database initialization complete")
 
-# Initialize database tables
+# Initialize database tables FIRST
 init_database()
+
+# THEN run migrations to add any missing columns
+run_migrations()
 
 # ============================================================
 # PDF INVOICE GENERATION - A4 Optimized (210mm x 297mm)
