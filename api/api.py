@@ -1001,7 +1001,8 @@ def register():
                 'id': user_id,
                 'email': email,
                 'firstName': first_name,
-                'lastName': last_name
+                'lastName': last_name,
+                'phone': phone
             }
         }), 201
         
@@ -1045,6 +1046,7 @@ def login():
                 'email': user['email'],
                 'firstName': user['first_name'],
                 'lastName': user['last_name'],
+                'phone': user['phone'] or '',
                 'role': user['role']
             }
         }), 200
