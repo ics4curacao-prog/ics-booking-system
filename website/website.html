@@ -74,6 +74,9 @@
             height: 100%;
             width: auto;
             max-width: 605px;
+            object-fit: contain;
+            border: none;
+            outline: none;
         }
 
         .nav-links {
@@ -1332,11 +1335,17 @@
             }
 
             .logo {
-                height: 60px;
+                height: auto;
+                max-height: 55px;
+                flex-shrink: 0;
+                margin-left: 0;
             }
 
             .logo img {
-                max-width: 300px;
+                max-width: 180px;
+                height: auto;
+                max-height: 55px;
+                object-fit: contain;
             }
 
             /* Hero adjustments */
@@ -1487,11 +1496,14 @@
             }
 
             .logo {
-                height: 50px;
+                height: auto;
+                max-height: 45px;
             }
 
             .logo img {
-                max-width: 220px;
+                max-width: 150px;
+                height: auto;
+                max-height: 45px;
             }
 
             .hero {
@@ -3154,7 +3166,7 @@
                         <div class="contact-item-icon">✉️</div>
                         <div class="contact-item-text">
                             <h4>Email</h4>
-                            <p><a href="mailto:info@ics.cw" style="color: inherit; text-decoration: none;">info@ics.cw</a></p>
+                            <p><a href="/cdn-cgi/l/email-protection#ddb4b3bbb29db4beaef3beaa" style="color: inherit; text-decoration: none;"><span class="__cf_email__" data-cfemail="c9a0a7afa689a0aabae7aabe">[email&#160;protected]</span></a></p>
                         </div>
                     </div>
                     <div class="contact-item">
@@ -3233,7 +3245,7 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Mobile Menu Functionality
         const hamburger = document.getElementById('hamburger');
         const mobileNav = document.getElementById('mobile-nav');
@@ -5746,12 +5758,4 @@ Need help? Check the README.md file for detailed instructions.
                 if (option) {
                     document.getElementById('current-flag').textContent = option.dataset.flag;
                     document.getElementById('current-lang').textContent = savedLang.toUpperCase();
-                    document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    switchLanguage(savedLang);
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+                    document.querySelectorAll('.language-op
