@@ -3415,7 +3415,7 @@
         }
 
         // Configuration
-        const API_BASE_URL = 'http://127.0.0.1:5000';
+        const API_BASE_URL = 'ics-api-72kz.onrender.com';
         
         // ==========================================
         // DYNAMIC PRICE LOADING FROM API
@@ -3613,7 +3613,7 @@
                 if (error.message.includes('Failed to fetch')) {
                     errorMessage += 'Cannot reach the server. Please ensure:\n\n';
                     errorMessage += '1. The backend server is running (python3 server.py)\n';
-                    errorMessage += '2. The server is accessible at http://127.0.0.1:5000\n';
+                    errorMessage += '2. The server is accessible at http://ics-api-72kz.onrender.com\n';
                     errorMessage += '3. Your firewall is not blocking the connection';
                 } else {
                     errorMessage += error.message;
@@ -4375,7 +4375,7 @@ The backend server is not running. To start it:
    python3 server.py
 
 5. You should see:
-   "Server starting on http://127.0.0.1:5000"
+   "Server starting on http://ics-api-72kz.onrender.com"
 
 6. Refresh this page
 
