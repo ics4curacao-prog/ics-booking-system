@@ -197,6 +197,109 @@ def run_migrations():
 # Run migrations on startup
 run_migrations()
 
+def init_database():
+    """Initialize database tables if they don't exist"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Create users table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            first_name TEXT NOT NULL,
+            last_name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            phone TEXT,
+            address TEXT,
+            password BLOB NOT NULL,
+            role TEXT DEFAULT 'customer',
+            newsletter INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Create bookings table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS bookings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT,
+            customer_phone TEXT,
+            customer_email TEXT DEFAULT '',
+            street_address TEXT,
+            neighborhood TEXT,
+            service_type TEXT,
+            services TEXT,
+            booking_date TEXT,
+            time_slot TEXT,
+            total_cost REAL DEFAULT 0,
+            status TEXT DEFAULT 'pending',
+            notes TEXT,
+            invoice_sent INTEGER DEFAULT 0,
+            invoice_sent_at TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Create service_pricing table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS service_pricing (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            service_name TEXT NOT NULL,
+            base_price REAL NOT NULL,
+            unit TEXT DEFAULT 'per service',
+            description TEXT,
+            is_active INTEGER DEFAULT 1,
+            category TEXT DEFAULT 'Other',
+            display_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    conn.commit()
+    
+    # Check if admin user exists, create if not
+    cursor.execute("SELECT id FROM users WHERE role = 'admin'")
+    if not cursor.fetchone():
+        logger.info("Creating default admin user...")
+        admin_password = hash_password('admin123')
+        cursor.execute('''
+            INSERT INTO users (first_name, last_name, email, phone, password, role)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', ('Admin', 'User', 'admin@ics.cw', '+599 968 402 98', admin_password, 'admin'))
+        conn.commit()
+        logger.info("Default admin user created: admin@ics.cw / admin123")
+    
+    # Check if services exist, seed if not
+    cursor.execute("SELECT COUNT(*) as count FROM service_pricing")
+    if cursor.fetchone()['count'] == 0:
+        logger.info("Seeding initial services...")
+        services = [
+            ('Vacation Rental Basic Clean', 85.00, 'per bedroom', 'Standard cleaning for vacation rentals', 1, 'Vacation Rental', 1),
+            ('Vacation Rental Deep Clean', 125.00, 'per bedroom', 'Deep cleaning for vacation rentals', 1, 'Vacation Rental', 2),
+            ('Home Basic Clean', 75.00, 'per bedroom', 'Standard home cleaning', 1, 'Residential', 1),
+            ('Home Deep Clean', 110.00, 'per bedroom', 'Deep home cleaning', 1, 'Residential', 2),
+            ('Office Basic Clean', 65.00, 'per office', 'Standard office cleaning', 1, 'Office', 1),
+            ('Office Deep Clean', 95.00, 'per office', 'Deep office cleaning', 1, 'Office', 2),
+            ('Mattress Cleaning', 45.00, 'per mattress', 'Professional mattress cleaning', 1, 'Specialty', 1),
+            ('Sofa Cleaning', 55.00, 'per sofa', 'Professional sofa/couch cleaning', 1, 'Specialty', 2),
+            ('Pool Basic Clean', 50.00, 'per service', 'Basic pool cleaning', 1, 'Pool', 1),
+            ('Pool Deep Clean', 85.00, 'per service', 'Deep pool cleaning', 1, 'Pool', 2),
+        ]
+        
+        for service in services:
+            cursor.execute('''
+                INSERT INTO service_pricing (service_name, base_price, unit, description, is_active, category, display_order)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', service)
+        
+        conn.commit()
+        logger.info(f"Seeded {len(services)} services")
+    
+    conn.close()
+    logger.info("Database initialization complete")
+
+# Initialize database tables
+init_database()
 
 # ============================================================
 # PDF INVOICE GENERATION - A4 Optimized (210mm x 297mm)
