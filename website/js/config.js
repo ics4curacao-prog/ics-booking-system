@@ -14,7 +14,7 @@ const CONFIG = {
     // API_URL: 'http://localhost:5000',
     
     // PRODUCTION - RENDER (uncomment and update with your actual URL):
-    API_URL: 'https://ics-api.onrender.com',
+    API_URL: 'https://ics-api-72kz.onrender.com',
     
     // ============================================================
     // Other Settings
