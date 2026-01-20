@@ -4071,7 +4071,7 @@
             availabilityStatus.textContent = 'Checking availability...';
             
             try {
-                const result = await apiCall('/bookings/check-availability', 'POST', { date: date });
+                const result = await apiCall('/api/bookings/check-availability', 'POST', { date: date });
                 
                 availabilityStatus.style.display = 'none';
                 
@@ -4584,7 +4584,7 @@ Need help? Check the README.md file for detailed instructions.
             setLoading(submitBtn, true);
 
             // Send booking to API
-            const result = await apiCall('/bookings', 'POST', bookingData);
+            const result = await apiCall('/api/bookings', 'POST', bookingData);
             
             setLoading(submitBtn, false);
             
