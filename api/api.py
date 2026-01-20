@@ -272,17 +272,27 @@ def init_database():
     cursor.execute("SELECT COUNT(*) as count FROM service_pricing")
     if cursor.fetchone()['count'] == 0:
         logger.info("Seeding initial services...")
+        # These service names MUST match the servicePriceMapping in website.html
         services = [
-            ('Vacation Rental Basic Clean', 85.00, 'per bedroom', 'Standard cleaning for vacation rentals', 1, 'Vacation Rental', 1),
-            ('Vacation Rental Deep Clean', 125.00, 'per bedroom', 'Deep cleaning for vacation rentals', 1, 'Vacation Rental', 2),
-            ('Home Basic Clean', 75.00, 'per bedroom', 'Standard home cleaning', 1, 'Residential', 1),
-            ('Home Deep Clean', 110.00, 'per bedroom', 'Deep home cleaning', 1, 'Residential', 2),
-            ('Office Basic Clean', 65.00, 'per office', 'Standard office cleaning', 1, 'Office', 1),
-            ('Office Deep Clean', 95.00, 'per office', 'Deep office cleaning', 1, 'Office', 2),
-            ('Mattress Cleaning', 45.00, 'per mattress', 'Professional mattress cleaning', 1, 'Specialty', 1),
-            ('Sofa Cleaning', 55.00, 'per sofa', 'Professional sofa/couch cleaning', 1, 'Specialty', 2),
-            ('Pool Basic Clean', 50.00, 'per service', 'Basic pool cleaning', 1, 'Pool', 1),
-            ('Pool Deep Clean', 85.00, 'per service', 'Deep pool cleaning', 1, 'Pool', 2),
+            # Basic Cleaning
+            ('Base price for basic residential cleaning', 85.00, 'per service', 'Base price for basic residential cleaning service', 1, 'basic', 1),
+            ('Additional bedroom (basic cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for basic cleaning', 1, 'basic', 2),
+            ('Additional bathroom (basic cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for basic cleaning', 1, 'basic', 3),
+            # Deep Cleaning
+            ('Base price for deep residential cleaning', 130.00, 'per service', 'Base price for deep residential cleaning service', 1, 'deep', 4),
+            ('Additional bedroom (deep cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for deep cleaning', 1, 'deep', 5),
+            ('Additional bathroom (deep cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for deep cleaning', 1, 'deep', 6),
+            # Add-on Services
+            ('Sofa/Couch Cleaning', 40.00, 'per service', 'Deep cleaning for sofas and couches', 1, 'add-on', 7),
+            ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
+            ('Electrostatic Cleaning (per room)', 30.00, 'per room', 'Electrostatic disinfection cleaning per room', 1, 'add-on', 9),
+            ('Pool Cleaning', 50.00, 'per service', 'Pool cleaning service', 1, 'add-on', 10),
+            # Office Cleaning
+            ('Base price for office cleaning', 50.00, 'per service', 'Base price for office cleaning service', 1, 'office', 11),
+            ('Additional office', 18.00, 'per room', 'Additional charge per office room', 1, 'office', 12),
+            ('Additional bathroom (office)', 20.00, 'per bathroom', 'Additional charge per bathroom for office cleaning', 1, 'office', 13),
+            ('Office Sofa Cleaning', 40.00, 'per service', 'Deep cleaning for office sofas and couches', 1, 'office', 14),
+            ('Office Electrostatic Cleaning', 30.00, 'per room', 'Electrostatic disinfection cleaning for offices', 1, 'office', 15),
         ]
         
         for service in services:
@@ -1208,6 +1218,61 @@ def check_availability():
         logger.error(f'Error checking availability: {e}')
         return jsonify({'success': False, 'message': 'Failed to check availability'}), 500
 
+# Get bookings for a specific user
+@app.route('/api/bookings/user/<int:user_id>', methods=['GET'])
+@token_required
+def get_user_bookings(current_user, user_id):
+    """Get bookings for a specific user"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # First get the user's email
+        cursor.execute('SELECT email FROM users WHERE id = ?', (user_id,))
+        user = cursor.fetchone()
+        
+        if not user:
+            conn.close()
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+        user_email = user['email']
+        
+        # Get bookings for this user (match by customer_email)
+        cursor.execute('''
+            SELECT * FROM bookings 
+            WHERE customer_email = ?
+            ORDER BY booking_date DESC, created_at DESC
+        ''', (user_email,))
+        bookings = cursor.fetchall()
+        conn.close()
+        
+        bookings_list = []
+        for booking in bookings:
+            bookings_list.append({
+                'id': booking['id'],
+                'customerName': booking['customer_name'],
+                'customerPhone': booking['customer_phone'],
+                'customerEmail': booking['customer_email'] if 'customer_email' in booking.keys() else '',
+                'streetAddress': booking['street_address'],
+                'neighborhood': booking['neighborhood'],
+                'serviceType': booking['service_type'],
+                'services': booking['services'],
+                'bookingDate': booking['booking_date'],
+                'timeSlot': booking['time_slot'],
+                'totalCost': float(booking['total_cost']) if booking['total_cost'] else 0,
+                'status': booking['status'],
+                'notes': booking['notes'],
+                'createdAt': booking['created_at'],
+                'invoiceSent': booking['invoice_sent'] if 'invoice_sent' in booking.keys() else 0,
+                'invoiceSentAt': booking['invoice_sent_at'] if 'invoice_sent_at' in booking.keys() else None
+            })
+        
+        return jsonify({'success': True, 'bookings': bookings_list}), 200
+        
+    except Exception as e:
+        logger.error(f'Error getting user bookings: {e}')
+        return jsonify({'success': False, 'message': 'Failed to retrieve bookings'}), 500
+
 @app.route('/api/bookings', methods=['GET'])
 @token_required
 @admin_required
@@ -1685,6 +1750,57 @@ def delete_service(current_user, service_id):
     except Exception as e:
         logger.error(f'Error deleting service: {e}')
         return jsonify({'error': 'Failed to delete service'}), 500
+
+@app.route('/api/pricing/reset', methods=['POST'])
+@token_required
+@admin_required
+def reset_pricing(current_user):
+    """Reset all pricing to default values that match website (admin only)"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Delete all existing pricing
+        cursor.execute('DELETE FROM service_pricing')
+        
+        # Insert the correct services that match website.html servicePriceMapping
+        services = [
+            # Basic Cleaning
+            ('Base price for basic residential cleaning', 85.00, 'per service', 'Base price for basic residential cleaning service', 1, 'basic', 1),
+            ('Additional bedroom (basic cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for basic cleaning', 1, 'basic', 2),
+            ('Additional bathroom (basic cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for basic cleaning', 1, 'basic', 3),
+            # Deep Cleaning
+            ('Base price for deep residential cleaning', 130.00, 'per service', 'Base price for deep residential cleaning service', 1, 'deep', 4),
+            ('Additional bedroom (deep cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for deep cleaning', 1, 'deep', 5),
+            ('Additional bathroom (deep cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for deep cleaning', 1, 'deep', 6),
+            # Add-on Services
+            ('Sofa/Couch Cleaning', 40.00, 'per service', 'Deep cleaning for sofas and couches', 1, 'add-on', 7),
+            ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
+            ('Electrostatic Cleaning (per room)', 30.00, 'per room', 'Electrostatic disinfection cleaning per room', 1, 'add-on', 9),
+            ('Pool Cleaning', 50.00, 'per service', 'Pool cleaning service', 1, 'add-on', 10),
+            # Office Cleaning
+            ('Base price for office cleaning', 50.00, 'per service', 'Base price for office cleaning service', 1, 'office', 11),
+            ('Additional office', 18.00, 'per room', 'Additional charge per office room', 1, 'office', 12),
+            ('Additional bathroom (office)', 20.00, 'per bathroom', 'Additional charge per bathroom for office cleaning', 1, 'office', 13),
+            ('Office Sofa Cleaning', 40.00, 'per service', 'Deep cleaning for office sofas and couches', 1, 'office', 14),
+            ('Office Electrostatic Cleaning', 30.00, 'per room', 'Electrostatic disinfection cleaning for offices', 1, 'office', 15),
+        ]
+        
+        for service in services:
+            cursor.execute('''
+                INSERT INTO service_pricing (service_name, base_price, unit, description, is_active, category, display_order)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', service)
+        
+        conn.commit()
+        conn.close()
+        
+        logger.info("Pricing reset to default values")
+        return jsonify({'success': True, 'message': 'Pricing reset successfully', 'count': len(services)}), 200
+        
+    except Exception as e:
+        logger.error(f'Error resetting pricing: {e}')
+        return jsonify({'success': False, 'error': 'Failed to reset pricing'}), 500
 
 @app.route('/api/pricing/public', methods=['GET'])
 def get_public_pricing():

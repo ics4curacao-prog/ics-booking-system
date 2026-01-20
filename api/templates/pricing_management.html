@@ -651,6 +651,9 @@
             <button class="btn btn-primary" onclick="showAddServiceModal()">
                 + Add Service
             </button>
+            <button class="btn btn-warning" onclick="resetToDefaults()">
+                🔄 Reset to Defaults
+            </button>
             <button class="btn btn-secondary" onclick="window.location.href='user_management.html'">
                 👥 Users
             </button>
@@ -1238,6 +1241,38 @@
                 closeModal();
             }
         });
+
+        // Reset pricing to defaults
+        async function resetToDefaults() {
+            if (!confirm('This will delete all current pricing and reset to the default values that match the website. Are you sure?')) {
+                return;
+            }
+
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/pricing/reset`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Pricing reset successfully! ${data.count} services restored.`);
+                    loadServices();
+                } else {
+                    const error = await response.json();
+                    alert('Failed to reset pricing: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error resetting pricing:', error);
+                alert('Network error while resetting pricing');
+            }
+        }
 
         // Logout function
         function logout() {
