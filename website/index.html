@@ -3198,26 +3198,27 @@
                 </div>
             </div>
             <div class="contact-form">
-                <form>
+                <form id="contactForm" onsubmit="submitContactForm(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label>First Name</label>
-                            <input type="text" placeholder="John">
+                            <input type="text" id="contact-first-name" placeholder="John" required>
                         </div>
                         <div class="form-group">
                             <label>Last Name</label>
-                            <input type="text" placeholder="Doe">
+                            <input type="text" id="contact-last-name" placeholder="Doe">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" placeholder="your@email.com">
+                        <input type="email" id="contact-email" placeholder="your@email.com" required>
                     </div>
                     <div class="form-group">
                         <label>Message</label>
-                        <textarea placeholder="Tell us about your cleaning needs..."></textarea>
+                        <textarea id="contact-message" placeholder="Tell us about your cleaning needs..." required></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Send Message</button>
+                    <button type="submit" class="submit-btn" id="contact-submit-btn">Send Message</button>
+                    <div id="contact-status" style="margin-top: 15px; padding: 10px; border-radius: 8px; display: none;"></div>
                 </form>
             </div>
         </div>
@@ -3435,6 +3436,85 @@
 
         // Configuration
         const API_BASE_URL = 'https://ics-api-72kz.onrender.com';
+        
+        // ==========================================
+        // CONTACT FORM SUBMISSION
+        // ==========================================
+        
+        async function submitContactForm(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('contact-submit-btn');
+            const statusDiv = document.getElementById('contact-status');
+            
+            // Get form values
+            const firstName = document.getElementById('contact-first-name').value.trim();
+            const lastName = document.getElementById('contact-last-name').value.trim();
+            const email = document.getElementById('contact-email').value.trim();
+            const message = document.getElementById('contact-message').value.trim();
+            
+            // Validate
+            if (!firstName || !email || !message) {
+                showContactStatus('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email,
+                        message: message
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showContactStatus(data.message || 'Thank you! Your message has been sent.', 'success');
+                    // Clear the form
+                    document.getElementById('contactForm').reset();
+                } else {
+                    showContactStatus(data.message || 'Failed to send message. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                showContactStatus('Unable to send message. Please try again later or contact us directly at info@ics.cw', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            }
+        }
+        
+        function showContactStatus(message, type) {
+            const statusDiv = document.getElementById('contact-status');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = message;
+            
+            if (type === 'success') {
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.style.border = '1px solid #c3e6cb';
+            } else {
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.style.border = '1px solid #f5c6cb';
+            }
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
         
         // ==========================================
         // DYNAMIC PRICE LOADING FROM API
