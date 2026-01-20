@@ -1901,26 +1901,47 @@ def update_user(current_user, user_id):
                 conn.close()
                 return jsonify({'success': False, 'message': 'Cannot remove the last admin'}), 400
         
-        # Update user
-        cursor.execute('''
-            UPDATE users 
-            SET first_name = ?, last_name = ?, email = ?, phone = ?, role = ?
-            WHERE id = ?
-        ''', (
-            data.get('first_name'),
-            data.get('last_name'),
-            data.get('email'),
-            data.get('phone', ''),
-            data.get('role', 'customer'),
-            user_id
-        ))
+        # Check if password is being updated
+        new_password = data.get('password')
+        
+        if new_password and len(new_password) >= 6:
+            # Update user with new password
+            hashed_password = hash_password(new_password)
+            cursor.execute('''
+                UPDATE users 
+                SET first_name = ?, last_name = ?, email = ?, phone = ?, role = ?, password = ?
+                WHERE id = ?
+            ''', (
+                data.get('first_name'),
+                data.get('last_name'),
+                data.get('email'),
+                data.get('phone', ''),
+                data.get('role', 'customer'),
+                hashed_password,
+                user_id
+            ))
+        else:
+            # Update user without changing password
+            cursor.execute('''
+                UPDATE users 
+                SET first_name = ?, last_name = ?, email = ?, phone = ?, role = ?
+                WHERE id = ?
+            ''', (
+                data.get('first_name'),
+                data.get('last_name'),
+                data.get('email'),
+                data.get('phone', ''),
+                data.get('role', 'customer'),
+                user_id
+            ))
         
         conn.commit()
         conn.close()
         
+        password_msg = ' Password updated.' if new_password and len(new_password) >= 6 else ''
         return jsonify({
             'success': True,
-            'message': 'User updated successfully'
+            'message': f'User updated successfully.{password_msg}'
         }), 200
         
     except Exception as e:

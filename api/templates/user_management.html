@@ -691,6 +691,14 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
+                <div class="form-group" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
+                    <label for="editPassword">New Password <span style="font-weight: normal; color: #666;">(leave blank to keep current)</span></label>
+                    <input type="password" id="editPassword" placeholder="Enter new password (min 6 characters)" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="editPasswordConfirm">Confirm New Password</label>
+                    <input type="password" id="editPasswordConfirm" placeholder="Confirm new password">
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -1044,6 +1052,10 @@
             document.getElementById('editEmail').value = user.email || '';
             document.getElementById('editPhone').value = user.phone || '';
             document.getElementById('editRole').value = user.role || 'customer';
+            
+            // Clear password fields (don't pre-fill passwords)
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editPasswordConfirm').value = '';
 
             document.getElementById('editModal').classList.add('show');
         }
@@ -1052,6 +1064,9 @@
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('show');
             document.getElementById('editUserForm').reset();
+            // Clear password fields explicitly
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editPasswordConfirm').value = '';
         }
 
         // Save user changes
@@ -1062,6 +1077,21 @@
             if (!token) return;
 
             const userId = document.getElementById('editUserId').value;
+            const newPassword = document.getElementById('editPassword').value;
+            const confirmPassword = document.getElementById('editPasswordConfirm').value;
+            
+            // Validate password if provided
+            if (newPassword) {
+                if (newPassword.length < 6) {
+                    showMessage('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    showMessage('Passwords do not match', 'error');
+                    return;
+                }
+            }
+            
             const userData = {
                 first_name: document.getElementById('editFirstName').value,
                 last_name: document.getElementById('editLastName').value,
@@ -1069,6 +1099,11 @@
                 phone: document.getElementById('editPhone').value,
                 role: document.getElementById('editRole').value
             };
+            
+            // Only include password if provided
+            if (newPassword && newPassword.length >= 6) {
+                userData.password = newPassword;
+            }
 
             try {
                 const response = await fetch(`${API_URL}/api/users/${userId}`, {
