@@ -4608,10 +4608,10 @@ Need help? Check the README.md file for detailed instructions.
                 document.querySelectorAll('.quantity-selector').forEach(q => q.classList.remove('active'));
                 calculateTotal();
                 
-                // Refresh availability for the selected date
-                if (bookingDate) {
-                    checkSlotAvailability(bookingDate);
-                }
+                // Refresh page after a short delay to show the success message
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             } else {
                 const t = translations[currentLanguage];
                 showMessage(result.data.message || t.booking_failed, 'error');
