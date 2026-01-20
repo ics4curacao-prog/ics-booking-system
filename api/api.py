@@ -1001,7 +1001,8 @@ def register():
                 'id': user_id,
                 'email': email,
                 'firstName': first_name,
-                'lastName': last_name
+                'lastName': last_name,
+                'phone': phone
             }
         }), 201
         
@@ -1045,6 +1046,7 @@ def login():
                 'email': user['email'],
                 'firstName': user['first_name'],
                 'lastName': user['last_name'],
+                'phone': user['phone'] or '',
                 'role': user['role']
             }
         }), 200
@@ -1157,6 +1159,54 @@ def verify_token(current_user):
 # ============================================================
 # BOOKING ENDPOINTS
 # ============================================================
+
+# Check slot availability for a given date
+@app.route('/api/bookings/check-availability', methods=['POST'])
+def check_availability():
+    """Check booking slot availability for a specific date"""
+    try:
+        data = request.json
+        date = data.get('date')
+        
+        if not date:
+            return jsonify({'success': False, 'message': 'Date is required'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Define slot limits
+        slot_limits = {
+            'morning': 2,
+            'afternoon': 2,
+            'evening': 1
+        }
+        
+        # Count existing bookings for each slot on this date
+        availability = {}
+        for slot, limit in slot_limits.items():
+            cursor.execute('''
+                SELECT COUNT(*) as count FROM bookings 
+                WHERE booking_date = ? AND time_slot = ? AND status != 'cancelled'
+            ''', (date, slot))
+            booked = cursor.fetchone()['count']
+            remaining = max(0, limit - booked)
+            
+            availability[slot] = {
+                'available': remaining > 0,
+                'remaining': remaining,
+                'total': limit
+            }
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'availability': availability
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error checking availability: {e}')
+        return jsonify({'success': False, 'message': 'Failed to check availability'}), 500
 
 @app.route('/api/bookings', methods=['GET'])
 @token_required
