@@ -3729,8 +3729,10 @@
                 bookingFormContainer.classList.remove('active');
             }
             
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Refresh page after a short delay to show the message
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         }
         
         // ============================================

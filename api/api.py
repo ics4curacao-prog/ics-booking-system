@@ -1109,7 +1109,7 @@ def admin_dashboard(current_user):
         cursor = conn.cursor()
         
         # Get today's date
-        today = datetime.now().strftime('%Y-%m-%d')
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
         
         # Total bookings
         cursor.execute('SELECT COUNT(*) as count FROM bookings')
@@ -1228,28 +1228,28 @@ def get_all_bookings(current_user):
         for booking in bookings:
             bookings_list.append({
                 'id': booking['id'],
-                'customer_name': booking['customer_name'],
-                'customer_phone': booking['customer_phone'],
-                'customer_email': booking['customer_email'] if 'customer_email' in booking.keys() else '',
-                'street_address': booking['street_address'],
+                'customerName': booking['customer_name'],
+                'customerPhone': booking['customer_phone'],
+                'customerEmail': booking['customer_email'] if 'customer_email' in booking.keys() else '',
+                'streetAddress': booking['street_address'],
                 'neighborhood': booking['neighborhood'],
-                'service_type': booking['service_type'],
+                'serviceType': booking['service_type'],
                 'services': booking['services'],
-                'booking_date': booking['booking_date'],
-                'time_slot': booking['time_slot'],
-                'total_cost': float(booking['total_cost']) if booking['total_cost'] else 0,
+                'bookingDate': booking['booking_date'],
+                'timeSlot': booking['time_slot'],
+                'totalCost': float(booking['total_cost']) if booking['total_cost'] else 0,
                 'status': booking['status'],
                 'notes': booking['notes'],
-                'created_at': booking['created_at'],
-                'invoice_sent': booking['invoice_sent'] if 'invoice_sent' in booking.keys() else 0,
-                'invoice_sent_at': booking['invoice_sent_at'] if 'invoice_sent_at' in booking.keys() else None
+                'createdAt': booking['created_at'],
+                'invoiceSent': booking['invoice_sent'] if 'invoice_sent' in booking.keys() else 0,
+                'invoiceSentAt': booking['invoice_sent_at'] if 'invoice_sent_at' in booking.keys() else None
             })
         
-        return jsonify(bookings_list), 200
+        return jsonify({'success': True, 'bookings': bookings_list}), 200
         
     except Exception as e:
         logger.error(f'Error getting bookings: {e}')
-        return jsonify({'error': 'Failed to retrieve bookings'}), 500
+        return jsonify({'success': False, 'error': 'Failed to retrieve bookings'}), 500
 
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
