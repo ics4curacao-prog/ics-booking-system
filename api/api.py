@@ -1289,7 +1289,9 @@ def create_booking():
         return jsonify({
             'success': True,
             'message': 'Booking created successfully',
-            'booking_id': booking_id
+            'booking': {
+                'id': booking_id
+            }
         }), 201
         
     except Exception as e:
