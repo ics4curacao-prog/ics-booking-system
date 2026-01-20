@@ -1888,8 +1888,9 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
-                    method: 'PUT',
+                // Use PATCH endpoint to only update status (not overwrite all fields)
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -2180,8 +2181,9 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
-                    method: 'PUT',
+                // Use PATCH endpoint to only update status (not overwrite all fields)
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
