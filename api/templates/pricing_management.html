@@ -926,10 +926,11 @@
             // Apply filters
             let filteredServices = services.filter(service => {
                 const matchesCategory = categoryFilter === 'all' || service.category === categoryFilter;
-                const serviceStatus = service.status || 'active'; // Default to active if undefined
+                const serviceStatus = service.is_active !== false ? 'active' : 'inactive';
                 const matchesStatus = statusFilter === 'all' || serviceStatus === statusFilter;
+                const serviceName = service.service_name || '';
                 const matchesSearch = !searchQuery || 
-                    service.name.toLowerCase().includes(searchQuery) ||
+                    serviceName.toLowerCase().includes(searchQuery) ||
                     (service.description && service.description.toLowerCase().includes(searchQuery));
                 
                 return matchesCategory && matchesStatus && matchesSearch;
@@ -946,9 +947,9 @@
 
             // Generate table rows
             tbody.innerHTML = filteredServices.map(service => {
-                const status = service.status || 'active';
+                const status = service.is_active !== false ? 'active' : 'inactive';
                 const statusCapitalized = status.charAt(0).toUpperCase() + status.slice(1);
-                const serviceName = service.name || service.description || 'Unnamed Service';
+                const serviceName = service.service_name || service.description || 'Unnamed Service';
                 const serviceDesc = service.description || '';
                 
                 return `
@@ -980,9 +981,9 @@
             // Generate mobile cards
             if (mobileContainer) {
                 mobileContainer.innerHTML = filteredServices.map(service => {
-                    const status = service.status || 'active';
+                    const status = service.is_active !== false ? 'active' : 'inactive';
                     const statusCapitalized = status.charAt(0).toUpperCase() + status.slice(1);
-                    const serviceName = service.name || service.description || 'Unnamed Service';
+                    const serviceName = service.service_name || service.description || 'Unnamed Service';
                     
                     return `
                     <div class="mobile-card">
@@ -1019,7 +1020,7 @@
         function updateStats(services) {
             document.getElementById('totalServices').textContent = services.length;
             document.getElementById('activeServices').textContent = 
-                services.filter(s => (s.status || 'active') === 'active').length;
+                services.filter(s => s.is_active !== false).length;
             
             const categories = new Set(services.map(s => s.category));
             document.getElementById('categories').textContent = categories.size;
@@ -1110,7 +1111,7 @@
                         document.getElementById('servicePrice').value = service.base_price || 0;
                         document.getElementById('serviceUnit').value = service.unit || 'per service';
                         document.getElementById('serviceOrder').value = service.display_order || 0;
-                        document.getElementById('serviceStatus').value = service.status || 'active';
+                        document.getElementById('serviceStatus').value = service.is_active !== false ? 'active' : 'inactive';
                         document.getElementById('serviceModal').classList.add('active');
                     }
                 }
@@ -1162,6 +1163,7 @@
             if (!token) return;
 
             const serviceId = document.getElementById('serviceId').value;
+            const statusValue = document.getElementById('serviceStatus').value;
             const data = {
                 service_name: document.getElementById('serviceName').value,
                 description: document.getElementById('serviceDescription').value,
@@ -1169,7 +1171,7 @@
                 base_price: parseFloat(document.getElementById('servicePrice').value),
                 unit: document.getElementById('serviceUnit').value,
                 display_order: parseInt(document.getElementById('serviceOrder').value) || 0,
-                status: document.getElementById('serviceStatus').value
+                is_active: statusValue === 'active'
             };
 
             try {

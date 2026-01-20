@@ -1260,24 +1260,37 @@ def create_booking():
         conn = get_db()
         cursor = conn.cursor()
         
+        # Accept both camelCase (from website) and snake_case field names
+        customer_name = data.get('customerName') or data.get('customer_name')
+        customer_phone = data.get('customerPhone') or data.get('customer_phone')
+        customer_email = data.get('customerEmail') or data.get('customer_email', '')
+        street_address = data.get('streetAddress') or data.get('street_address')
+        neighborhood = data.get('neighborhood')
+        service_type = data.get('serviceType') or data.get('service_type')
+        services = data.get('services', [])
+        booking_date = data.get('date') or data.get('booking_date')
+        time_slot = data.get('timeSlot') or data.get('time_slot')
+        total_cost = data.get('totalCost') or data.get('total_cost', 0)
+        notes = data.get('notes', '')
+        
         cursor.execute('''
             INSERT INTO bookings 
             (customer_name, customer_phone, customer_email, street_address, neighborhood, 
              service_type, services, booking_date, time_slot, total_cost, status, notes)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            data.get('customer_name'),
-            data.get('customer_phone'),
-            data.get('customer_email', ''),
-            data.get('street_address'),
-            data.get('neighborhood'),
-            data.get('service_type'),
-            str(data.get('services', [])),
-            data.get('booking_date'),
-            data.get('time_slot'),
-            float(data.get('total_cost', 0)),
+            customer_name,
+            customer_phone,
+            customer_email,
+            street_address,
+            neighborhood,
+            service_type,
+            str(services),
+            booking_date,
+            time_slot,
+            float(total_cost) if total_cost else 0,
             'pending',
-            data.get('notes', '')
+            notes
         ))
         
         booking_id = cursor.lastrowid
