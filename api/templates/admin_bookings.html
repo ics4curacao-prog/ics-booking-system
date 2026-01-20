@@ -1685,7 +1685,7 @@
                 }
 
                 const queryString = params.toString();
-                const url = `${API_URL}/admin/bookings${queryString ? '?' + queryString : ''}`;
+                const url = `${API_URL}/api/bookings${queryString ? '?' + queryString : ''}`;
 
                 const response = await fetch(url, {
                     headers: {
@@ -1888,7 +1888,7 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/admin/bookings/${bookingId}`, {
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1964,7 +1964,7 @@
             toast('Sending invoice email...', 'info');
 
             try {
-                const response = await fetch(`${API_URL}/admin/bookings/${bookingId}/send-invoice`, {
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}/send-invoice`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2180,7 +2180,7 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/admin/bookings/${bookingId}`, {
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

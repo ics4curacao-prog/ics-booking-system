@@ -1001,8 +1001,7 @@ def register():
                 'id': user_id,
                 'email': email,
                 'firstName': first_name,
-                'lastName': last_name,
-                'phone': phone
+                'lastName': last_name
             }
         }), 201
         
@@ -1046,7 +1045,6 @@ def login():
                 'email': user['email'],
                 'firstName': user['first_name'],
                 'lastName': user['last_name'],
-                'phone': user['phone'] or '',
                 'role': user['role']
             }
         }), 200
@@ -1098,6 +1096,54 @@ def admin_login():
     except Exception as e:
         logger.error(f'Admin login error: {e}')
         return jsonify({'success': False, 'message': 'Login failed'}), 500
+
+# Admin Dashboard Stats
+@app.route('/admin/dashboard', methods=['GET'])
+@token_required
+@admin_required
+def admin_dashboard(current_user):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Get today's date
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        # Total bookings
+        cursor.execute('SELECT COUNT(*) as count FROM bookings')
+        total_bookings = cursor.fetchone()['count']
+        
+        # Pending bookings
+        cursor.execute("SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'")
+        pending_bookings = cursor.fetchone()['count']
+        
+        # Today's bookings
+        cursor.execute('SELECT COUNT(*) as count FROM bookings WHERE booking_date = ?', (today,))
+        today_bookings = cursor.fetchone()['count']
+        
+        # Total revenue (from confirmed/completed bookings)
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_cost), 0) as revenue 
+            FROM bookings 
+            WHERE status IN ('confirmed', 'completed')
+        """)
+        total_revenue = cursor.fetchone()['revenue']
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'totalBookings': total_bookings,
+                'pendingBookings': pending_bookings,
+                'todayBookings': today_bookings,
+                'totalRevenue': float(total_revenue)
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Dashboard stats error: {e}')
+        return jsonify({'success': False, 'message': 'Failed to load stats'}), 500
 
 # Verify Token
 @app.route('/api/verify-token', methods=['GET'])

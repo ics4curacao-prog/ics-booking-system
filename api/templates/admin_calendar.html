@@ -876,7 +876,7 @@
             if (!token) return;
 
             try {
-                const response = await fetch(`${API_URL}/admin/bookings`, {
+                const response = await fetch(`${API_URL}/api/bookings`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1178,7 +1178,7 @@
             if (!confirm(`Change booking status to ${newStatus}?`)) return;
 
             try {
-                const response = await fetch(`${API_URL}/admin/bookings/${bookingId}`, {
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
