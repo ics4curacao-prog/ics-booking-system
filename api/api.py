@@ -2314,24 +2314,44 @@ def get_resources(current_user):
         conn = get_db()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT * FROM resources ORDER BY first_name, name')
+        # Check which columns exist
+        cursor.execute("PRAGMA table_info(resources)")
+        columns = [col[1] for col in cursor.fetchall()]
+        has_extended = 'first_name' in columns
+        
+        # Use appropriate ORDER BY based on available columns
+        if has_extended:
+            cursor.execute('SELECT * FROM resources ORDER BY COALESCE(first_name, name), name')
+        else:
+            cursor.execute('SELECT * FROM resources ORDER BY name')
+        
         resources = cursor.fetchall()
         conn.close()
         
         resources_list = []
         for r in resources:
-            resources_list.append({
+            resource_data = {
                 'id': r['id'],
                 'name': r['name'],
-                'first_name': r['first_name'] or r['name'] or '',
-                'last_name': r['last_name'] or '',
-                'email': r['email'] or '',
-                'phone': r['phone'] or '',
                 'morning': bool(r['morning']),
                 'afternoon': bool(r['afternoon']),
                 'evening': bool(r['evening']),
                 'active': bool(r['active'])
-            })
+            }
+            
+            # Add extended fields if available
+            if has_extended:
+                resource_data['first_name'] = r['first_name'] or r['name'] or ''
+                resource_data['last_name'] = r['last_name'] or ''
+                resource_data['email'] = r['email'] or ''
+                resource_data['phone'] = r['phone'] or ''
+            else:
+                resource_data['first_name'] = r['name'] or ''
+                resource_data['last_name'] = ''
+                resource_data['email'] = ''
+                resource_data['phone'] = ''
+            
+            resources_list.append(resource_data)
         
         return jsonify({
             'success': True,
@@ -2340,7 +2360,9 @@ def get_resources(current_user):
         
     except Exception as e:
         logger.error(f'Error getting resources: {e}')
-        return jsonify({'success': False, 'message': 'Failed to get resources'}), 500
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'message': f'Failed to get resources: {str(e)}'}), 500
 
 
 @app.route('/api/resources', methods=['POST'])
@@ -2352,8 +2374,22 @@ def save_resources(current_user):
         data = request.json
         incoming_resources = data.get('resources', [])
         
+        logger.info(f"Saving {len(incoming_resources)} resources")
+        
         conn = get_db()
         cursor = conn.cursor()
+        
+        # Check which columns exist in resources table
+        cursor.execute("PRAGMA table_info(resources)")
+        columns = [col[1] for col in cursor.fetchall()]
+        has_extended_fields = 'first_name' in columns
+        
+        logger.info(f"Resources table columns: {columns}")
+        logger.info(f"Has extended fields: {has_extended_fields}")
+        
+        # Check if resource_availability table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='resource_availability'")
+        has_availability_table = cursor.fetchone() is not None
         
         # Get existing resource IDs from incoming data
         existing_ids = []
@@ -2361,14 +2397,16 @@ def save_resources(current_user):
             if r.get('id') and r['id'] > 0:
                 existing_ids.append(r['id'])
         
-        # Delete resources that are no longer in the list (and their availability)
+        # Delete resources that are no longer in the list
         if existing_ids:
             placeholders = ','.join(['?' for _ in existing_ids])
-            cursor.execute(f'DELETE FROM resource_availability WHERE resource_id NOT IN ({placeholders})', existing_ids)
+            if has_availability_table:
+                cursor.execute(f'DELETE FROM resource_availability WHERE resource_id NOT IN ({placeholders})', existing_ids)
             cursor.execute(f'DELETE FROM resources WHERE id NOT IN ({placeholders})', existing_ids)
         else:
-            # If no existing IDs, delete all (user removed everything)
-            cursor.execute('DELETE FROM resource_availability')
+            # If no existing IDs, delete all (user removed everything or adding new)
+            if has_availability_table:
+                cursor.execute('DELETE FROM resource_availability')
             cursor.execute('DELETE FROM resources')
         
         # Update existing and create new resources
@@ -2376,46 +2414,74 @@ def save_resources(current_user):
             # Get name - use first_name if available, fall back to name
             name = r_data.get('first_name') or r_data.get('name') or 'Resource'
             
+            logger.info(f"Processing resource: {name} (id: {r_data.get('id')})")
+            
             if r_data.get('id') and r_data['id'] > 0:
                 # Update existing
-                cursor.execute('''
-                    UPDATE resources 
-                    SET name = ?, first_name = ?, last_name = ?, email = ?, phone = ?,
-                        morning = ?, afternoon = ?, evening = ?, active = ?, updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ''', (
-                    name,
-                    r_data.get('first_name', ''),
-                    r_data.get('last_name', ''),
-                    r_data.get('email', ''),
-                    r_data.get('phone', ''),
-                    1 if r_data.get('morning', True) else 0,
-                    1 if r_data.get('afternoon', True) else 0,
-                    1 if r_data.get('evening', False) else 0,
-                    1 if r_data.get('active', True) else 0,
-                    r_data['id']
-                ))
+                if has_extended_fields:
+                    cursor.execute('''
+                        UPDATE resources 
+                        SET name = ?, first_name = ?, last_name = ?, email = ?, phone = ?,
+                            morning = ?, afternoon = ?, evening = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ''', (
+                        name,
+                        r_data.get('first_name', ''),
+                        r_data.get('last_name', ''),
+                        r_data.get('email', ''),
+                        r_data.get('phone', ''),
+                        1 if r_data.get('morning', True) else 0,
+                        1 if r_data.get('afternoon', True) else 0,
+                        1 if r_data.get('evening', False) else 0,
+                        1 if r_data.get('active', True) else 0,
+                        r_data['id']
+                    ))
+                else:
+                    cursor.execute('''
+                        UPDATE resources 
+                        SET name = ?, morning = ?, afternoon = ?, evening = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ''', (
+                        name,
+                        1 if r_data.get('morning', True) else 0,
+                        1 if r_data.get('afternoon', True) else 0,
+                        1 if r_data.get('evening', False) else 0,
+                        1 if r_data.get('active', True) else 0,
+                        r_data['id']
+                    ))
             else:
                 # Create new
-                cursor.execute('''
-                    INSERT INTO resources (name, first_name, last_name, email, phone, morning, afternoon, evening, active)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    name,
-                    r_data.get('first_name', ''),
-                    r_data.get('last_name', ''),
-                    r_data.get('email', ''),
-                    r_data.get('phone', ''),
-                    1 if r_data.get('morning', True) else 0,
-                    1 if r_data.get('afternoon', True) else 0,
-                    1 if r_data.get('evening', False) else 0,
-                    1 if r_data.get('active', True) else 0
-                ))
+                if has_extended_fields:
+                    cursor.execute('''
+                        INSERT INTO resources (name, first_name, last_name, email, phone, morning, afternoon, evening, active)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        name,
+                        r_data.get('first_name', ''),
+                        r_data.get('last_name', ''),
+                        r_data.get('email', ''),
+                        r_data.get('phone', ''),
+                        1 if r_data.get('morning', True) else 0,
+                        1 if r_data.get('afternoon', True) else 0,
+                        1 if r_data.get('evening', False) else 0,
+                        1 if r_data.get('active', True) else 0
+                    ))
+                else:
+                    cursor.execute('''
+                        INSERT INTO resources (name, morning, afternoon, evening, active)
+                        VALUES (?, ?, ?, ?, ?)
+                    ''', (
+                        name,
+                        1 if r_data.get('morning', True) else 0,
+                        1 if r_data.get('afternoon', True) else 0,
+                        1 if r_data.get('evening', False) else 0,
+                        1 if r_data.get('active', True) else 0
+                    ))
         
         conn.commit()
         conn.close()
         
-        logger.info(f"Resources saved: {len(incoming_resources)} resources")
+        logger.info(f"Resources saved successfully: {len(incoming_resources)} resources")
         
         return jsonify({
             'success': True,
@@ -2424,7 +2490,9 @@ def save_resources(current_user):
         
     except Exception as e:
         logger.error(f'Error saving resources: {e}')
-        return jsonify({'success': False, 'message': 'Failed to save resources'}), 500
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'message': f'Failed to save resources: {str(e)}'}), 500
 
 
 # ============================================================
