@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect
 from flask_cors import CORS
 import sqlite3
 import bcrypt
@@ -41,7 +41,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # ============================================================
 # SECURITY CONFIGURATION - Use environment variables
@@ -1081,10 +1081,16 @@ This message was sent from the ICS website contact form.
         logger.error(f'Contact form error: {e}')
         return jsonify({'success': False, 'message': 'An error occurred. Please try again.'}), 500
 
-# API Info endpoint
+# API Info endpoint - now redirects to admin dashboard
 @app.route('/', methods=['GET'])
 def api_info():
-    """Root endpoint with API information"""
+    """Root endpoint - redirect to admin dashboard"""
+    return redirect('/admin_login.html')
+
+# API version info endpoint
+@app.route('/api', methods=['GET'])
+def api_version():
+    """API information endpoint"""
     return jsonify({
         'name': 'Intelligence Cleaning Services API',
         'version': '1.0.0',
@@ -2123,6 +2129,57 @@ def delete_user(current_user, user_id):
     except Exception as e:
         logger.error(f'Error deleting user: {e}')
         return jsonify({'success': False, 'message': 'Failed to delete user'}), 500
+
+# ============================================================
+# ADMIN DASHBOARD ROUTES - Serve HTML Pages
+# ============================================================
+
+@app.route('/admin_login.html')
+def admin_login():
+    """Serve admin login page"""
+    return render_template('admin_login.html')
+
+@app.route('/admin_bookings.html')
+def admin_bookings():
+    """Serve admin bookings page"""
+    return render_template('admin_bookings.html')
+
+@app.route('/admin_calendar.html')
+def admin_calendar():
+    """Serve admin calendar page"""
+    return render_template('admin_calendar.html')
+
+@app.route('/pricing_management.html')
+def pricing_management():
+    """Serve pricing management page"""
+    return render_template('pricing_management.html')
+
+@app.route('/user_management.html')
+def user_management():
+    """Serve user management page"""
+    return render_template('user_management.html')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files"""
+    return send_from_directory('static', filename)
+
+@app.route('/<path:filename>')
+def serve_file(filename):
+    """Serve any HTML file from templates directory"""
+    # Don't catch API routes
+    if filename.startswith('api/'):
+        return jsonify({'error': 'Not found'}), 404
+    if filename.endswith('.html'):
+        try:
+            return render_template(filename)
+        except:
+            return jsonify({'error': 'Page not found'}), 404
+    # Try to serve from current directory (for logo, etc.)
+    try:
+        return send_from_directory('.', filename)
+    except:
+        return jsonify({'error': 'File not found'}), 404
 
 # ============================================================
 # MAIN - Production Ready
