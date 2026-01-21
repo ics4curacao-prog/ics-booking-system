@@ -2442,11 +2442,15 @@
                     </div>
                 </div>
 
-                <div class="resource-note" style="background: #fff3cd; border-color: #ffc107;">
-                    <strong>⚠️ Important - How Availability Works:</strong>
-                    Resources are <strong>unavailable by default</strong>. You must use the 📅 Calendar button on each resource 
-                    to explicitly mark which days and time slots are available for bookings. Only days saved in the calendar 
-                    will show as available to customers.
+                <div class="resource-note" style="background: #d4edda; border-color: #28a745;">
+                    <strong>✅ Default Availability Schedule:</strong>
+                    Resources are <strong>available by default</strong> with the following schedule:
+                    <ul style="margin: 8px 0 0 20px; padding: 0;">
+                        <li><strong>Monday - Friday:</strong> Morning (2 slots), Afternoon (2 slots), Evening (1 slot)</li>
+                        <li><strong>Saturday:</strong> Morning only (2 slots)</li>
+                        <li><strong>Sunday:</strong> Closed</li>
+                    </ul>
+                    <p style="margin-top: 8px; margin-bottom: 0;">Use the 📅 Calendar button on each resource to <strong>override</strong> specific days if needed (e.g., mark someone as unavailable for vacation).</p>
                 </div>
             </div>
         </div>
@@ -4121,19 +4125,29 @@
                 const isToday = date.getTime() === today.getTime();
                 const isSelected = selectedCalendarDates.includes(dateStr);
                 const hasCustom = resourceAvailability.hasOwnProperty(dateStr); // Check if day has saved availability
+                const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, ... 6=Saturday
                 
-                // DEFAULT IS UNAVAILABLE - only days explicitly saved are available
-                const dayAvail = resourceAvailability[dateStr] || {
-                    morning: false,
-                    afternoon: false,
-                    evening: false
-                };
+                // DEFAULT TO AVAILABLE based on day of week
+                // Monday-Friday: morning, afternoon, evening
+                // Saturday: morning only
+                // Sunday: closed
+                let defaultAvail;
+                if (dayOfWeek === 0) { // Sunday
+                    defaultAvail = { morning: false, afternoon: false, evening: false };
+                } else if (dayOfWeek === 6) { // Saturday
+                    defaultAvail = { morning: true, afternoon: false, evening: false };
+                } else { // Monday-Friday
+                    defaultAvail = { morning: true, afternoon: true, evening: true };
+                }
+                
+                // Use saved availability if exists, otherwise use default
+                const dayAvail = resourceAvailability[dateStr] || defaultAvail;
                 
                 const hasAny = dayAvail.morning || dayAvail.afternoon || dayAvail.evening;
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
                 if (isSelected) classes += ' selected';
-                if (hasCustom) classes += ' has-custom'; // Days with saved availability
+                if (hasCustom) classes += ' has-custom'; // Days with saved (override) availability
                 if (hasAny) classes += ' has-availability';
                 else classes += ' no-availability';
                 
@@ -4185,11 +4199,21 @@
             // Set checkboxes based on first selected date
             if (selectedCalendarDates.length > 0) {
                 const firstDate = selectedCalendarDates[0];
-                const dayAvail = resourceAvailability[firstDate] || {
-                    morning: currentCalendarResource?.morning,
-                    afternoon: currentCalendarResource?.afternoon,
-                    evening: currentCalendarResource?.evening
-                };
+                const dateObj = new Date(firstDate + 'T00:00:00');
+                const dayOfWeek = dateObj.getDay(); // 0=Sunday, 6=Saturday
+                
+                // Get default availability based on day of week
+                let defaultAvail;
+                if (dayOfWeek === 0) { // Sunday
+                    defaultAvail = { morning: false, afternoon: false, evening: false };
+                } else if (dayOfWeek === 6) { // Saturday
+                    defaultAvail = { morning: true, afternoon: false, evening: false };
+                } else { // Monday-Friday
+                    defaultAvail = { morning: true, afternoon: true, evening: true };
+                }
+                
+                // Use saved availability if exists, otherwise use default
+                const dayAvail = resourceAvailability[firstDate] || defaultAvail;
                 
                 document.getElementById('dayMorning').checked = dayAvail.morning;
                 document.getElementById('dayAfternoon').checked = dayAvail.afternoon;
@@ -4238,13 +4262,27 @@
         }
 
         function resetDaysToDefault() {
-            if (selectedCalendarDates.length === 0 || !currentCalendarResource) return;
+            if (selectedCalendarDates.length === 0) return;
             
-            document.getElementById('dayMorning').checked = currentCalendarResource.morning;
-            document.getElementById('dayAfternoon').checked = currentCalendarResource.afternoon;
-            document.getElementById('dayEvening').checked = currentCalendarResource.evening;
+            // Get default availability for the first selected date based on day of week
+            const firstDate = selectedCalendarDates[0];
+            const dateObj = new Date(firstDate + 'T00:00:00');
+            const dayOfWeek = dateObj.getDay(); // 0=Sunday, 6=Saturday
             
-            // Remove custom availability for all selected dates
+            let defaultAvail;
+            if (dayOfWeek === 0) { // Sunday
+                defaultAvail = { morning: false, afternoon: false, evening: false };
+            } else if (dayOfWeek === 6) { // Saturday
+                defaultAvail = { morning: true, afternoon: false, evening: false };
+            } else { // Monday-Friday
+                defaultAvail = { morning: true, afternoon: true, evening: true };
+            }
+            
+            document.getElementById('dayMorning').checked = defaultAvail.morning;
+            document.getElementById('dayAfternoon').checked = defaultAvail.afternoon;
+            document.getElementById('dayEvening').checked = defaultAvail.evening;
+            
+            // Remove custom availability for all selected dates (reverts to default)
             selectedCalendarDates.forEach(dateStr => {
                 delete resourceAvailability[dateStr];
             });

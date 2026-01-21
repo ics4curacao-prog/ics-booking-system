@@ -132,6 +132,22 @@ else:
     logger.info(f"Contact form email configured with sender: {CONTACT_EMAIL_CONFIG['sender_email']}")
 
 # ============================================================
+# DEFAULT AVAILABILITY CONFIGURATION
+# ============================================================
+# Default slot availability by day of week (when no resources are configured)
+# Monday=0, Tuesday=1, Wednesday=2, Thursday=3, Friday=4, Saturday=5, Sunday=6
+
+DEFAULT_AVAILABILITY = {
+    0: {'morning': 2, 'afternoon': 2, 'evening': 1},  # Monday
+    1: {'morning': 2, 'afternoon': 2, 'evening': 1},  # Tuesday
+    2: {'morning': 2, 'afternoon': 2, 'evening': 1},  # Wednesday
+    3: {'morning': 2, 'afternoon': 2, 'evening': 1},  # Thursday
+    4: {'morning': 2, 'afternoon': 2, 'evening': 1},  # Friday
+    5: {'morning': 2, 'afternoon': 0, 'evening': 0},  # Saturday (morning only)
+    6: {'morning': 0, 'afternoon': 0, 'evening': 0},  # Sunday (closed)
+}
+
+# ============================================================
 # DATABASE FUNCTIONS
 # ============================================================
 
@@ -431,34 +447,59 @@ run_migrations()
 def get_slot_limits(date=None):
     """
     Calculate maximum slots for each time period based on active resources.
-    IMPORTANT: Only dates explicitly marked as available in resource_availability table are counted.
-    Resources are unavailable by default - they must have explicit calendar entries to be available.
+    
+    DEFAULT TO AVAILABLE: Resources are available by default based on day of week:
+    - Monday-Friday: 2 morning, 2 afternoon, 1 evening
+    - Saturday: 2 morning only
+    - Sunday: Closed (0 slots)
+    
+    If resources ARE configured:
+    - Uses resource default slots UNLESS there's an override in resource_availability
+    - resource_availability entries OVERRIDE the resource's default availability
+    
     Returns dict with morning, afternoon, evening slot counts.
     """
     try:
         conn = get_db()
         cursor = conn.cursor()
         
+        # If no date provided, return default weekday availability
+        if not date:
+            conn.close()
+            return DEFAULT_AVAILABILITY[0].copy()  # Monday defaults
+        
+        # Parse the date to get day of week
+        try:
+            date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+            day_of_week = date_obj.weekday()  # 0=Monday, 6=Sunday
+        except ValueError:
+            logger.error(f"Invalid date format: {date}")
+            conn.close()
+            return DEFAULT_AVAILABILITY[0].copy()
+        
+        # Get default availability for this day of week
+        default_for_day = DEFAULT_AVAILABILITY.get(day_of_week, DEFAULT_AVAILABILITY[0])
+        
+        # Get all active resources
+        cursor.execute('SELECT id, morning, afternoon, evening FROM resources WHERE active = 1')
+        resources = cursor.fetchall()
+        
+        # If no resources configured, return default availability for the day of week
+        if not resources:
+            conn.close()
+            return default_for_day.copy()
+        
+        # Calculate limits based on resources
         limits = {
             'morning': 0,
             'afternoon': 0,
             'evening': 0
         }
         
-        # If no date provided, return zeros (no availability without specific date)
-        if not date:
-            conn.close()
-            return limits
-        
-        # Get all active resources
-        cursor.execute('SELECT id FROM resources WHERE active = 1')
-        resources = cursor.fetchall()
-        
         for resource in resources:
             resource_id = resource['id']
             
-            # ONLY check for explicit availability entry for this date
-            # If no entry exists, resource is NOT available for this date
+            # Check for explicit availability override for this date
             cursor.execute('''
                 SELECT morning, afternoon, evening 
                 FROM resource_availability 
@@ -467,17 +508,32 @@ def get_slot_limits(date=None):
             availability = cursor.fetchone()
             
             if availability:
-                # Only count slots that are explicitly marked as available
+                # Use override values if they exist
                 if availability['morning']:
                     limits['morning'] += 1
                 if availability['afternoon']:
                     limits['afternoon'] += 1
                 if availability['evening']:
                     limits['evening'] += 1
-            # If no entry exists, this resource is NOT available for this date
+            else:
+                # No override - use resource's default availability
+                # But also respect the day of week (e.g., no evening on Saturday/Sunday)
+                if day_of_week == 6:  # Sunday - closed
+                    pass  # Don't add any slots
+                elif day_of_week == 5:  # Saturday - morning only
+                    if resource['morning']:
+                        limits['morning'] += 1
+                else:  # Monday-Friday - use resource defaults
+                    if resource['morning']:
+                        limits['morning'] += 1
+                    if resource['afternoon']:
+                        limits['afternoon'] += 1
+                    if resource['evening']:
+                        limits['evening'] += 1
         
         conn.close()
         return limits
+        
     except Exception as e:
         logger.error(f"Error getting slot limits: {e}")
         # Return defaults on error
@@ -486,7 +542,6 @@ def get_slot_limits(date=None):
             'afternoon': 2,
             'evening': 1
         }
-
 # ============================================================
 # PDF INVOICE GENERATION - A4 Optimized (210mm x 297mm)
 # Margins: 15mm sides, 12mm top/bottom for print-friendly output
