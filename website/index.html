@@ -2826,46 +2826,6 @@
                             </div>
                         </div>
 
-                        <!-- Date and Time Selection -->
-                        <div class="form-section">
-                            <h4 class="form-section-title">📅 Date & Time</h4>
-                            <div class="form-group">
-                                <label for="booking-date" id="label-booking-date">Select Date</label>
-                                <input type="date" id="booking-date" required>
-                            </div>
-                            <label id="label-time-slot" style="display: block; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary); font-weight: 600;">Select Time Slot</label>
-                            <div id="availability-status" class="availability-loading" style="display: none;">
-                                Checking availability...
-                            </div>
-                            <div class="time-slots">
-                                <div class="time-slot" data-slot="morning">
-                                    <div class="slot-icon">🌅</div>
-                                    <div class="slot-name">Morning</div>
-                                    <div class="slot-time">8:00 AM - 12:00 PM</div>
-                                    <div class="slot-availability available" data-slot-badge="morning">
-                                        2 slots available
-                                    </div>
-                                </div>
-                                <div class="time-slot" data-slot="afternoon">
-                                    <div class="slot-icon">☀️</div>
-                                    <div class="slot-name">Afternoon</div>
-                                    <div class="slot-time">12:00 PM - 5:00 PM</div>
-                                    <div class="slot-availability available" data-slot-badge="afternoon">
-                                        2 slots available
-                                    </div>
-                                </div>
-                                <div class="time-slot" data-slot="evening">
-                                    <div class="slot-icon">🌙</div>
-                                    <div class="slot-name">Evening</div>
-                                    <div class="slot-time">5:00 PM - 8:00 PM</div>
-                                    <div class="slot-availability available" data-slot-badge="evening">
-                                        1 slot available
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" id="selected-timeslot" required>
-                        </div>
-
                         <!-- Cleaning Address -->
                         <div class="form-section">
                             <h4 class="form-section-title">📍 Service Address</h4>
@@ -3126,6 +3086,46 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Date and Time Selection -->
+                        <div class="form-section">
+                            <h4 class="form-section-title">📅 Date & Time</h4>
+                            <div class="form-group">
+                                <label for="booking-date" id="label-booking-date">Select Date</label>
+                                <input type="date" id="booking-date" required>
+                            </div>
+                            <label id="label-time-slot" style="display: block; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary); font-weight: 600;">Select Time Slot</label>
+                            <div id="availability-status" class="availability-loading" style="display: none;">
+                                Checking availability...
+                            </div>
+                            <div class="time-slots">
+                                <div class="time-slot" data-slot="morning">
+                                    <div class="slot-icon">🌅</div>
+                                    <div class="slot-name">Morning</div>
+                                    <div class="slot-time">8:00 AM - 12:00 PM</div>
+                                    <div class="slot-availability available" data-slot-badge="morning">
+                                        2 slots available
+                                    </div>
+                                </div>
+                                <div class="time-slot" data-slot="afternoon">
+                                    <div class="slot-icon">☀️</div>
+                                    <div class="slot-name">Afternoon</div>
+                                    <div class="slot-time">12:00 PM - 5:00 PM</div>
+                                    <div class="slot-availability available" data-slot-badge="afternoon">
+                                        2 slots available
+                                    </div>
+                                </div>
+                                <div class="time-slot" data-slot="evening">
+                                    <div class="slot-icon">🌙</div>
+                                    <div class="slot-name">Evening</div>
+                                    <div class="slot-time">5:00 PM - 8:00 PM</div>
+                                    <div class="slot-availability available" data-slot-badge="evening">
+                                        1 slot available
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selected-timeslot" required>
                         </div>
 
                         <!-- Cost Summary -->
