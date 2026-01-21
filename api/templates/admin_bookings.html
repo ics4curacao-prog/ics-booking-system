@@ -2123,7 +2123,7 @@
                     <div class="calendar-actions">
                         <button class="btn btn-secondary" onclick="clearCalendarSelection()">✕ Clear</button>
                         <button class="btn btn-secondary" onclick="resetDaysToDefault()">↺ Reset to Default</button>
-                        <button class="btn btn-save-resources" onclick="saveDaysAvailability()">💾 <span id="saveBtnText">Save Day</span></button>
+                        <button class="btn btn-save-resources" id="saveDaysBtn" onclick="console.log('Save button clicked'); saveDaysAvailability();">💾 <span id="saveBtnText">Save Day</span></button>
                     </div>
                 </div>
 
@@ -3617,8 +3617,13 @@
         }
 
         async function saveDaysAvailability() {
+            console.log('saveDaysAvailability called');
+            console.log('Selected dates:', selectedCalendarDates);
+            console.log('Current resource:', currentCalendarResource);
+            
             if (selectedCalendarDates.length === 0 || !currentCalendarResource) {
                 toast('Please select at least one day', 'warning');
+                console.log('Early return: no dates or no resource');
                 return;
             }
             
@@ -3626,21 +3631,38 @@
             const afternoon = document.getElementById('dayAfternoon').checked;
             const evening = document.getElementById('dayEvening').checked;
             
+            console.log('Availability settings:', { morning, afternoon, evening });
+            
             // Update local cache for all selected dates
             selectedCalendarDates.forEach(dateStr => {
                 resourceAvailability[dateStr] = { morning, afternoon, evening };
             });
             
-            if (currentCalendarResource.id < 0) {
+            // Check if resource has valid ID
+            if (!currentCalendarResource.id || currentCalendarResource.id < 0) {
                 toast('Save the resource first to persist calendar changes', 'info');
+                console.log('Early return: resource ID invalid', currentCalendarResource.id);
                 renderCalendar();
                 return;
             }
             
             const token = checkAuth();
-            if (!token) return;
+            if (!token) {
+                console.log('Early return: no auth token');
+                return;
+            }
+
+            // Show loading state
+            const saveBtn = document.querySelector('#dayEditPanel .btn-save-resources');
+            const originalText = saveBtn ? saveBtn.innerHTML : '';
+            if (saveBtn) {
+                saveBtn.innerHTML = '⏳ Saving...';
+                saveBtn.disabled = true;
+            }
 
             try {
+                console.log('Starting API calls to:', `${API_URL}/api/resources/${currentCalendarResource.id}/availability`);
+                
                 // Save all selected dates
                 const savePromises = selectedCalendarDates.map(dateStr => 
                     fetch(`${API_URL}/api/resources/${currentCalendarResource.id}/availability`, {
@@ -3653,22 +3675,35 @@
                             date: dateStr,
                             morning, afternoon, evening
                         })
+                    }).then(async response => {
+                        const data = await response.json().catch(() => ({}));
+                        console.log(`Save result for ${dateStr}:`, response.status, data);
+                        return { response, data, dateStr };
                     })
                 );
                 
                 const results = await Promise.all(savePromises);
-                const allSuccessful = results.every(r => r.ok);
+                const allSuccessful = results.every(r => r.response.ok);
 
                 if (allSuccessful) {
                     const count = selectedCalendarDates.length;
                     toast(`Saved availability for ${count} day${count > 1 ? 's' : ''}!`, 'success');
+                    console.log('All saves successful');
                     renderCalendar();
                 } else {
-                    toast('Some days failed to save', 'error');
+                    const failed = results.filter(r => !r.response.ok);
+                    console.error('Failed saves:', failed);
+                    toast(`Failed to save ${failed.length} day(s)`, 'error');
                 }
             } catch (error) {
                 console.error('Error saving day availability:', error);
-                toast('Network error', 'error');
+                toast('Network error: ' + error.message, 'error');
+            } finally {
+                // Restore button state
+                if (saveBtn) {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                }
             }
         }
 
