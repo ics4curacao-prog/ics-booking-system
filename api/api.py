@@ -283,6 +283,20 @@ def init_database():
         )
     ''')
     
+    # Create resources table for slot management
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS resources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            morning INTEGER DEFAULT 1,
+            afternoon INTEGER DEFAULT 1,
+            evening INTEGER DEFAULT 0,
+            active INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     conn.commit()
     
     # Check if admin user exists, create if not
@@ -341,6 +355,55 @@ init_database()
 
 # THEN run migrations to add any missing columns
 run_migrations()
+
+# ============================================================
+# HELPER FUNCTION - Get Slot Limits from Resources
+# ============================================================
+
+def get_slot_limits():
+    """
+    Calculate maximum slots for each time period based on active resources.
+    Returns dict with morning, afternoon, evening slot counts.
+    """
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT morning, afternoon, evening FROM resources WHERE active = 1')
+        resources = cursor.fetchall()
+        conn.close()
+        
+        limits = {
+            'morning': 0,
+            'afternoon': 0,
+            'evening': 0
+        }
+        
+        for resource in resources:
+            if resource['morning']:
+                limits['morning'] += 1
+            if resource['afternoon']:
+                limits['afternoon'] += 1
+            if resource['evening']:
+                limits['evening'] += 1
+        
+        # If no resources configured, use defaults
+        if limits['morning'] == 0 and limits['afternoon'] == 0 and limits['evening'] == 0:
+            limits = {
+                'morning': 2,
+                'afternoon': 2,
+                'evening': 1
+            }
+        
+        return limits
+    except Exception as e:
+        logger.error(f"Error getting slot limits: {e}")
+        # Return defaults on error
+        return {
+            'morning': 2,
+            'afternoon': 2,
+            'evening': 1
+        }
 
 # ============================================================
 # PDF INVOICE GENERATION - A4 Optimized (210mm x 297mm)
@@ -1358,12 +1421,8 @@ def check_availability():
         conn = get_db()
         cursor = conn.cursor()
         
-        # Define slot limits
-        slot_limits = {
-            'morning': 2,
-            'afternoon': 2,
-            'evening': 1
-        }
+        # Get dynamic slot limits from resources
+        slot_limits = get_slot_limits()
         
         # Count existing bookings for each slot on this date
         availability = {}
@@ -2162,6 +2221,126 @@ def delete_user(current_user, user_id):
     except Exception as e:
         logger.error(f'Error deleting user: {e}')
         return jsonify({'success': False, 'message': 'Failed to delete user'}), 500
+
+# ============================================================
+# RESOURCE MANAGEMENT ENDPOINTS
+# ============================================================
+
+@app.route('/api/resources', methods=['GET'])
+@token_required
+def get_resources(current_user):
+    """Get all resources (requires authentication)"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM resources ORDER BY name')
+        resources = cursor.fetchall()
+        conn.close()
+        
+        resources_list = []
+        for r in resources:
+            resources_list.append({
+                'id': r['id'],
+                'name': r['name'],
+                'morning': bool(r['morning']),
+                'afternoon': bool(r['afternoon']),
+                'evening': bool(r['evening']),
+                'active': bool(r['active'])
+            })
+        
+        return jsonify({
+            'success': True,
+            'resources': resources_list
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error getting resources: {e}')
+        return jsonify({'success': False, 'message': 'Failed to get resources'}), 500
+
+
+@app.route('/api/resources', methods=['POST'])
+@token_required
+@admin_required
+def save_resources(current_user):
+    """Save resources - bulk create/update/delete (admin only)"""
+    try:
+        data = request.json
+        incoming_resources = data.get('resources', [])
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Get existing resource IDs from incoming data
+        existing_ids = []
+        for r in incoming_resources:
+            if r.get('id') and r['id'] > 0:
+                existing_ids.append(r['id'])
+        
+        # Delete resources that are no longer in the list
+        if existing_ids:
+            placeholders = ','.join(['?' for _ in existing_ids])
+            cursor.execute(f'DELETE FROM resources WHERE id NOT IN ({placeholders})', existing_ids)
+        else:
+            # If no existing IDs, delete all (user removed everything)
+            cursor.execute('DELETE FROM resources')
+        
+        # Update existing and create new resources
+        for r_data in incoming_resources:
+            if r_data.get('id') and r_data['id'] > 0:
+                # Update existing
+                cursor.execute('''
+                    UPDATE resources 
+                    SET name = ?, morning = ?, afternoon = ?, evening = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ''', (
+                    r_data.get('name', 'Resource'),
+                    1 if r_data.get('morning', True) else 0,
+                    1 if r_data.get('afternoon', True) else 0,
+                    1 if r_data.get('evening', False) else 0,
+                    1 if r_data.get('active', True) else 0,
+                    r_data['id']
+                ))
+            else:
+                # Create new
+                cursor.execute('''
+                    INSERT INTO resources (name, morning, afternoon, evening, active)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (
+                    r_data.get('name', 'New Resource'),
+                    1 if r_data.get('morning', True) else 0,
+                    1 if r_data.get('afternoon', True) else 0,
+                    1 if r_data.get('evening', False) else 0,
+                    1 if r_data.get('active', True) else 0
+                ))
+        
+        conn.commit()
+        conn.close()
+        
+        logger.info(f"Resources saved: {len(incoming_resources)} resources")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Resources saved successfully'
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error saving resources: {e}')
+        return jsonify({'success': False, 'message': 'Failed to save resources'}), 500
+
+
+@app.route('/api/slot-limits', methods=['GET'])
+def get_public_slot_limits():
+    """Get current slot limits (public endpoint - no auth required)"""
+    try:
+        limits = get_slot_limits()
+        return jsonify({
+            'success': True,
+            'limits': limits
+        }), 200
+    except Exception as e:
+        logger.error(f'Error getting slot limits: {e}')
+        return jsonify({'success': False, 'message': 'Failed to get slot limits'}), 500
 
 # ============================================================
 # ADMIN DASHBOARD ROUTES - Serve HTML Pages
