@@ -2312,11 +2312,11 @@
                     <!-- Resource cards will be dynamically loaded -->
                 </div>
 
-                <div class="resource-note">
-                    <strong>ℹ️ How Slot Calculation Works:</strong>
-                    The maximum available slots shown to customers are calculated by counting active resources 
-                    available for each time period. Use the 📅 Calendar button on each resource to set 
-                    day-specific availability (e.g., for days off or special schedules).
+                <div class="resource-note" style="background: #fff3cd; border-color: #ffc107;">
+                    <strong>⚠️ Important - How Availability Works:</strong>
+                    Resources are <strong>unavailable by default</strong>. You must use the 📅 Calendar button on each resource 
+                    to explicitly mark which days and time slots are available for bookings. Only days saved in the calendar 
+                    will show as available to customers.
                 </div>
             </div>
         </div>
@@ -2369,7 +2369,7 @@
                     <div class="legend-item"><span class="morning"></span> Morning</div>
                     <div class="legend-item"><span class="afternoon"></span> Afternoon</div>
                     <div class="legend-item"><span class="evening"></span> Evening</div>
-                    <div class="legend-item"><span style="color: #667eea; font-weight: bold;">★</span> Custom (saved)</div>
+                    <div class="legend-item"><span style="color: #667eea; font-weight: bold;">★</span> Availability saved</div>
                     <div class="legend-item" style="margin-left: auto; color: #888; font-style: italic;">
                         <kbd style="background: #e9ecef; padding: 2px 5px; border-radius: 3px; font-size: 0.85em;">Ctrl</kbd> + Click = multi-select
                     </div>
@@ -3812,12 +3812,13 @@
                         const color = resourceColors[index % resourceColors.length];
                         const initial = (resource.first_name || resource.name || 'R').charAt(0).toUpperCase();
                         
-                        // Get availability for this day
+                        // Get availability for this day - DEFAULT IS UNAVAILABLE
+                        // Only days explicitly saved in calendar are available
                         const resAvail = allResourcesAvailability[resource.id];
                         const dayAvail = resAvail && resAvail[dateStr] ? resAvail[dateStr] : {
-                            morning: resource.morning,
-                            afternoon: resource.afternoon,
-                            evening: resource.evening
+                            morning: false,
+                            afternoon: false,
+                            evening: false
                         };
                         
                         return `
@@ -3930,12 +3931,13 @@
                 const dateStr = formatDateStr(date);
                 const isToday = date.getTime() === today.getTime();
                 const isSelected = selectedCalendarDates.includes(dateStr);
-                const hasCustom = resourceAvailability.hasOwnProperty(dateStr); // Check if day has saved custom availability
+                const hasCustom = resourceAvailability.hasOwnProperty(dateStr); // Check if day has saved availability
                 
+                // DEFAULT IS UNAVAILABLE - only days explicitly saved are available
                 const dayAvail = resourceAvailability[dateStr] || {
-                    morning: currentCalendarResource?.morning,
-                    afternoon: currentCalendarResource?.afternoon,
-                    evening: currentCalendarResource?.evening
+                    morning: false,
+                    afternoon: false,
+                    evening: false
                 };
                 
                 const hasAny = dayAvail.morning || dayAvail.afternoon || dayAvail.evening;

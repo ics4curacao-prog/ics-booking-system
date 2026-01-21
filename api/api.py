@@ -431,16 +431,13 @@ run_migrations()
 def get_slot_limits(date=None):
     """
     Calculate maximum slots for each time period based on active resources.
-    If date is provided, uses day-specific availability overrides.
+    IMPORTANT: Only dates explicitly marked as available in resource_availability table are counted.
+    Resources are unavailable by default - they must have explicit calendar entries to be available.
     Returns dict with morning, afternoon, evening slot counts.
     """
     try:
         conn = get_db()
         cursor = conn.cursor()
-        
-        # Get all active resources with their default availability
-        cursor.execute('SELECT id, morning, afternoon, evening FROM resources WHERE active = 1')
-        resources = cursor.fetchall()
         
         limits = {
             'morning': 0,
@@ -448,54 +445,38 @@ def get_slot_limits(date=None):
             'evening': 0
         }
         
+        # If no date provided, return zeros (no availability without specific date)
+        if not date:
+            conn.close()
+            return limits
+        
+        # Get all active resources
+        cursor.execute('SELECT id FROM resources WHERE active = 1')
+        resources = cursor.fetchall()
+        
         for resource in resources:
             resource_id = resource['id']
             
-            # Check if there's a day-specific override for this resource
-            if date:
-                cursor.execute('''
-                    SELECT morning, afternoon, evening 
-                    FROM resource_availability 
-                    WHERE resource_id = ? AND date = ?
-                ''', (resource_id, date))
-                override = cursor.fetchone()
-                
-                if override:
-                    # Use the override values
-                    if override['morning']:
-                        limits['morning'] += 1
-                    if override['afternoon']:
-                        limits['afternoon'] += 1
-                    if override['evening']:
-                        limits['evening'] += 1
-                    continue
+            # ONLY check for explicit availability entry for this date
+            # If no entry exists, resource is NOT available for this date
+            cursor.execute('''
+                SELECT morning, afternoon, evening 
+                FROM resource_availability 
+                WHERE resource_id = ? AND date = ?
+            ''', (resource_id, date))
+            availability = cursor.fetchone()
             
-            # Use default availability
-            if resource['morning']:
-                limits['morning'] += 1
-            if resource['afternoon']:
-                limits['afternoon'] += 1
-            if resource['evening']:
-                limits['evening'] += 1
+            if availability:
+                # Only count slots that are explicitly marked as available
+                if availability['morning']:
+                    limits['morning'] += 1
+                if availability['afternoon']:
+                    limits['afternoon'] += 1
+                if availability['evening']:
+                    limits['evening'] += 1
+            # If no entry exists, this resource is NOT available for this date
         
         conn.close()
-        
-        # If no resources configured, use defaults
-        if limits['morning'] == 0 and limits['afternoon'] == 0 and limits['evening'] == 0:
-            # Check if there are any resources at all
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) as count FROM resources WHERE active = 1')
-            count = cursor.fetchone()['count']
-            conn.close()
-            
-            if count == 0:
-                limits = {
-                    'morning': 2,
-                    'afternoon': 2,
-                    'evening': 1
-                }
-        
         return limits
     except Exception as e:
         logger.error(f"Error getting slot limits: {e}")
