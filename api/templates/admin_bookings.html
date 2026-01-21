@@ -1213,6 +1213,11 @@
             background: #5a6fd6;
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 15px 5px rgba(102, 126, 234, 0.4); }
+        }
+
         .btn-remove-resource {
             background: #e74c3c;
             color: white;
@@ -3391,6 +3396,11 @@
             selectedCalendarDates = []; // Reset multi-select array
             resourceAvailability = {};
             
+            // Warn if resource not saved yet
+            if (!currentCalendarResource.id || currentCalendarResource.id < 0) {
+                toast('⚠️ Save this resource first to enable calendar functionality', 'warning');
+            }
+            
             document.getElementById('calendarResourceName').textContent = 
                 (currentCalendarResource.first_name || currentCalendarResource.name || 'Resource') + 
                 ' ' + (currentCalendarResource.last_name || '');
@@ -3638,11 +3648,23 @@
                 resourceAvailability[dateStr] = { morning, afternoon, evening };
             });
             
-            // Check if resource has valid ID
+            // Check if resource has valid ID (unsaved resources have negative IDs)
             if (!currentCalendarResource.id || currentCalendarResource.id < 0) {
-                toast('Save the resource first to persist calendar changes', 'info');
-                console.log('Early return: resource ID invalid', currentCalendarResource.id);
-                renderCalendar();
+                console.log('Resource not saved yet, ID:', currentCalendarResource.id);
+                
+                // Offer to save the resource first
+                if (confirm('This resource needs to be saved to the database first before setting calendar availability.\n\nClick OK to save the resource now, or Cancel to go back.')) {
+                    // Close calendar modal and trigger resource save
+                    closeCalendarModal();
+                    toast('Please click "Save All Changes" to save resources first', 'info');
+                    
+                    // Highlight the save button
+                    const saveBtn = document.querySelector('.btn-save-resources');
+                    if (saveBtn) {
+                        saveBtn.style.animation = 'pulse 0.5s ease-in-out 3';
+                        setTimeout(() => saveBtn.style.animation = '', 1500);
+                    }
+                }
                 return;
             }
             
