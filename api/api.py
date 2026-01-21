@@ -2135,27 +2135,27 @@ def delete_user(current_user, user_id):
 # ============================================================
 
 @app.route('/admin_login.html')
-def admin_login():
+def serve_admin_login_page():
     """Serve admin login page"""
     return render_template('admin_login.html')
 
 @app.route('/admin_bookings.html')
-def admin_bookings():
+def serve_admin_bookings_page():
     """Serve admin bookings page"""
     return render_template('admin_bookings.html')
 
 @app.route('/admin_calendar.html')
-def admin_calendar():
+def serve_admin_calendar_page():
     """Serve admin calendar page"""
     return render_template('admin_calendar.html')
 
 @app.route('/pricing_management.html')
-def pricing_management():
+def serve_pricing_management_page():
     """Serve pricing management page"""
     return render_template('pricing_management.html')
 
 @app.route('/user_management.html')
-def user_management():
+def serve_user_management_page():
     """Serve user management page"""
     return render_template('user_management.html')
 
