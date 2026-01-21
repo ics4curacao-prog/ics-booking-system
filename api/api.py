@@ -1274,11 +1274,11 @@ def admin_dashboard(current_user):
         cursor.execute('SELECT COUNT(*) as count FROM bookings WHERE booking_date = ?', (today,))
         today_bookings = cursor.fetchone()['count']
         
-        # Total revenue (from confirmed/completed bookings)
+        # Total revenue (only from completed bookings)
         cursor.execute("""
             SELECT COALESCE(SUM(total_cost), 0) as revenue 
             FROM bookings 
-            WHERE status IN ('confirmed', 'completed')
+            WHERE status = 'completed'
         """)
         total_revenue = cursor.fetchone()['revenue']
         
