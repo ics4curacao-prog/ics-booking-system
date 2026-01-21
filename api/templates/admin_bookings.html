@@ -1241,113 +1241,6 @@
             margin: 10px 0;
         }
 
-        /* Booking Settings Section */
-        .booking-settings-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 2px solid #667eea;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 25px;
-        }
-
-        .booking-settings-section h3 {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 1.1em;
-        }
-
-        .setting-row {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .setting-info {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .setting-info label {
-            font-weight: 600;
-            color: #333;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .setting-description {
-            font-size: 0.85em;
-            color: #666;
-            margin: 0;
-        }
-
-        .setting-input {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .setting-input input {
-            width: 100px;
-            padding: 10px 12px;
-            border: 2px solid #667eea;
-            border-radius: 6px;
-            font-size: 1.1em;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .setting-input input:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-
-        .input-suffix {
-            font-weight: 500;
-            color: #666;
-        }
-
-        .btn-save-setting {
-            background: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-save-setting:hover {
-            background: #218838;
-        }
-
-        .setting-example {
-            background: #e8f4fd;
-            border-left: 4px solid #667eea;
-            padding: 12px 15px;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.9em;
-        }
-
-        .setting-example strong {
-            color: #333;
-        }
-
-        .setting-example ul {
-            margin: 8px 0 0 20px;
-            padding: 0;
-        }
-
-        .setting-example li {
-            margin: 5px 0;
-            color: #555;
-        }
-
         .resource-note {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -1642,6 +1535,217 @@
         .legend-item span.morning { background: #e67e22; }
         .legend-item span.afternoon { background: #f1c40f; }
         .legend-item span.evening { background: #9b59b6; }
+        .legend-item span.unavailable { background: #ccc; }
+
+        /* Team Calendar Modal Styles */
+        .team-calendar-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 3000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .team-calendar-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .team-calendar-container {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .team-calendar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .team-calendar-header h2 {
+            margin: 0;
+            font-size: 1.4em;
+        }
+
+        .team-calendar-content {
+            padding: 25px;
+        }
+
+        .team-calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .team-calendar-nav .current-month {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .team-resource-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .resource-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .resource-tag .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .team-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .team-calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            padding: 10px 5px;
+            font-size: 0.9em;
+        }
+
+        .team-calendar-day {
+            min-height: 100px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .team-calendar-day:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .team-calendar-day.other-month {
+            opacity: 0.4;
+            background: #f8f9fa;
+        }
+
+        .team-calendar-day.today {
+            border: 2px solid #667eea;
+            background: #f0f3ff;
+        }
+
+        .team-calendar-day .day-number {
+            font-weight: 600;
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .team-calendar-day .resource-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .resource-slot-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75em;
+        }
+
+        .resource-slot-row .resource-initial {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.7em;
+            flex-shrink: 0;
+        }
+
+        .resource-slot-row .slot-dots {
+            display: flex;
+            gap: 2px;
+        }
+
+        .resource-slot-row .slot-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+
+        .resource-slot-row .slot-dot.morning { background: #e67e22; }
+        .resource-slot-row .slot-dot.afternoon { background: #f1c40f; }
+        .resource-slot-row .slot-dot.evening { background: #9b59b6; }
+
+        .team-calendar-legend {
+            display: flex;
+            gap: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .team-calendar-container {
+                margin: 10px;
+            }
+
+            .team-calendar-day {
+                min-height: 70px;
+                padding: 5px;
+            }
+
+            .team-calendar-day .day-number {
+                font-size: 0.85em;
+            }
+
+            .resource-slot-row .resource-initial {
+                width: 14px;
+                height: 14px;
+                font-size: 0.6em;
+            }
+
+            .resource-slot-row .slot-dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
 
         @media (max-width: 768px) {
             .resource-modal {
@@ -2198,34 +2302,14 @@
                     <button class="btn btn-save-resources" onclick="saveResources()">
                         💾 Save All Changes
                     </button>
+                    <button class="btn btn-info" onclick="openTeamCalendarModal()">
+                        📅 View Full Calendar
+                    </button>
                 </div>
 
                 <!-- Resource Cards Grid -->
                 <div class="resource-cards-grid" id="resourceCardsGrid">
                     <!-- Resource cards will be dynamically loaded -->
-                </div>
-
-                <!-- Booking Settings Section -->
-                <div class="booking-settings-section">
-                    <h3>⚙️ Booking Settings</h3>
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label for="doubleResourceThreshold">Double Resource Threshold (XCG)</label>
-                            <p class="setting-description">When the service sub-total is equal to or greater than this amount, 2 resources are required per booking. Below this amount, only 1 resource is required.</p>
-                        </div>
-                        <div class="setting-input">
-                            <input type="number" id="doubleResourceThreshold" min="0" step="1" value="161">
-                            <span class="input-suffix">XCG</span>
-                        </div>
-                        <button class="btn btn-save-setting" onclick="saveThresholdSetting()">💾 Save</button>
-                    </div>
-                    <div class="setting-example">
-                        <strong>Example:</strong> If threshold is 161 XCG:
-                        <ul>
-                            <li>Sub-Total of 160 XCG → 1 resource needed → More slots available</li>
-                            <li>Sub-Total of 161 XCG or more → 2 resources needed → Fewer slots available</li>
-                        </ul>
-                    </div>
                 </div>
 
                 <div class="resource-note">
@@ -2289,6 +2373,40 @@
                     <div class="legend-item" style="margin-left: auto; color: #888; font-style: italic;">
                         <kbd style="background: #e9ecef; padding: 2px 5px; border-radius: 3px; font-size: 0.85em;">Ctrl</kbd> + Click = multi-select
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Calendar Modal - Full Month View -->
+    <div class="team-calendar-modal" id="teamCalendarModal">
+        <div class="team-calendar-container">
+            <div class="team-calendar-header">
+                <h2>📅 Team Availability Calendar</h2>
+                <button class="resource-close-btn" onclick="closeTeamCalendarModal()">✕</button>
+            </div>
+            <div class="team-calendar-content">
+                <div class="team-calendar-nav">
+                    <button class="btn btn-secondary" onclick="changeTeamCalendarMonth(-1)">◀ Previous</button>
+                    <span class="current-month" id="teamCurrentMonth">January 2026</span>
+                    <button class="btn btn-secondary" onclick="changeTeamCalendarMonth(1)">Next ▶</button>
+                </div>
+                
+                <!-- Resource Legend -->
+                <div class="team-resource-legend" id="teamResourceLegend">
+                    <!-- Will be populated dynamically -->
+                </div>
+                
+                <!-- Full Calendar Grid -->
+                <div class="team-calendar-grid" id="teamCalendarGrid">
+                    <!-- Calendar will be generated dynamically -->
+                </div>
+                
+                <div class="team-calendar-legend">
+                    <div class="legend-item"><span class="morning"></span> Morning (8AM-12PM)</div>
+                    <div class="legend-item"><span class="afternoon"></span> Afternoon (12PM-5PM)</div>
+                    <div class="legend-item"><span class="evening"></span> Evening (5PM-8PM)</div>
+                    <div class="legend-item"><span class="unavailable"></span> Unavailable</div>
                 </div>
             </div>
         </div>
@@ -3215,71 +3333,11 @@
         function openResourceModal() {
             document.getElementById('resourceModal').classList.add('active');
             loadResources();
-            loadThresholdSetting();
         }
 
         // Close resource modal
         function closeResourceModal() {
             document.getElementById('resourceModal').classList.remove('active');
-        }
-
-        // Load threshold setting from API
-        async function loadThresholdSetting() {
-            try {
-                const response = await fetch(`${API_URL}/api/settings/double_resource_threshold`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        document.getElementById('doubleResourceThreshold').value = data.value || '161';
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading threshold setting:', error);
-                // Use default value
-                document.getElementById('doubleResourceThreshold').value = '161';
-            }
-        }
-
-        // Save threshold setting
-        async function saveThresholdSetting() {
-            const token = checkAuth();
-            if (!token) {
-                toast('Please log in to save settings', 'error');
-                return;
-            }
-
-            const threshold = document.getElementById('doubleResourceThreshold').value;
-            
-            if (!threshold || parseFloat(threshold) < 0) {
-                toast('Please enter a valid threshold amount', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/api/settings`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        settings: {
-                            'double_resource_threshold': threshold
-                        }
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    toast('Threshold setting saved successfully!', 'success');
-                } else {
-                    toast('Failed to save setting: ' + (data.message || 'Unknown error'), 'error');
-                }
-            } catch (error) {
-                console.error('Error saving threshold setting:', error);
-                toast('Network error while saving setting', 'error');
-            }
         }
 
         // Close modal when clicking outside
@@ -3632,6 +3690,167 @@
                 closeCalendarModal();
             }
         });
+
+        // ============================================
+        // TEAM CALENDAR FUNCTIONS
+        // ============================================
+        let teamCalendarDate = new Date();
+        let allResourcesAvailability = {};
+        const resourceColors = [
+            '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#f39c12', 
+            '#1abc9c', '#e91e63', '#00bcd4', '#ff5722', '#607d8b'
+        ];
+
+        function openTeamCalendarModal() {
+            teamCalendarDate = new Date();
+            document.getElementById('teamCalendarModal').classList.add('active');
+            loadAllResourcesAvailability();
+        }
+
+        function closeTeamCalendarModal() {
+            document.getElementById('teamCalendarModal').classList.remove('active');
+        }
+
+        document.getElementById('teamCalendarModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTeamCalendarModal();
+            }
+        });
+
+        function changeTeamCalendarMonth(delta) {
+            teamCalendarDate.setMonth(teamCalendarDate.getMonth() + delta);
+            loadAllResourcesAvailability();
+        }
+
+        async function loadAllResourcesAvailability() {
+            const token = checkAuth();
+            if (!token) return;
+
+            allResourcesAvailability = {};
+
+            // Load availability for each resource
+            for (const resource of resources) {
+                if (resource.id > 0 && resource.active) {
+                    try {
+                        const response = await fetch(`${API_URL}/api/resources/${resource.id}/availability`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            allResourcesAvailability[resource.id] = data.success ? (data.availability || {}) : {};
+                        }
+                    } catch (error) {
+                        console.error(`Error loading availability for resource ${resource.id}:`, error);
+                        allResourcesAvailability[resource.id] = {};
+                    }
+                }
+            }
+
+            renderTeamCalendar();
+        }
+
+        function renderTeamCalendar() {
+            const year = teamCalendarDate.getFullYear();
+            const month = teamCalendarDate.getMonth();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            document.getElementById('teamCurrentMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            // Render resource legend
+            const legendHtml = resources
+                .filter(r => r.active && r.id > 0)
+                .map((resource, index) => {
+                    const color = resourceColors[index % resourceColors.length];
+                    const name = resource.first_name || resource.name || 'Resource';
+                    return `
+                        <div class="resource-tag">
+                            <span class="color-dot" style="background: ${color};"></span>
+                            ${name}
+                        </div>
+                    `;
+                }).join('');
+            document.getElementById('teamResourceLegend').innerHTML = legendHtml || '<span style="color: #888;">No active resources. Add resources first.</span>';
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let html = `
+                <div class="team-calendar-day-header">Sun</div>
+                <div class="team-calendar-day-header">Mon</div>
+                <div class="team-calendar-day-header">Tue</div>
+                <div class="team-calendar-day-header">Wed</div>
+                <div class="team-calendar-day-header">Thu</div>
+                <div class="team-calendar-day-header">Fri</div>
+                <div class="team-calendar-day-header">Sat</div>
+            `;
+            
+            // Previous month days
+            const prevMonth = new Date(year, month, 0);
+            for (let i = startDay - 1; i >= 0; i--) {
+                const day = prevMonth.getDate() - i;
+                html += `<div class="team-calendar-day other-month"><span class="day-number">${day}</span></div>`;
+            }
+            
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDateStr(date);
+                const isToday = date.getTime() === today.getTime();
+                
+                let classes = 'team-calendar-day';
+                if (isToday) classes += ' today';
+                
+                // Build resource availability for this day
+                const resourceSlotsHtml = resources
+                    .filter(r => r.active && r.id > 0)
+                    .map((resource, index) => {
+                        const color = resourceColors[index % resourceColors.length];
+                        const initial = (resource.first_name || resource.name || 'R').charAt(0).toUpperCase();
+                        
+                        // Get availability for this day
+                        const resAvail = allResourcesAvailability[resource.id];
+                        const dayAvail = resAvail && resAvail[dateStr] ? resAvail[dateStr] : {
+                            morning: resource.morning,
+                            afternoon: resource.afternoon,
+                            evening: resource.evening
+                        };
+                        
+                        return `
+                            <div class="resource-slot-row">
+                                <span class="resource-initial" style="background: ${color};">${initial}</span>
+                                <div class="slot-dots">
+                                    <span class="slot-dot ${dayAvail.morning ? 'morning' : ''}" title="Morning"></span>
+                                    <span class="slot-dot ${dayAvail.afternoon ? 'afternoon' : ''}" title="Afternoon"></span>
+                                    <span class="slot-dot ${dayAvail.evening ? 'evening' : ''}" title="Evening"></span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                
+                html += `
+                    <div class="${classes}">
+                        <span class="day-number">${day}</span>
+                        <div class="resource-slots">
+                            ${resourceSlotsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Next month days
+            const totalCells = startDay + daysInMonth;
+            const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let i = 1; i <= remainingCells; i++) {
+                html += `<div class="team-calendar-day other-month"><span class="day-number">${i}</span></div>`;
+            }
+            
+            document.getElementById('teamCalendarGrid').innerHTML = html;
+        }
 
         async function loadResourceAvailability() {
             console.log('loadResourceAvailability called for resource:', currentCalendarResource?.id);
