@@ -66,13 +66,16 @@ else:
 # ============================================================
 # DATABASE CONFIGURATION
 # ============================================================
-# For Render: Use /opt/render/project/src for persistent storage
+# For Render: Use /data for persistent storage (requires Disk to be attached)
 # For local: Use current directory
 if IS_PRODUCTION:
-    # Render persistent storage path
-    DATABASE_DIR = os.environ.get('DATABASE_DIR', '/opt/render/project/src')
+    # Render persistent storage path - uses /data if Disk is attached
+    DATABASE_DIR = os.environ.get('DATABASE_DIR', '/data')
     if not os.path.exists(DATABASE_DIR):
-        os.makedirs(DATABASE_DIR, exist_ok=True)
+        # Fallback to project src if /data doesn't exist (no disk attached)
+        DATABASE_DIR = '/opt/render/project/src'
+        if not os.path.exists(DATABASE_DIR):
+            os.makedirs(DATABASE_DIR, exist_ok=True)
     DATABASE = os.path.join(DATABASE_DIR, 'cleaning_service.db')
 else:
     DATABASE = os.environ.get('DATABASE_PATH', 'cleaning_service.db')
