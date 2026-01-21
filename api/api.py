@@ -86,7 +86,7 @@ logger.info(f"Database path: {DATABASE}")
 # EMAIL CONFIGURATION - Use environment variables for security
 # ============================================================
 # Set these in Render Dashboard under Environment Variables:
-# - MAIL_USERNAME: Your Gmail address
+# - MAIL_USERNAME: Your Gmail address (for invoices) - ics4curacao@gmail.com
 # - MAIL_PASSWORD: Your Gmail App Password (16 characters)
 # - MAIL_SERVER: smtp.gmail.com (default)
 # - MAIL_PORT: 587 (default)
@@ -104,6 +104,32 @@ EMAIL_CONFIG = {
 if EMAIL_CONFIG['enabled'] and (not EMAIL_CONFIG['sender_email'] or not EMAIL_CONFIG['sender_password']):
     logger.warning("Email is enabled but credentials are not configured. Set MAIL_USERNAME and MAIL_PASSWORD environment variables.")
     EMAIL_CONFIG['enabled'] = False
+
+# ============================================================
+# CONTACT FORM EMAIL CONFIGURATION - Separate account to avoid Gmail loop
+# ============================================================
+# Set these in Render Dashboard under Environment Variables:
+# - CONTACT_MAIL_USERNAME: Separate Gmail for contact form (e.g., afadania74@gmail.com)
+# - CONTACT_MAIL_PASSWORD: App Password for that Gmail account
+#
+# This prevents the Gmail loop problem where emails sent from ics4curacao@gmail.com
+# to info@ics.cw (which forwards to ics4curacao@gmail.com) get silently dropped.
+
+CONTACT_EMAIL_CONFIG = {
+    'smtp_server': os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
+    'smtp_port': int(os.environ.get('MAIL_PORT', 587)),
+    'sender_email': os.environ.get('CONTACT_MAIL_USERNAME', ''),
+    'sender_password': os.environ.get('CONTACT_MAIL_PASSWORD', ''),
+    'sender_name': 'ICS Website Contact Form',
+    'enabled': True
+}
+
+# Validate contact email configuration
+if not CONTACT_EMAIL_CONFIG['sender_email'] or not CONTACT_EMAIL_CONFIG['sender_password']:
+    logger.warning("Contact form email not configured. Set CONTACT_MAIL_USERNAME and CONTACT_MAIL_PASSWORD environment variables.")
+    CONTACT_EMAIL_CONFIG['enabled'] = False
+else:
+    logger.info(f"Contact form email configured with sender: {CONTACT_EMAIL_CONFIG['sender_email']}")
 
 # ============================================================
 # DATABASE FUNCTIONS
@@ -952,7 +978,9 @@ def health():
 # Contact Form Endpoint
 @app.route('/api/contact', methods=['POST'])
 def contact_form():
-    """Handle contact form submissions - sends email to info@ics.cw"""
+    """Handle contact form submissions - sends email to info@ics.cw
+    Uses CONTACT_EMAIL_CONFIG (separate Gmail) to avoid loop problem
+    """
     try:
         data = request.json
         
@@ -960,6 +988,8 @@ def contact_form():
         last_name = data.get('last_name', '').strip()
         email = data.get('email', '').strip()
         message = data.get('message', '').strip()
+        
+        logger.info(f"Contact form submission from: {first_name} {last_name} <{email}>")
         
         # Validate required fields
         if not first_name or not email or not message:
@@ -977,19 +1007,19 @@ def contact_form():
                 'message': 'Please enter a valid email address'
             }), 400
         
-        # Check if email is configured
-        if not EMAIL_CONFIG['enabled']:
-            logger.warning("Contact form submitted but email is not configured")
+        # Check if contact email is configured
+        if not CONTACT_EMAIL_CONFIG['enabled']:
+            logger.warning("Contact form submitted but CONTACT email is not configured")
             return jsonify({
-                'success': True,
-                'message': 'Thank you for your message! We will get back to you soon.'
-            }), 200
+                'success': False,
+                'message': 'Email service is not configured. Please contact us directly at info@ics.cw'
+            }), 500
         
-        # Send email to info@ics.cw
+        # Send email to info@ics.cw using CONTACT_EMAIL_CONFIG
         try:
             msg = MIMEMultipart('alternative')
             msg['Subject'] = f"New Contact Form Message from {first_name} {last_name}"
-            msg['From'] = f"{EMAIL_CONFIG['sender_name']} <{EMAIL_CONFIG['sender_email']}>"
+            msg['From'] = f"{CONTACT_EMAIL_CONFIG['sender_name']} <{CONTACT_EMAIL_CONFIG['sender_email']}>"
             msg['To'] = "info@ics.cw"
             msg['Reply-To'] = email
             
@@ -1055,23 +1085,23 @@ This message was sent from the ICS website contact form.
             msg.attach(MIMEText(text_body, 'plain'))
             msg.attach(MIMEText(html_body, 'html'))
             
-            # Send email
-            with smtplib.SMTP(EMAIL_CONFIG['smtp_server'], EMAIL_CONFIG['smtp_port']) as server:
+            # Send email using CONTACT credentials
+            with smtplib.SMTP(CONTACT_EMAIL_CONFIG['smtp_server'], CONTACT_EMAIL_CONFIG['smtp_port']) as server:
                 server.starttls()
-                server.login(EMAIL_CONFIG['sender_email'], EMAIL_CONFIG['sender_password'])
+                server.login(CONTACT_EMAIL_CONFIG['sender_email'], CONTACT_EMAIL_CONFIG['sender_password'])
                 server.send_message(msg)
             
-            logger.info(f"Contact form email sent from {email}")
+            logger.info(f"Contact form email sent successfully from {email} via {CONTACT_EMAIL_CONFIG['sender_email']}")
             return jsonify({
                 'success': True,
                 'message': 'Thank you for your message! We will get back to you soon.'
             }), 200
             
         except smtplib.SMTPAuthenticationError:
-            logger.error("Contact form: SMTP authentication failed")
+            logger.error(f"Contact form: SMTP authentication failed for {CONTACT_EMAIL_CONFIG['sender_email']}")
             return jsonify({
                 'success': False,
-                'message': 'Unable to send message. Please try again later or contact us directly.'
+                'message': 'Unable to send message. Please try again later or contact us directly at info@ics.cw'
             }), 500
         except Exception as e:
             logger.error(f"Contact form email error: {str(e)}")
