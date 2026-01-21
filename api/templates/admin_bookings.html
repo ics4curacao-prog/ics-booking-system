@@ -1241,6 +1241,113 @@
             margin: 10px 0;
         }
 
+        /* Booking Settings Section */
+        .booking-settings-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .booking-settings-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .setting-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .setting-info label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .setting-description {
+            font-size: 0.85em;
+            color: #666;
+            margin: 0;
+        }
+
+        .setting-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-input input {
+            width: 100px;
+            padding: 10px 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .setting-input input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .input-suffix {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .btn-save-setting {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-save-setting:hover {
+            background: #218838;
+        }
+
+        .setting-example {
+            background: #e8f4fd;
+            border-left: 4px solid #667eea;
+            padding: 12px 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9em;
+        }
+
+        .setting-example strong {
+            color: #333;
+        }
+
+        .setting-example ul {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+
+        .setting-example li {
+            margin: 5px 0;
+            color: #555;
+        }
+
         .resource-note {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -2096,6 +2203,29 @@
                 <!-- Resource Cards Grid -->
                 <div class="resource-cards-grid" id="resourceCardsGrid">
                     <!-- Resource cards will be dynamically loaded -->
+                </div>
+
+                <!-- Booking Settings Section -->
+                <div class="booking-settings-section">
+                    <h3>⚙️ Booking Settings</h3>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="doubleResourceThreshold">Double Resource Threshold (XCG)</label>
+                            <p class="setting-description">When the service sub-total is equal to or greater than this amount, 2 resources are required per booking. Below this amount, only 1 resource is required.</p>
+                        </div>
+                        <div class="setting-input">
+                            <input type="number" id="doubleResourceThreshold" min="0" step="1" value="161">
+                            <span class="input-suffix">XCG</span>
+                        </div>
+                        <button class="btn btn-save-setting" onclick="saveThresholdSetting()">💾 Save</button>
+                    </div>
+                    <div class="setting-example">
+                        <strong>Example:</strong> If threshold is 161 XCG:
+                        <ul>
+                            <li>Sub-Total of 160 XCG → 1 resource needed → More slots available</li>
+                            <li>Sub-Total of 161 XCG or more → 2 resources needed → Fewer slots available</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="resource-note">
@@ -3085,11 +3215,71 @@
         function openResourceModal() {
             document.getElementById('resourceModal').classList.add('active');
             loadResources();
+            loadThresholdSetting();
         }
 
         // Close resource modal
         function closeResourceModal() {
             document.getElementById('resourceModal').classList.remove('active');
+        }
+
+        // Load threshold setting from API
+        async function loadThresholdSetting() {
+            try {
+                const response = await fetch(`${API_URL}/api/settings/double_resource_threshold`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('doubleResourceThreshold').value = data.value || '161';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading threshold setting:', error);
+                // Use default value
+                document.getElementById('doubleResourceThreshold').value = '161';
+            }
+        }
+
+        // Save threshold setting
+        async function saveThresholdSetting() {
+            const token = checkAuth();
+            if (!token) {
+                toast('Please log in to save settings', 'error');
+                return;
+            }
+
+            const threshold = document.getElementById('doubleResourceThreshold').value;
+            
+            if (!threshold || parseFloat(threshold) < 0) {
+                toast('Please enter a valid threshold amount', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/settings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        settings: {
+                            'double_resource_threshold': threshold
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    toast('Threshold setting saved successfully!', 'success');
+                } else {
+                    toast('Failed to save setting: ' + (data.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                console.error('Error saving threshold setting:', error);
+                toast('Network error while saving setting', 'error');
+            }
         }
 
         // Close modal when clicking outside

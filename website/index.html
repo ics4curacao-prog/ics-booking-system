@@ -2143,6 +2143,20 @@
             font-style: italic;
         }
 
+        .resource-notice {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #e8f4fd 0%, #d4e9fc 100%);
+            border-left: 4px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            color: #1a5276;
+        }
+
+        .resource-notice strong {
+            color: var(--accent);
+        }
+
         /* Service Type Selector */
         .service-type-selector {
             display: grid;
@@ -2863,6 +2877,9 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="resource-requirement-notice" class="resource-notice" style="display: none;">
+                                <strong>ℹ️ Note:</strong> This booking requires 2 team members based on the service value.
+                            </div>
                             <input type="hidden" id="selected-timeslot" required>
                         </div>
 
@@ -3269,6 +3286,10 @@
     </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Global variables for booking state
+        let currentServiceSubtotal = 0;  // Track service subtotal for resource calculation
+        let doubleResourceThreshold = 161;  // Will be loaded from settings
+        
         // Mobile Menu Functionality
         const hamburger = document.getElementById('hamburger');
         const mobileNav = document.getElementById('mobile-nav');
@@ -4168,12 +4189,28 @@
             availabilityStatus.textContent = 'Checking availability...';
             
             try {
-                const result = await apiCall('/api/bookings/check-availability', 'POST', { date: date });
+                // Pass the current subtotal to check resource requirements
+                const result = await apiCall('/api/bookings/check-availability', 'POST', { 
+                    date: date,
+                    subtotal: currentServiceSubtotal
+                });
                 
                 availabilityStatus.style.display = 'none';
                 
                 if (result.success && result.data.success) {
                     const availability = result.data.availability;
+                    const resourcesRequired = result.data.resources_required || 1;
+                    
+                    // Show resource requirement notice if 2 resources needed
+                    const resourceNotice = document.getElementById('resource-requirement-notice');
+                    if (resourceNotice) {
+                        if (resourcesRequired >= 2) {
+                            resourceNotice.style.display = 'block';
+                            resourceNotice.innerHTML = `<strong>ℹ️ Note:</strong> This booking requires ${resourcesRequired} team members based on the service value.`;
+                        } else {
+                            resourceNotice.style.display = 'none';
+                        }
+                    }
                     
                     // Update each time slot
                     ['morning', 'afternoon', 'evening'].forEach(slot => {
@@ -4186,7 +4223,7 @@
                         badgeElement.classList.remove('available', 'limited', 'full');
                         
                         if (slotData.available) {
-                            if (slotData.remaining === slotData.total) {
+                            if (slotData.remaining === slotData.total || slotData.remaining > 1) {
                                 badgeElement.classList.add('available');
                                 badgeElement.textContent = `${slotData.remaining} slot${slotData.remaining > 1 ? 's' : ''} available`;
                             } else {
@@ -4436,6 +4473,19 @@
             document.getElementById('subtotal-cost').textContent = subtotal.toFixed(2) + ' XCG';
             document.getElementById('ob-cost').textContent = ob.toFixed(2) + ' XCG';
             document.getElementById('total-cost').textContent = grandTotal.toFixed(2) + ' XCG';
+            
+            // Track if subtotal crossed the threshold (affects resource requirements)
+            const previouslyAboveThreshold = currentServiceSubtotal >= doubleResourceThreshold;
+            const nowAboveThreshold = subtotal >= doubleResourceThreshold;
+            currentServiceSubtotal = subtotal;
+            
+            // If threshold was crossed, recheck availability for selected date
+            if (previouslyAboveThreshold !== nowAboveThreshold) {
+                const selectedDate = document.getElementById('booking-date').value;
+                if (selectedDate) {
+                    checkSlotAvailability(selectedDate);
+                }
+            }
         }
 
         // Set minimum date to today
@@ -4444,6 +4494,20 @@
             if (dateInput) {
                 const today = new Date().toISOString().split('T')[0];
                 dateInput.setAttribute('min', today);
+            }
+            
+            // Load double resource threshold setting from API
+            try {
+                const response = await fetch(`${API_URL}/api/settings/double_resource_threshold`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.value) {
+                        doubleResourceThreshold = parseFloat(data.value);
+                        console.log('Loaded double resource threshold:', doubleResourceThreshold);
+                    }
+                }
+            } catch (error) {
+                console.log('Using default threshold:', doubleResourceThreshold);
             }
 
             // Assume server is online - show status when actual API calls are made

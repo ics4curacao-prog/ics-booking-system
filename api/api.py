@@ -344,7 +344,28 @@ def init_database():
         )
     ''')
     
+    # Create settings table for configurable business rules
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            setting_key TEXT UNIQUE NOT NULL,
+            setting_value TEXT NOT NULL,
+            description TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     conn.commit()
+    
+    # Initialize default settings if they don't exist
+    cursor.execute("SELECT setting_key FROM settings WHERE setting_key = 'double_resource_threshold'")
+    if not cursor.fetchone():
+        cursor.execute('''
+            INSERT INTO settings (setting_key, setting_value, description)
+            VALUES (?, ?, ?)
+        ''', ('double_resource_threshold', '161', 'Subtotal amount (XCG) at which 2 resources are required per booking'))
+        conn.commit()
+        logger.info("Default double_resource_threshold setting created: 161 XCG")
     
     # Check if admin user exists, create if not
     cursor.execute("SELECT id FROM users WHERE role = 'admin'")
@@ -1494,6 +1515,7 @@ def check_availability():
     try:
         data = request.json
         date = data.get('date')
+        subtotal = data.get('subtotal', 0)  # Service subtotal for resource calculation
         
         if not date:
             return jsonify({'success': False, 'message': 'Date is required'}), 400
@@ -1501,30 +1523,57 @@ def check_availability():
         conn = get_db()
         cursor = conn.cursor()
         
+        # Get the double resource threshold setting
+        cursor.execute("SELECT setting_value FROM settings WHERE setting_key = 'double_resource_threshold'")
+        threshold_row = cursor.fetchone()
+        threshold = float(threshold_row['setting_value']) if threshold_row else 161.0
+        
+        # Determine resources required per booking based on subtotal
+        resources_required = 2 if float(subtotal) >= threshold else 1
+        
         # Get dynamic slot limits from resources (with day-specific overrides)
         slot_limits = get_slot_limits(date)
         
         # Count existing bookings for each slot on this date
+        # We need to consider resources used by existing bookings too
         availability = {}
-        for slot, limit in slot_limits.items():
+        for slot, total_resources in slot_limits.items():
+            # Count existing bookings and their resource usage
             cursor.execute('''
-                SELECT COUNT(*) as count FROM bookings 
-                WHERE booking_date = ? AND time_slot = ? AND status != 'cancelled'
+                SELECT b.total_cost FROM bookings b
+                WHERE b.booking_date = ? AND b.time_slot = ? AND b.status != 'cancelled'
             ''', (date, slot))
-            booked = cursor.fetchone()['count']
-            remaining = max(0, limit - booked)
+            existing_bookings = cursor.fetchall()
+            
+            # Calculate total resources used by existing bookings
+            resources_used = 0
+            for booking in existing_bookings:
+                booking_cost = float(booking['total_cost'] or 0)
+                # Remove OB (6%) to get subtotal
+                booking_subtotal = booking_cost / 1.06
+                resources_used += 2 if booking_subtotal >= threshold else 1
+            
+            # Calculate remaining resources
+            remaining_resources = max(0, total_resources - resources_used)
+            
+            # Check if there's enough resources for this booking
+            slots_available = remaining_resources >= resources_required
             
             availability[slot] = {
-                'available': remaining > 0,
-                'remaining': remaining,
-                'total': limit
+                'available': slots_available,
+                'remaining': remaining_resources // resources_required if resources_required > 0 else remaining_resources,
+                'total': total_resources,
+                'resources_required': resources_required,
+                'resources_remaining': remaining_resources
             }
         
         conn.close()
         
         return jsonify({
             'success': True,
-            'availability': availability
+            'availability': availability,
+            'threshold': threshold,
+            'resources_required': resources_required
         }), 200
         
     except Exception as e:
@@ -2616,6 +2665,101 @@ def get_public_slot_limits():
     except Exception as e:
         logger.error(f'Error getting slot limits: {e}')
         return jsonify({'success': False, 'message': 'Failed to get slot limits'}), 500
+
+# ============================================================
+# SETTINGS API ROUTES
+# ============================================================
+
+@app.route('/api/settings', methods=['GET'])
+def get_settings():
+    """Get all settings (public endpoint for frontend use)"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT setting_key, setting_value, description FROM settings')
+        rows = cursor.fetchall()
+        conn.close()
+        
+        settings = {}
+        for row in rows:
+            settings[row['setting_key']] = {
+                'value': row['setting_value'],
+                'description': row['description']
+            }
+        
+        return jsonify({
+            'success': True,
+            'settings': settings
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error getting settings: {e}')
+        return jsonify({'success': False, 'message': 'Failed to get settings'}), 500
+
+
+@app.route('/api/settings/<setting_key>', methods=['GET'])
+def get_setting(setting_key):
+    """Get a specific setting by key"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT setting_value, description FROM settings WHERE setting_key = ?', (setting_key,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return jsonify({'success': False, 'message': 'Setting not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'key': setting_key,
+            'value': row['setting_value'],
+            'description': row['description']
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error getting setting {setting_key}: {e}')
+        return jsonify({'success': False, 'message': 'Failed to get setting'}), 500
+
+
+@app.route('/api/settings', methods=['POST'])
+@token_required
+@admin_required
+def update_settings(current_user):
+    """Update one or more settings (admin only)"""
+    try:
+        data = request.json
+        settings = data.get('settings', {})
+        
+        if not settings:
+            return jsonify({'success': False, 'message': 'No settings provided'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        updated = []
+        for key, value in settings.items():
+            cursor.execute('''
+                INSERT OR REPLACE INTO settings (setting_key, setting_value, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+            ''', (key, str(value)))
+            updated.append(key)
+        
+        conn.commit()
+        conn.close()
+        
+        logger.info(f'Settings updated by admin: {updated}')
+        
+        return jsonify({
+            'success': True,
+            'message': f'Updated {len(updated)} setting(s)',
+            'updated': updated
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error updating settings: {e}')
+        return jsonify({'success': False, 'message': 'Failed to update settings'}), 500
+
 
 # ============================================================
 # ADMIN DASHBOARD ROUTES - Serve HTML Pages
