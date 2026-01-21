@@ -19,8 +19,8 @@ Disallow: /temp/
 Disallow: /private/
 Disallow: /test/
 
-# Sitemap location (update with your actual domain)
-# Sitemap: https://ics-website.onrender.com/sitemap.xml
+# Sitemap location
+Sitemap: https://ics.cw/sitemap.xml
 
 # Crawl delay (optional - be nice to servers)
 Crawl-delay: 1
