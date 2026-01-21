@@ -1357,6 +1357,7 @@
             transition: all 0.2s;
             padding: 5px;
             min-height: 60px;
+            position: relative;
         }
 
         .calendar-day:hover {
@@ -1393,6 +1394,24 @@
         .calendar-day.no-availability {
             background: #f8d7da;
             border-color: #dc3545;
+        }
+
+        .calendar-day.has-custom {
+            border: 2px solid #667eea !important;
+            box-shadow: 0 0 0 1px #667eea;
+        }
+
+        .calendar-day .custom-marker {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 10px;
+            color: #667eea;
+            line-height: 1;
+        }
+
+        .calendar-day.selected .custom-marker {
+            color: white;
         }
 
         .calendar-day .day-number {
@@ -2136,6 +2155,7 @@
                     <div class="legend-item"><span class="morning"></span> Morning</div>
                     <div class="legend-item"><span class="afternoon"></span> Afternoon</div>
                     <div class="legend-item"><span class="evening"></span> Evening</div>
+                    <div class="legend-item"><span style="color: #667eea; font-weight: bold;">★</span> Custom (saved)</div>
                     <div class="legend-item" style="margin-left: auto; color: #888; font-style: italic;">
                         <kbd style="background: #e9ecef; padding: 2px 5px; border-radius: 3px; font-size: 0.85em;">Ctrl</kbd> + Click = multi-select
                     </div>
@@ -3424,7 +3444,10 @@
         });
 
         async function loadResourceAvailability() {
+            console.log('loadResourceAvailability called for resource:', currentCalendarResource?.id);
+            
             if (!currentCalendarResource || currentCalendarResource.id < 0) {
+                console.log('Skipping load - invalid resource ID');
                 resourceAvailability = {};
                 renderCalendar();
                 return;
@@ -3434,14 +3457,18 @@
             if (!token) return;
 
             try {
+                console.log('Fetching availability from:', `${API_URL}/api/resources/${currentCalendarResource.id}/availability`);
                 const response = await fetch(`${API_URL}/api/resources/${currentCalendarResource.id}/availability`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Loaded availability data:', data);
                     resourceAvailability = data.success ? (data.availability || {}) : {};
+                    console.log('resourceAvailability set to:', resourceAvailability);
                 } else {
+                    console.log('Failed to load availability, status:', response.status);
                     resourceAvailability = {};
                 }
             } catch (error) {
@@ -3494,6 +3521,7 @@
                 const dateStr = formatDateStr(date);
                 const isToday = date.getTime() === today.getTime();
                 const isSelected = selectedCalendarDates.includes(dateStr);
+                const hasCustom = resourceAvailability.hasOwnProperty(dateStr); // Check if day has saved custom availability
                 
                 const dayAvail = resourceAvailability[dateStr] || {
                     morning: currentCalendarResource?.morning,
@@ -3505,12 +3533,14 @@
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
                 if (isSelected) classes += ' selected';
+                if (hasCustom) classes += ' has-custom'; // Days with saved availability
                 if (hasAny) classes += ' has-availability';
                 else classes += ' no-availability';
                 
                 html += `
                     <div class="${classes}" onclick="selectCalendarDay(event, '${dateStr}')">
                         <span class="day-number">${day}</span>
+                        ${hasCustom ? '<span class="custom-marker">★</span>' : ''}
                         <div class="day-slots">
                             <span class="${dayAvail.morning ? 'morning' : 'unavailable'}"></span>
                             <span class="${dayAvail.afternoon ? 'afternoon' : 'unavailable'}"></span>
