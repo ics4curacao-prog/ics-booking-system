@@ -957,7 +957,7 @@
             background: white;
             border-radius: 15px;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 20px auto;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             overflow: hidden;
@@ -1036,60 +1036,163 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        .resource-table-wrapper {
-            overflow-x: auto;
+        /* Resource Cards Grid */
+        .resource-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .resource-table {
-            width: 100%;
-            border-collapse: collapse;
+        .resource-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
 
-        .resource-table th,
-        .resource-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+        .resource-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
         }
 
-        .resource-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
+        .resource-card.inactive {
+            opacity: 0.6;
+            background: #f8f8f8;
         }
 
-        .resource-table tbody tr:hover {
-            background: #f8f9fa;
+        .resource-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .resource-table .checkbox-cell {
-            text-align: center;
-            width: 80px;
+        .resource-card-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .resource-table input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+        .resource-card-header .resource-status-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
         }
 
-        .resource-table .actions-cell {
-            width: 120px;
+        .resource-card-header .resource-status-badge.inactive {
+            background: rgba(231, 76, 60, 0.8);
         }
 
-        .resource-name-input {
-            width: 100%;
-            padding: 8px 12px;
+        .resource-card-body {
+            padding: 15px;
+        }
+
+        .resource-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .resource-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resource-info-item label {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .resource-info-item input {
+            padding: 8px 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+            border-radius: 6px;
+            font-size: 0.9em;
         }
 
-        .resource-name-input:focus {
+        .resource-info-item input:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        .resource-availability-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .resource-availability-section h4 {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .availability-toggles {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .availability-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .availability-toggle:hover {
+            background: #e0e0e0;
+        }
+
+        .availability-toggle.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .availability-toggle input {
+            margin: 0;
+            width: 14px;
+            height: 14px;
+        }
+
+        .resource-card-footer {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-calendar {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.85em;
+        }
+
+        .btn-calendar:hover {
+            background: #2980b9;
         }
 
         .btn-add-resource {
@@ -1113,7 +1216,7 @@
         .btn-remove-resource {
             background: #e74c3c;
             color: white;
-            padding: 5px 10px;
+            padding: 8px 15px;
             font-size: 0.85em;
         }
 
@@ -1121,28 +1224,16 @@
             background: #c0392b;
         }
 
-        .resource-status {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-        }
-
-        .resource-status.active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .resource-status.inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
         .no-resources {
             text-align: center;
-            padding: 40px;
+            padding: 60px 40px;
             color: #666;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .no-resources p {
+            margin: 10px 0;
         }
 
         .resource-note {
@@ -1159,6 +1250,252 @@
             display: block;
             margin-bottom: 5px;
         }
+
+        /* Resource Calendar Modal */
+        .calendar-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2500;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .calendar-modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 700px;
+            margin: 20px auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .calendar-content {
+            padding: 25px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav button {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav button:hover {
+            background: #e0e0e0;
+        }
+
+        .calendar-nav .current-month {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 5px;
+            min-height: 60px;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .calendar-day.other-month:hover {
+            border-color: #e0e0e0;
+            background: transparent;
+        }
+
+        .calendar-day.today {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .calendar-day.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .calendar-day.has-availability {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .calendar-day.no-availability {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .calendar-day .day-number {
+            font-weight: 600;
+            font-size: 1em;
+            margin-bottom: 2px;
+        }
+
+        .calendar-day .day-slots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .calendar-day .day-slots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+
+        .calendar-day .day-slots span.morning { background: #e67e22; }
+        .calendar-day .day-slots span.afternoon { background: #f1c40f; }
+        .calendar-day .day-slots span.evening { background: #9b59b6; }
+        .calendar-day .day-slots span.unavailable { background: #ccc; }
+
+        /* Day Edit Panel */
+        .day-edit-panel {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .day-edit-panel.active {
+            display: block;
+        }
+
+        .day-edit-panel h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .day-slots-toggle {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .slot-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slot-toggle:hover {
+            border-color: #667eea;
+        }
+
+        .slot-toggle.active {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .slot-toggle input {
+            margin: 0;
+        }
+
+        .calendar-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .calendar-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .legend-item span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-item span.morning { background: #e67e22; }
+        .legend-item span.afternoon { background: #f1c40f; }
+        .legend-item span.evening { background: #9b59b6; }
 
         @media (max-width: 768px) {
             .resource-modal {
@@ -1190,10 +1527,39 @@
                 flex-direction: column;
             }
 
-            .resource-table th,
-            .resource-table td {
-                padding: 10px 8px;
-                font-size: 0.9em;
+            .resource-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .resource-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-container {
+                margin: 10px auto;
+            }
+
+            .calendar-day {
+                min-height: 45px;
+                padding: 3px;
+            }
+
+            .calendar-day .day-number {
+                font-size: 0.85em;
+            }
+
+            .calendar-day .day-slots span {
+                width: 6px;
+                height: 6px;
+            }
+
+            .day-slots-toggle {
+                flex-direction: column;
+            }
+
+            .slot-toggle {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -1680,38 +2046,74 @@
 
                 <!-- Action Buttons -->
                 <div class="resource-actions">
-                    <button class="btn btn-add-resource" onclick="addResourceRow()">
+                    <button class="btn btn-add-resource" onclick="addResourceCard()">
                         ➕ Add Resource
                     </button>
                     <button class="btn btn-save-resources" onclick="saveResources()">
-                        💾 Save Changes
+                        💾 Save All Changes
                     </button>
                 </div>
 
-                <!-- Resources Table -->
-                <div class="resource-table-wrapper">
-                    <table class="resource-table">
-                        <thead>
-                            <tr>
-                                <th>Resource Name</th>
-                                <th class="checkbox-cell">Morning<br><small>(8AM-12PM)</small></th>
-                                <th class="checkbox-cell">Afternoon<br><small>(12PM-5PM)</small></th>
-                                <th class="checkbox-cell">Evening<br><small>(5PM-8PM)</small></th>
-                                <th class="checkbox-cell">Active</th>
-                                <th class="actions-cell">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resourceTableBody">
-                            <!-- Resources will be dynamically loaded -->
-                        </tbody>
-                    </table>
+                <!-- Resource Cards Grid -->
+                <div class="resource-cards-grid" id="resourceCardsGrid">
+                    <!-- Resource cards will be dynamically loaded -->
                 </div>
 
                 <div class="resource-note">
                     <strong>ℹ️ How Slot Calculation Works:</strong>
                     The maximum available slots shown to customers are calculated by counting active resources 
-                    available for each time period. For example, if 2 resources are available in the morning, 
-                    customers will see "2 slots available" for morning bookings.
+                    available for each time period. Use the 📅 Calendar button on each resource to set 
+                    day-specific availability (e.g., for days off or special schedules).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Calendar Modal -->
+    <div class="calendar-modal" id="calendarModal">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h3>📅 <span id="calendarResourceName">Resource</span> - Availability</h3>
+                <button class="resource-close-btn" onclick="closeCalendarModal()">✕</button>
+            </div>
+            <div class="calendar-content">
+                <div class="calendar-nav">
+                    <button onclick="changeMonth(-1)">◀ Previous</button>
+                    <span class="current-month" id="currentMonth">January 2026</span>
+                    <button onclick="changeMonth(1)">Next ▶</button>
+                </div>
+                
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated dynamically -->
+                </div>
+
+                <!-- Day Edit Panel -->
+                <div class="day-edit-panel" id="dayEditPanel">
+                    <h4>📆 <span id="selectedDateDisplay">Select a date</span></h4>
+                    <div class="day-slots-toggle">
+                        <label class="slot-toggle" id="toggleMorning">
+                            <input type="checkbox" id="dayMorning" onchange="updateToggleStyle()">
+                            <span>🌅 Morning (8AM-12PM)</span>
+                        </label>
+                        <label class="slot-toggle" id="toggleAfternoon">
+                            <input type="checkbox" id="dayAfternoon" onchange="updateToggleStyle()">
+                            <span>☀️ Afternoon (12PM-5PM)</span>
+                        </label>
+                        <label class="slot-toggle" id="toggleEvening">
+                            <input type="checkbox" id="dayEvening" onchange="updateToggleStyle()">
+                            <span>🌙 Evening (5PM-8PM)</span>
+                        </label>
+                    </div>
+                    <div class="calendar-actions">
+                        <button class="btn btn-secondary" onclick="resetDayToDefault()">Reset to Default</button>
+                        <button class="btn btn-save-resources" onclick="saveDayAvailability()">💾 Save Day</button>
+                    </div>
+                </div>
+
+                <div class="calendar-legend">
+                    <div class="legend-item"><span class="morning"></span> Morning</div>
+                    <div class="legend-item"><span class="afternoon"></span> Afternoon</div>
+                    <div class="legend-item"><span class="evening"></span> Evening</div>
                 </div>
             </div>
         </div>
@@ -2629,6 +3031,10 @@
         
         let resources = []; // Store loaded resources
         let resourceIdCounter = 0; // For new resources before save
+        let resourceAvailability = {}; // Store day-specific availability
+        let currentCalendarResource = null; // Resource being edited in calendar
+        let currentCalendarDate = new Date(); // Current month in calendar
+        let selectedCalendarDate = null; // Selected date
 
         // Open resource modal
         function openResourceModal() {
@@ -2664,105 +3070,149 @@
                     const data = await response.json();
                     if (data.success) {
                         resources = data.resources || [];
-                        renderResourceTable();
+                        renderResourceCards();
                         updateSlotSummary();
                     }
                 } else if (response.status === 401) {
                     logout();
                 } else {
-                    // If endpoint doesn't exist yet, show empty table
                     console.warn('Resources endpoint not available yet');
                     resources = [];
-                    renderResourceTable();
+                    renderResourceCards();
                     updateSlotSummary();
                 }
             } catch (error) {
                 console.error('Error loading resources:', error);
-                // Show empty table on error
                 resources = [];
-                renderResourceTable();
+                renderResourceCards();
                 updateSlotSummary();
             }
         }
 
-        // Render resource table
-        function renderResourceTable() {
-            const tbody = document.getElementById('resourceTableBody');
+        // Render resource cards
+        function renderResourceCards() {
+            const grid = document.getElementById('resourceCardsGrid');
             
             if (resources.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="no-resources">
-                            <p>No resources configured yet.</p>
-                            <p>Click "Add Resource" to create your first cleaning team/resource.</p>
-                        </td>
-                    </tr>
+                grid.innerHTML = `
+                    <div class="no-resources" style="grid-column: 1 / -1;">
+                        <p>🛠️ No resources configured yet.</p>
+                        <p>Click "Add Resource" to create your first cleaning team member or equipment.</p>
+                    </div>
                 `;
                 return;
             }
 
-            tbody.innerHTML = resources.map((resource, index) => `
-                <tr data-index="${index}">
-                    <td>
-                        <input type="text" class="resource-name-input" 
-                               value="${escapeHtml(resource.name || '')}" 
-                               onchange="updateResource(${index}, 'name', this.value)"
-                               placeholder="e.g., Team Alpha, Maria, Robot 1">
-                    </td>
-                    <td class="checkbox-cell">
-                        <input type="checkbox" 
-                               ${resource.morning ? 'checked' : ''} 
-                               onchange="updateResource(${index}, 'morning', this.checked)">
-                    </td>
-                    <td class="checkbox-cell">
-                        <input type="checkbox" 
-                               ${resource.afternoon ? 'checked' : ''} 
-                               onchange="updateResource(${index}, 'afternoon', this.checked)">
-                    </td>
-                    <td class="checkbox-cell">
-                        <input type="checkbox" 
-                               ${resource.evening ? 'checked' : ''} 
-                               onchange="updateResource(${index}, 'evening', this.checked)">
-                    </td>
-                    <td class="checkbox-cell">
-                        <input type="checkbox" 
-                               ${resource.active ? 'checked' : ''} 
-                               onchange="updateResource(${index}, 'active', this.checked)">
-                    </td>
-                    <td class="actions-cell">
+            grid.innerHTML = resources.map((resource, index) => `
+                <div class="resource-card ${resource.active ? '' : 'inactive'}" data-index="${index}">
+                    <div class="resource-card-header">
+                        <h3>👤 ${escapeHtml(resource.first_name || resource.name || 'New')} ${escapeHtml(resource.last_name || '')}</h3>
+                        <span class="resource-status-badge ${resource.active ? '' : 'inactive'}">
+                            ${resource.active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="resource-card-body">
+                        <div class="resource-info-grid">
+                            <div class="resource-info-item">
+                                <label>First Name *</label>
+                                <input type="text" value="${escapeHtml(resource.first_name || resource.name || '')}" 
+                                       onchange="updateResource(${index}, 'first_name', this.value)"
+                                       placeholder="John">
+                            </div>
+                            <div class="resource-info-item">
+                                <label>Last Name</label>
+                                <input type="text" value="${escapeHtml(resource.last_name || '')}" 
+                                       onchange="updateResource(${index}, 'last_name', this.value)"
+                                       placeholder="Doe">
+                            </div>
+                            <div class="resource-info-item">
+                                <label>Email</label>
+                                <input type="email" value="${escapeHtml(resource.email || '')}" 
+                                       onchange="updateResource(${index}, 'email', this.value)"
+                                       placeholder="john@example.com">
+                            </div>
+                            <div class="resource-info-item">
+                                <label>Phone</label>
+                                <input type="tel" value="${escapeHtml(resource.phone || '')}" 
+                                       onchange="updateResource(${index}, 'phone', this.value)"
+                                       placeholder="+599 9XX XXXX">
+                            </div>
+                        </div>
+                        
+                        <div class="resource-availability-section">
+                            <h4>Default Availability</h4>
+                            <div class="availability-toggles">
+                                <label class="availability-toggle ${resource.morning ? 'active' : ''}">
+                                    <input type="checkbox" ${resource.morning ? 'checked' : ''} 
+                                           onchange="updateResource(${index}, 'morning', this.checked); this.parentElement.classList.toggle('active', this.checked);">
+                                    🌅 Morning
+                                </label>
+                                <label class="availability-toggle ${resource.afternoon ? 'active' : ''}">
+                                    <input type="checkbox" ${resource.afternoon ? 'checked' : ''} 
+                                           onchange="updateResource(${index}, 'afternoon', this.checked); this.parentElement.classList.toggle('active', this.checked);">
+                                    ☀️ Afternoon
+                                </label>
+                                <label class="availability-toggle ${resource.evening ? 'active' : ''}">
+                                    <input type="checkbox" ${resource.evening ? 'checked' : ''} 
+                                           onchange="updateResource(${index}, 'evening', this.checked); this.parentElement.classList.toggle('active', this.checked);">
+                                    🌙 Evening
+                                </label>
+                                <label class="availability-toggle ${resource.active ? 'active' : ''}" style="background: ${resource.active ? '#d4edda' : '#f8d7da'};">
+                                    <input type="checkbox" ${resource.active ? 'checked' : ''} 
+                                           onchange="updateResource(${index}, 'active', this.checked); renderResourceCards();">
+                                    ✓ Active
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="resource-card-footer">
+                        <button class="btn btn-calendar" onclick="openCalendarModal(${index})">
+                            📅 Calendar
+                        </button>
                         <button class="btn btn-remove-resource" onclick="removeResource(${index})">
                             🗑️ Remove
                         </button>
-                    </td>
-                </tr>
+                    </div>
+                </div>
             `).join('');
         }
 
         // Update resource in memory
         function updateResource(index, field, value) {
             resources[index][field] = value;
+            // Keep name in sync for backwards compatibility
+            if (field === 'first_name') {
+                resources[index].name = value;
+            }
             updateSlotSummary();
         }
 
-        // Add new resource row
-        function addResourceRow() {
+        // Add new resource card
+        function addResourceCard() {
             resourceIdCounter--;
             resources.push({
-                id: resourceIdCounter, // Negative ID for new resources
+                id: resourceIdCounter,
+                first_name: '',
+                last_name: '',
                 name: '',
+                email: '',
+                phone: '',
                 morning: true,
                 afternoon: true,
                 evening: false,
                 active: true
             });
-            renderResourceTable();
+            renderResourceCards();
             updateSlotSummary();
             
-            // Focus on the new name input
+            // Scroll to new card and focus
             setTimeout(() => {
-                const inputs = document.querySelectorAll('.resource-name-input');
-                if (inputs.length > 0) {
-                    inputs[inputs.length - 1].focus();
+                const grid = document.getElementById('resourceCardsGrid');
+                const lastCard = grid.lastElementChild;
+                if (lastCard) {
+                    lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const firstInput = lastCard.querySelector('input[type="text"]');
+                    if (firstInput) firstInput.focus();
                 }
             }, 100);
         }
@@ -2770,14 +3220,14 @@
         // Remove resource
         function removeResource(index) {
             const resource = resources[index];
-            const name = resource.name || 'this resource';
+            const name = resource.first_name || resource.name || 'this resource';
             
             if (!confirm(`Are you sure you want to remove "${name}"?`)) {
                 return;
             }
             
             resources.splice(index, 1);
-            renderResourceTable();
+            renderResourceCards();
             updateSlotSummary();
         }
 
@@ -2810,10 +3260,13 @@
 
             // Validate resources
             for (let i = 0; i < resources.length; i++) {
-                if (!resources[i].name || resources[i].name.trim() === '') {
-                    toast('Please provide a name for all resources', 'error');
+                const r = resources[i];
+                if (!r.first_name && !r.name) {
+                    toast('Please provide a first name for all resources', 'error');
                     return;
                 }
+                // Ensure name is set
+                if (!r.name) r.name = r.first_name;
             }
 
             try {
@@ -2830,7 +3283,6 @@
                     const data = await response.json();
                     if (data.success) {
                         toast('Resources saved successfully!', 'success');
-                        // Reload to get server-assigned IDs
                         loadResources();
                     } else {
                         toast('Failed to save resources: ' + (data.message || 'Unknown error'), 'error');
@@ -2845,6 +3297,235 @@
                 console.error('Error saving resources:', error);
                 toast('Network error while saving resources', 'error');
             }
+        }
+
+        // ============================================
+        // CALENDAR FUNCTIONS
+        // ============================================
+
+        function openCalendarModal(resourceIndex) {
+            currentCalendarResource = resources[resourceIndex];
+            currentCalendarDate = new Date();
+            selectedCalendarDate = null;
+            resourceAvailability = {};
+            
+            document.getElementById('calendarResourceName').textContent = 
+                (currentCalendarResource.first_name || currentCalendarResource.name || 'Resource') + 
+                ' ' + (currentCalendarResource.last_name || '');
+            
+            document.getElementById('dayEditPanel').classList.remove('active');
+            document.getElementById('calendarModal').classList.add('active');
+            
+            loadResourceAvailability();
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendarModal').classList.remove('active');
+            currentCalendarResource = null;
+        }
+
+        document.getElementById('calendarModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCalendarModal();
+            }
+        });
+
+        async function loadResourceAvailability() {
+            if (!currentCalendarResource || currentCalendarResource.id < 0) {
+                resourceAvailability = {};
+                renderCalendar();
+                return;
+            }
+
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/resources/${currentCalendarResource.id}/availability`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resourceAvailability = data.success ? (data.availability || {}) : {};
+                } else {
+                    resourceAvailability = {};
+                }
+            } catch (error) {
+                console.error('Error loading availability:', error);
+                resourceAvailability = {};
+            }
+            renderCalendar();
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let html = `
+                <div class="calendar-day-header">Sun</div>
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+            `;
+            
+            // Previous month days
+            const prevMonth = new Date(year, month, 0);
+            for (let i = startDay - 1; i >= 0; i--) {
+                const day = prevMonth.getDate() - i;
+                html += `<div class="calendar-day other-month"><span class="day-number">${day}</span></div>`;
+            }
+            
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDateStr(date);
+                const isToday = date.getTime() === today.getTime();
+                const isSelected = selectedCalendarDate === dateStr;
+                
+                const dayAvail = resourceAvailability[dateStr] || {
+                    morning: currentCalendarResource?.morning,
+                    afternoon: currentCalendarResource?.afternoon,
+                    evening: currentCalendarResource?.evening
+                };
+                
+                const hasAny = dayAvail.morning || dayAvail.afternoon || dayAvail.evening;
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (isSelected) classes += ' selected';
+                if (hasAny) classes += ' has-availability';
+                else classes += ' no-availability';
+                
+                html += `
+                    <div class="${classes}" onclick="selectCalendarDay('${dateStr}')">
+                        <span class="day-number">${day}</span>
+                        <div class="day-slots">
+                            <span class="${dayAvail.morning ? 'morning' : 'unavailable'}"></span>
+                            <span class="${dayAvail.afternoon ? 'afternoon' : 'unavailable'}"></span>
+                            <span class="${dayAvail.evening ? 'evening' : 'unavailable'}"></span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Next month days
+            const totalCells = startDay + daysInMonth;
+            const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let i = 1; i <= remainingCells; i++) {
+                html += `<div class="calendar-day other-month"><span class="day-number">${i}</span></div>`;
+            }
+            
+            document.getElementById('calendarGrid').innerHTML = html;
+        }
+
+        function selectCalendarDay(dateStr) {
+            selectedCalendarDate = dateStr;
+            
+            const date = new Date(dateStr + 'T00:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('selectedDateDisplay').textContent = date.toLocaleDateString('en-US', options);
+            
+            const dayAvail = resourceAvailability[dateStr] || {
+                morning: currentCalendarResource?.morning,
+                afternoon: currentCalendarResource?.afternoon,
+                evening: currentCalendarResource?.evening
+            };
+            
+            document.getElementById('dayMorning').checked = dayAvail.morning;
+            document.getElementById('dayAfternoon').checked = dayAvail.afternoon;
+            document.getElementById('dayEvening').checked = dayAvail.evening;
+            
+            updateToggleStyle();
+            document.getElementById('dayEditPanel').classList.add('active');
+            renderCalendar();
+        }
+
+        function updateToggleStyle() {
+            document.getElementById('toggleMorning').classList.toggle('active', document.getElementById('dayMorning').checked);
+            document.getElementById('toggleAfternoon').classList.toggle('active', document.getElementById('dayAfternoon').checked);
+            document.getElementById('toggleEvening').classList.toggle('active', document.getElementById('dayEvening').checked);
+        }
+
+        function resetDayToDefault() {
+            if (!selectedCalendarDate || !currentCalendarResource) return;
+            
+            document.getElementById('dayMorning').checked = currentCalendarResource.morning;
+            document.getElementById('dayAfternoon').checked = currentCalendarResource.afternoon;
+            document.getElementById('dayEvening').checked = currentCalendarResource.evening;
+            
+            delete resourceAvailability[selectedCalendarDate];
+            updateToggleStyle();
+            renderCalendar();
+            toast('Reset to default availability', 'info');
+        }
+
+        async function saveDayAvailability() {
+            if (!selectedCalendarDate || !currentCalendarResource) return;
+            
+            const morning = document.getElementById('dayMorning').checked;
+            const afternoon = document.getElementById('dayAfternoon').checked;
+            const evening = document.getElementById('dayEvening').checked;
+            
+            resourceAvailability[selectedCalendarDate] = { morning, afternoon, evening };
+            
+            if (currentCalendarResource.id < 0) {
+                toast('Save the resource first to persist calendar changes', 'info');
+                renderCalendar();
+                return;
+            }
+            
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/resources/${currentCalendarResource.id}/availability`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        date: selectedCalendarDate,
+                        morning, afternoon, evening
+                    })
+                });
+
+                if (response.ok) {
+                    toast('Day availability saved!', 'success');
+                    renderCalendar();
+                } else {
+                    toast('Failed to save day availability', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving day availability:', error);
+                toast('Network error', 'error');
+            }
+        }
+
+        function formatDateStr(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         // Initialize on page load

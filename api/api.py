@@ -219,6 +219,34 @@ def run_migrations():
             conn.commit()
             logger.info("Migration complete: invoice_sent_at column added")
         
+        # Migrate resources table - add new columns
+        cursor.execute("PRAGMA table_info(resources)")
+        resource_columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'first_name' not in resource_columns:
+            logger.info("Adding first_name column to resources table...")
+            cursor.execute('ALTER TABLE resources ADD COLUMN first_name TEXT')
+            conn.commit()
+            logger.info("Migration complete: first_name column added")
+        
+        if 'last_name' not in resource_columns:
+            logger.info("Adding last_name column to resources table...")
+            cursor.execute('ALTER TABLE resources ADD COLUMN last_name TEXT')
+            conn.commit()
+            logger.info("Migration complete: last_name column added")
+        
+        if 'email' not in resource_columns:
+            logger.info("Adding email column to resources table...")
+            cursor.execute('ALTER TABLE resources ADD COLUMN email TEXT')
+            conn.commit()
+            logger.info("Migration complete: email column added")
+        
+        if 'phone' not in resource_columns:
+            logger.info("Adding phone column to resources table...")
+            cursor.execute('ALTER TABLE resources ADD COLUMN phone TEXT')
+            conn.commit()
+            logger.info("Migration complete: phone column added")
+        
         conn.close()
     except Exception as e:
         logger.error(f"Migration error: {e}")
@@ -288,12 +316,31 @@ def init_database():
         CREATE TABLE IF NOT EXISTS resources (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT,
+            phone TEXT,
             morning INTEGER DEFAULT 1,
             afternoon INTEGER DEFAULT 1,
             evening INTEGER DEFAULT 0,
             active INTEGER DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Create resource_availability table for per-day availability overrides
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS resource_availability (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            resource_id INTEGER NOT NULL,
+            date TEXT NOT NULL,
+            morning INTEGER DEFAULT 1,
+            afternoon INTEGER DEFAULT 1,
+            evening INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(resource_id, date),
+            FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE
         )
     ''')
     
@@ -360,18 +407,19 @@ run_migrations()
 # HELPER FUNCTION - Get Slot Limits from Resources
 # ============================================================
 
-def get_slot_limits():
+def get_slot_limits(date=None):
     """
     Calculate maximum slots for each time period based on active resources.
+    If date is provided, uses day-specific availability overrides.
     Returns dict with morning, afternoon, evening slot counts.
     """
     try:
         conn = get_db()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT morning, afternoon, evening FROM resources WHERE active = 1')
+        # Get all active resources with their default availability
+        cursor.execute('SELECT id, morning, afternoon, evening FROM resources WHERE active = 1')
         resources = cursor.fetchall()
-        conn.close()
         
         limits = {
             'morning': 0,
@@ -380,6 +428,28 @@ def get_slot_limits():
         }
         
         for resource in resources:
+            resource_id = resource['id']
+            
+            # Check if there's a day-specific override for this resource
+            if date:
+                cursor.execute('''
+                    SELECT morning, afternoon, evening 
+                    FROM resource_availability 
+                    WHERE resource_id = ? AND date = ?
+                ''', (resource_id, date))
+                override = cursor.fetchone()
+                
+                if override:
+                    # Use the override values
+                    if override['morning']:
+                        limits['morning'] += 1
+                    if override['afternoon']:
+                        limits['afternoon'] += 1
+                    if override['evening']:
+                        limits['evening'] += 1
+                    continue
+            
+            # Use default availability
             if resource['morning']:
                 limits['morning'] += 1
             if resource['afternoon']:
@@ -387,13 +457,23 @@ def get_slot_limits():
             if resource['evening']:
                 limits['evening'] += 1
         
+        conn.close()
+        
         # If no resources configured, use defaults
         if limits['morning'] == 0 and limits['afternoon'] == 0 and limits['evening'] == 0:
-            limits = {
-                'morning': 2,
-                'afternoon': 2,
-                'evening': 1
-            }
+            # Check if there are any resources at all
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute('SELECT COUNT(*) as count FROM resources WHERE active = 1')
+            count = cursor.fetchone()['count']
+            conn.close()
+            
+            if count == 0:
+                limits = {
+                    'morning': 2,
+                    'afternoon': 2,
+                    'evening': 1
+                }
         
         return limits
     except Exception as e:
@@ -1421,8 +1501,8 @@ def check_availability():
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get dynamic slot limits from resources
-        slot_limits = get_slot_limits()
+        # Get dynamic slot limits from resources (with day-specific overrides)
+        slot_limits = get_slot_limits(date)
         
         # Count existing bookings for each slot on this date
         availability = {}
@@ -2234,7 +2314,7 @@ def get_resources(current_user):
         conn = get_db()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT * FROM resources ORDER BY name')
+        cursor.execute('SELECT * FROM resources ORDER BY first_name, name')
         resources = cursor.fetchall()
         conn.close()
         
@@ -2243,6 +2323,10 @@ def get_resources(current_user):
             resources_list.append({
                 'id': r['id'],
                 'name': r['name'],
+                'first_name': r['first_name'] or r['name'] or '',
+                'last_name': r['last_name'] or '',
+                'email': r['email'] or '',
+                'phone': r['phone'] or '',
                 'morning': bool(r['morning']),
                 'afternoon': bool(r['afternoon']),
                 'evening': bool(r['evening']),
@@ -2277,24 +2361,34 @@ def save_resources(current_user):
             if r.get('id') and r['id'] > 0:
                 existing_ids.append(r['id'])
         
-        # Delete resources that are no longer in the list
+        # Delete resources that are no longer in the list (and their availability)
         if existing_ids:
             placeholders = ','.join(['?' for _ in existing_ids])
+            cursor.execute(f'DELETE FROM resource_availability WHERE resource_id NOT IN ({placeholders})', existing_ids)
             cursor.execute(f'DELETE FROM resources WHERE id NOT IN ({placeholders})', existing_ids)
         else:
             # If no existing IDs, delete all (user removed everything)
+            cursor.execute('DELETE FROM resource_availability')
             cursor.execute('DELETE FROM resources')
         
         # Update existing and create new resources
         for r_data in incoming_resources:
+            # Get name - use first_name if available, fall back to name
+            name = r_data.get('first_name') or r_data.get('name') or 'Resource'
+            
             if r_data.get('id') and r_data['id'] > 0:
                 # Update existing
                 cursor.execute('''
                     UPDATE resources 
-                    SET name = ?, morning = ?, afternoon = ?, evening = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+                    SET name = ?, first_name = ?, last_name = ?, email = ?, phone = ?,
+                        morning = ?, afternoon = ?, evening = ?, active = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
                 ''', (
-                    r_data.get('name', 'Resource'),
+                    name,
+                    r_data.get('first_name', ''),
+                    r_data.get('last_name', ''),
+                    r_data.get('email', ''),
+                    r_data.get('phone', ''),
                     1 if r_data.get('morning', True) else 0,
                     1 if r_data.get('afternoon', True) else 0,
                     1 if r_data.get('evening', False) else 0,
@@ -2304,10 +2398,14 @@ def save_resources(current_user):
             else:
                 # Create new
                 cursor.execute('''
-                    INSERT INTO resources (name, morning, afternoon, evening, active)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO resources (name, first_name, last_name, email, phone, morning, afternoon, evening, active)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    r_data.get('name', 'New Resource'),
+                    name,
+                    r_data.get('first_name', ''),
+                    r_data.get('last_name', ''),
+                    r_data.get('email', ''),
+                    r_data.get('phone', ''),
                     1 if r_data.get('morning', True) else 0,
                     1 if r_data.get('afternoon', True) else 0,
                     1 if r_data.get('evening', False) else 0,
@@ -2327,6 +2425,116 @@ def save_resources(current_user):
     except Exception as e:
         logger.error(f'Error saving resources: {e}')
         return jsonify({'success': False, 'message': 'Failed to save resources'}), 500
+
+
+# ============================================================
+# RESOURCE AVAILABILITY ENDPOINTS
+# ============================================================
+
+@app.route('/api/resources/<int:resource_id>/availability', methods=['GET'])
+@token_required
+def get_resource_availability(current_user, resource_id):
+    """Get all availability overrides for a resource"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT date, morning, afternoon, evening 
+            FROM resource_availability 
+            WHERE resource_id = ?
+            ORDER BY date
+        ''', (resource_id,))
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        availability = {}
+        for row in rows:
+            availability[row['date']] = {
+                'morning': bool(row['morning']),
+                'afternoon': bool(row['afternoon']),
+                'evening': bool(row['evening'])
+            }
+        
+        return jsonify({
+            'success': True,
+            'availability': availability
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error getting resource availability: {e}')
+        return jsonify({'success': False, 'message': 'Failed to get availability'}), 500
+
+
+@app.route('/api/resources/<int:resource_id>/availability', methods=['POST'])
+@token_required
+@admin_required
+def save_resource_availability(current_user, resource_id):
+    """Save availability for a specific date"""
+    try:
+        data = request.json
+        date = data.get('date')
+        morning = data.get('morning', True)
+        afternoon = data.get('afternoon', True)
+        evening = data.get('evening', False)
+        
+        if not date:
+            return jsonify({'success': False, 'message': 'Date is required'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Use INSERT OR REPLACE to upsert
+        cursor.execute('''
+            INSERT OR REPLACE INTO resource_availability (resource_id, date, morning, afternoon, evening)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            resource_id,
+            date,
+            1 if morning else 0,
+            1 if afternoon else 0,
+            1 if evening else 0
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Availability saved'
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error saving resource availability: {e}')
+        return jsonify({'success': False, 'message': 'Failed to save availability'}), 500
+
+
+@app.route('/api/resources/<int:resource_id>/availability/<date>', methods=['DELETE'])
+@token_required
+@admin_required
+def delete_resource_availability(current_user, resource_id, date):
+    """Delete availability override for a specific date (revert to default)"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            DELETE FROM resource_availability 
+            WHERE resource_id = ? AND date = ?
+        ''', (resource_id, date))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Availability reset to default'
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Error deleting resource availability: {e}')
+        return jsonify({'success': False, 'message': 'Failed to reset availability'}), 500
 
 
 @app.route('/api/slot-limits', methods=['GET'])
