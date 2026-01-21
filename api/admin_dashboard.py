@@ -26,23 +26,30 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 # ============================================================
-# EMAIL CONFIGURATION - Use environment variables
+# EMAIL CONFIGURATION FOR CONTACT FORM
 # ============================================================
-EMAIL_CONFIG = {
+# Uses SEPARATE credentials to avoid Gmail loop problem
+# Set these in Render Dashboard:
+# - CONTACT_MAIL_USERNAME: Gmail for sending contact form (e.g., ics.notifications@gmail.com)
+# - CONTACT_MAIL_PASSWORD: App password for that Gmail account
+#
+# Note: Invoices use MAIL_USERNAME/MAIL_PASSWORD in api.py (ics4curacao@gmail.com)
+
+CONTACT_EMAIL_CONFIG = {
     'smtp_server': os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
     'smtp_port': int(os.environ.get('MAIL_PORT', 587)),
-    'sender_email': os.environ.get('MAIL_USERNAME', ''),
-    'sender_password': os.environ.get('MAIL_PASSWORD', ''),
-    'sender_name': os.environ.get('MAIL_SENDER_NAME', 'Intelligence Cleaning Services'),
+    'sender_email': os.environ.get('CONTACT_MAIL_USERNAME', ''),
+    'sender_password': os.environ.get('CONTACT_MAIL_PASSWORD', ''),
+    'sender_name': os.environ.get('MAIL_SENDER_NAME', 'ICS Website'),
     'enabled': True
 }
 
 # Validate email configuration
-if not EMAIL_CONFIG['sender_email'] or not EMAIL_CONFIG['sender_password']:
-    logger.warning("Email credentials not configured. Set MAIL_USERNAME and MAIL_PASSWORD environment variables.")
-    EMAIL_CONFIG['enabled'] = False
+if not CONTACT_EMAIL_CONFIG['sender_email'] or not CONTACT_EMAIL_CONFIG['sender_password']:
+    logger.warning("Contact form email not configured. Set CONTACT_MAIL_USERNAME and CONTACT_MAIL_PASSWORD environment variables.")
+    CONTACT_EMAIL_CONFIG['enabled'] = False
 else:
-    logger.info(f"Email configured with sender: {EMAIL_CONFIG['sender_email']}")
+    logger.info(f"Contact form email configured with sender: {CONTACT_EMAIL_CONFIG['sender_email']}")
 
 # ============================================================
 # ROUTES - Serve Admin Pages
@@ -138,7 +145,7 @@ def contact_form():
             }), 400
         
         # Check if email is configured
-        if not EMAIL_CONFIG['enabled']:
+        if not CONTACT_EMAIL_CONFIG['enabled']:
             logger.warning("Contact form submitted but email is not configured")
             return jsonify({
                 'success': False,
@@ -149,7 +156,7 @@ def contact_form():
         try:
             msg = MIMEMultipart('alternative')
             msg['Subject'] = f"New Contact Form Message from {first_name} {last_name}"
-            msg['From'] = f"{EMAIL_CONFIG['sender_name']} <{EMAIL_CONFIG['sender_email']}>"
+            msg['From'] = f"{CONTACT_EMAIL_CONFIG['sender_name']} <{CONTACT_EMAIL_CONFIG['sender_email']}>"
             msg['To'] = "info@ics.cw"
             msg['Reply-To'] = email
             
@@ -216,9 +223,9 @@ This message was sent from the ICS website contact form.
             msg.attach(MIMEText(html_body, 'html'))
             
             # Send email
-            with smtplib.SMTP(EMAIL_CONFIG['smtp_server'], EMAIL_CONFIG['smtp_port']) as server:
+            with smtplib.SMTP(CONTACT_EMAIL_CONFIG['smtp_server'], CONTACT_EMAIL_CONFIG['smtp_port']) as server:
                 server.starttls()
-                server.login(EMAIL_CONFIG['sender_email'], EMAIL_CONFIG['sender_password'])
+                server.login(CONTACT_EMAIL_CONFIG['sender_email'], CONTACT_EMAIL_CONFIG['sender_password'])
                 server.send_message(msg)
             
             logger.info(f"Contact form email sent successfully from {email}")
@@ -270,8 +277,8 @@ def health():
     return jsonify({
         'status': 'healthy', 
         'service': 'ICS Admin Dashboard',
-        'email_enabled': EMAIL_CONFIG['enabled'],
-        'email_sender': EMAIL_CONFIG['sender_email'] if EMAIL_CONFIG['enabled'] else 'not configured'
+        'contact_email_enabled': CONTACT_EMAIL_CONFIG['enabled'],
+        'contact_email_sender': CONTACT_EMAIL_CONFIG['sender_email'] if CONTACT_EMAIL_CONFIG['enabled'] else 'not configured'
     })
 
 # ============================================================
@@ -287,11 +294,13 @@ if __name__ == '__main__':
     print("=" * 60)
     print(f"Starting server on http://127.0.0.1:{port}")
     print("")
-    print("Email Configuration Status:")
-    if EMAIL_CONFIG['enabled']:
-        print(f"  ✅ Email ENABLED - Sender: {EMAIL_CONFIG['sender_email']}")
+    print("Contact Form Email Configuration:")
+    if CONTACT_EMAIL_CONFIG['enabled']:
+        print(f"  ✅ ENABLED - Sender: {CONTACT_EMAIL_CONFIG['sender_email']}")
     else:
-        print("  ❌ Email DISABLED - Set MAIL_USERNAME and MAIL_PASSWORD")
+        print("  ❌ DISABLED - Set CONTACT_MAIL_USERNAME and CONTACT_MAIL_PASSWORD")
+    print("")
+    print("Note: Invoices use MAIL_USERNAME/MAIL_PASSWORD in api.py")
     print("=" * 60)
     
     app.run(host='0.0.0.0', port=port, debug=debug)
