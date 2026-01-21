@@ -360,6 +360,10 @@
         }
 
         /* Mobile Cards for Table Data */
+        .mobile-cards-container {
+            display: none;
+        }
+
         .mobile-card {
             display: none;
             background: white;
@@ -1348,7 +1352,7 @@
             </table>
         </div>
         <!-- Mobile Cards Container -->
-        <div class="mobile-cards-container" id="mobileCardsContainer" style="display: none;">
+        <div class="mobile-cards-container" id="mobileCardsContainer">
             <!-- Mobile cards will be dynamically generated -->
         </div>
     </div>
@@ -1793,10 +1797,12 @@
                                     Cancel
                                 </button>
                             ` : ''}
+                            ${booking.status !== 'completed' ? `
                                 <button class="btn btn-delete btn-sm" 
                                         onclick="deleteBooking(${booking.id})">
                                     🗑 Delete
                                 </button>
+                            ` : ''}
                         </div>
                     </td>
                 </tr>
@@ -1885,9 +1891,11 @@
                                     Cancel
                                 </button>
                             ` : ''}
+                            ${booking.status !== 'completed' ? `
                                 <button class="btn btn-delete btn-sm" onclick="deleteBooking(${booking.id})">
                                     🗑 Delete
                                 </button>
+                            ` : ''}
                         </div>
                     </div>
                 `}).join('');
