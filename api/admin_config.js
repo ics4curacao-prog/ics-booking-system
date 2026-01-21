@@ -1,9 +1,7 @@
 // Admin Dashboard Configuration
 // API URL - Since API and Admin are on the same domain, use the same origin
 const API_URL = 'https://admin.ics.cw';
-
-// Or use relative URL (works because API and admin are on same server)
-// const API_URL = '';
+const API_BASE_URL = 'https://admin.ics.cw';
 
 // Admin configuration object
 const ADMIN_CONFIG = {

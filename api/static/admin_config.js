@@ -1,31 +1,13 @@
-// ============================================================
 // Admin Dashboard Configuration
-// ============================================================
-// This file contains configuration for the admin dashboard
-// Update API_BASE_URL when deploying to production
+// API URL - Since API and Admin are on the same domain, use the same origin
+const API_URL = 'https://admin.ics.cw';
+const API_BASE_URL = 'https://admin.ics.cw';
 
+// Admin configuration object
 const ADMIN_CONFIG = {
-    // API URL - Update this to your production API URL
-    API_BASE_URL: 'https://ics-api-72kz.onrender.com',
-    API_URL: 'https://ics-api-72kz.onrender.com',  // Alias for compatibility
-    
-    // Company Information
-    COMPANY_NAME: 'Intelligence Cleaning Services',
-    COMPANY_PHONE: '+599 968 402 98',
-    COMPANY_EMAIL: 'info@ics.cw',
-    
-    // Currency Settings
-    CURRENCY: 'XCG',
-    CURRENCY_SYMBOL: 'ƒ',
-    
-    // Tax Settings
-    TAX_RATE: 0.06,
-    TAX_NAME: 'OB'
+    apiUrl: API_URL,
+    version: '1.0.0',
+    environment: 'production'
 };
 
-// Also define these directly for backwards compatibility
-const API_BASE_URL = ADMIN_CONFIG.API_BASE_URL;
-const API_URL = ADMIN_CONFIG.API_URL;
-
-// Log config loaded (for debugging)
 console.log('Admin config loaded. API URL:', API_URL);

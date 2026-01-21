@@ -2164,6 +2164,14 @@ def serve_static(filename):
     """Serve static files"""
     return send_from_directory('static', filename)
 
+@app.route('/admin_config.js')
+def serve_admin_config():
+    """Serve admin config file from current directory or static folder"""
+    # Try current directory first, then static folder
+    if os.path.exists('admin_config.js'):
+        return send_from_directory('.', 'admin_config.js')
+    return send_from_directory('static', 'admin_config.js')
+
 @app.route('/<path:filename>')
 def serve_file(filename):
     """Serve any HTML file from templates directory"""
@@ -2175,6 +2183,12 @@ def serve_file(filename):
             return render_template(filename)
         except:
             return jsonify({'error': 'Page not found'}), 404
+    # Try to serve JS files from static folder first
+    if filename.endswith('.js'):
+        try:
+            return send_from_directory('static', filename)
+        except:
+            pass
     # Try to serve from current directory (for logo, etc.)
     try:
         return send_from_directory('.', filename)
