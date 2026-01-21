@@ -1427,8 +1427,23 @@
         }
 
         .day-edit-panel h4 {
-            margin: 0 0 15px 0;
+            margin: 0 0 8px 0;
             color: #333;
+        }
+
+        .multi-select-hint {
+            font-size: 0.85em;
+            color: #666;
+            margin: 0 0 15px 0;
+        }
+
+        .multi-select-hint kbd {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            font-family: monospace;
+            font-size: 0.9em;
         }
 
         .day-slots-toggle {
@@ -2090,6 +2105,7 @@
                 <!-- Day Edit Panel -->
                 <div class="day-edit-panel" id="dayEditPanel">
                     <h4>📆 <span id="selectedDateDisplay">Select a date</span></h4>
+                    <p class="multi-select-hint">💡 Hold <kbd>Ctrl</kbd> + Click to select multiple days</p>
                     <div class="day-slots-toggle">
                         <label class="slot-toggle" id="toggleMorning">
                             <input type="checkbox" id="dayMorning" onchange="updateToggleStyle()">
@@ -2105,8 +2121,9 @@
                         </label>
                     </div>
                     <div class="calendar-actions">
-                        <button class="btn btn-secondary" onclick="resetDayToDefault()">Reset to Default</button>
-                        <button class="btn btn-save-resources" onclick="saveDayAvailability()">💾 Save Day</button>
+                        <button class="btn btn-secondary" onclick="clearCalendarSelection()">✕ Clear</button>
+                        <button class="btn btn-secondary" onclick="resetDaysToDefault()">↺ Reset to Default</button>
+                        <button class="btn btn-save-resources" onclick="saveDaysAvailability()">💾 <span id="saveBtnText">Save Day</span></button>
                     </div>
                 </div>
 
@@ -2114,6 +2131,9 @@
                     <div class="legend-item"><span class="morning"></span> Morning</div>
                     <div class="legend-item"><span class="afternoon"></span> Afternoon</div>
                     <div class="legend-item"><span class="evening"></span> Evening</div>
+                    <div class="legend-item" style="margin-left: auto; color: #888; font-style: italic;">
+                        <kbd style="background: #e9ecef; padding: 2px 5px; border-radius: 3px; font-size: 0.85em;">Ctrl</kbd> + Click = multi-select
+                    </div>
                 </div>
             </div>
         </div>
@@ -3034,7 +3054,7 @@
         let resourceAvailability = {}; // Store day-specific availability
         let currentCalendarResource = null; // Resource being edited in calendar
         let currentCalendarDate = new Date(); // Current month in calendar
-        let selectedCalendarDate = null; // Selected date
+        let selectedCalendarDates = []; // Selected dates (multi-select with Ctrl+click)
 
         // Open resource modal
         function openResourceModal() {
@@ -3106,9 +3126,9 @@
             grid.innerHTML = resources.map((resource, index) => {
                 // Create slot summary display
                 const slots = [];
-                if (resource.morning) slots.push('<span style="color: #e67e22; font-weight: bold;">🌅 Morning</span>');
-                if (resource.afternoon) slots.push('<span style="color: #f39c12; font-weight: bold;">☀️ Afternoon</span>');
-                if (resource.evening) slots.push('<span style="color: #9b59b6; font-weight: bold;">🌙 Evening</span>');
+                if (resource.morning) slots.push('<span style="color: #e67e22;">🌅 Morning</span>');
+                if (resource.afternoon) slots.push('<span style="color: #f39c12;">☀️ Afternoon</span>');
+                if (resource.evening) slots.push('<span style="color: #9b59b6;">🌙 Evening</span>');
                 const slotSummary = slots.length > 0 ? slots.join(' • ') : '<span style="color: #e74c3c;">No slots selected</span>';
                 
                 return `
@@ -3200,9 +3220,9 @@
             
             // Update slot summary
             const slots = [];
-            if (resources[index].morning) slots.push('<span style="color: #e67e22; font-weight: bold;">🌅 Morning</span>');
-            if (resources[index].afternoon) slots.push('<span style="color: #f39c12; font-weight: bold;">☀️ Afternoon</span>');
-            if (resources[index].evening) slots.push('<span style="color: #9b59b6; font-weight: bold;">🌙 Evening</span>');
+            if (resources[index].morning) slots.push('<span style="color: #e67e22;">🌅 Morning</span>');
+            if (resources[index].afternoon) slots.push('<span style="color: #f39c12;">☀️ Afternoon</span>');
+            if (resources[index].evening) slots.push('<span style="color: #9b59b6;">🌙 Evening</span>');
             
             const summaryEl = document.getElementById(`slotSummary${index}`);
             if (summaryEl) {
@@ -3326,7 +3346,6 @@
 
             try {
                 console.log('Sending POST to:', `${API_URL}/api/resources`);
-                console.log('Request body:', JSON.stringify({ resources: resources }, null, 2));
                 
                 const response = await fetch(`${API_URL}/api/resources`, {
                     method: 'POST',
@@ -3338,10 +3357,10 @@
                 });
 
                 console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
 
                 if (response.ok) {
-                    const data = await response.json();
-                    console.log('Response data:', data);
                     if (data.success) {
                         toast('Resources saved successfully!', 'success');
                         loadResources();
@@ -3354,9 +3373,7 @@
                 } else if (response.status === 403) {
                     toast('Permission denied. Admin access required.', 'error');
                 } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('Error response:', errorData);
-                    toast('Failed to save resources: ' + (errorData.message || 'Server error'), 'error');
+                    toast('Failed to save resources: ' + (data.message || 'Server error'), 'error');
                 }
             } catch (error) {
                 console.error('Error saving resources:', error);
@@ -3371,7 +3388,7 @@
         function openCalendarModal(resourceIndex) {
             currentCalendarResource = resources[resourceIndex];
             currentCalendarDate = new Date();
-            selectedCalendarDate = null;
+            selectedCalendarDates = []; // Reset multi-select array
             resourceAvailability = {};
             
             document.getElementById('calendarResourceName').textContent = 
@@ -3387,6 +3404,7 @@
         function closeCalendarModal() {
             document.getElementById('calendarModal').classList.remove('active');
             currentCalendarResource = null;
+            selectedCalendarDates = [];
         }
 
         document.getElementById('calendarModal').addEventListener('click', function(e) {
@@ -3465,7 +3483,7 @@
                 const date = new Date(year, month, day);
                 const dateStr = formatDateStr(date);
                 const isToday = date.getTime() === today.getTime();
-                const isSelected = selectedCalendarDate === dateStr;
+                const isSelected = selectedCalendarDates.includes(dateStr);
                 
                 const dayAvail = resourceAvailability[dateStr] || {
                     morning: currentCalendarResource?.morning,
@@ -3481,7 +3499,7 @@
                 else classes += ' no-availability';
                 
                 html += `
-                    <div class="${classes}" onclick="selectCalendarDay('${dateStr}')">
+                    <div class="${classes}" onclick="selectCalendarDay(event, '${dateStr}')">
                         <span class="day-number">${day}</span>
                         <div class="day-slots">
                             <span class="${dayAvail.morning ? 'morning' : 'unavailable'}"></span>
@@ -3502,25 +3520,74 @@
             document.getElementById('calendarGrid').innerHTML = html;
         }
 
-        function selectCalendarDay(dateStr) {
-            selectedCalendarDate = dateStr;
+        function selectCalendarDay(event, dateStr) {
+            const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKey for Mac
             
-            const date = new Date(dateStr + 'T00:00:00');
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('selectedDateDisplay').textContent = date.toLocaleDateString('en-US', options);
+            if (isCtrlPressed) {
+                // Multi-select mode: toggle the date in the array
+                const index = selectedCalendarDates.indexOf(dateStr);
+                if (index > -1) {
+                    selectedCalendarDates.splice(index, 1); // Remove if already selected
+                } else {
+                    selectedCalendarDates.push(dateStr); // Add to selection
+                }
+            } else {
+                // Single select mode: replace selection
+                selectedCalendarDates = [dateStr];
+            }
             
-            const dayAvail = resourceAvailability[dateStr] || {
-                morning: currentCalendarResource?.morning,
-                afternoon: currentCalendarResource?.afternoon,
-                evening: currentCalendarResource?.evening
-            };
+            // Sort dates chronologically
+            selectedCalendarDates.sort();
             
-            document.getElementById('dayMorning').checked = dayAvail.morning;
-            document.getElementById('dayAfternoon').checked = dayAvail.afternoon;
-            document.getElementById('dayEvening').checked = dayAvail.evening;
+            // Update display
+            updateSelectedDatesDisplay();
             
-            updateToggleStyle();
-            document.getElementById('dayEditPanel').classList.add('active');
+            // Set checkboxes based on first selected date
+            if (selectedCalendarDates.length > 0) {
+                const firstDate = selectedCalendarDates[0];
+                const dayAvail = resourceAvailability[firstDate] || {
+                    morning: currentCalendarResource?.morning,
+                    afternoon: currentCalendarResource?.afternoon,
+                    evening: currentCalendarResource?.evening
+                };
+                
+                document.getElementById('dayMorning').checked = dayAvail.morning;
+                document.getElementById('dayAfternoon').checked = dayAvail.afternoon;
+                document.getElementById('dayEvening').checked = dayAvail.evening;
+                
+                updateToggleStyle();
+                document.getElementById('dayEditPanel').classList.add('active');
+            } else {
+                document.getElementById('dayEditPanel').classList.remove('active');
+            }
+            
+            // Update save button text
+            const saveBtn = document.getElementById('saveBtnText');
+            if (saveBtn) {
+                saveBtn.textContent = selectedCalendarDates.length > 1 
+                    ? `Save ${selectedCalendarDates.length} Days` 
+                    : 'Save Day';
+            }
+            
+            renderCalendar();
+        }
+        
+        function updateSelectedDatesDisplay() {
+            const display = document.getElementById('selectedDateDisplay');
+            if (selectedCalendarDates.length === 0) {
+                display.textContent = 'Select a date';
+            } else if (selectedCalendarDates.length === 1) {
+                const date = new Date(selectedCalendarDates[0] + 'T00:00:00');
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                display.textContent = date.toLocaleDateString('en-US', options);
+            } else {
+                display.textContent = `${selectedCalendarDates.length} days selected`;
+            }
+        }
+        
+        function clearCalendarSelection() {
+            selectedCalendarDates = [];
+            document.getElementById('dayEditPanel').classList.remove('active');
             renderCalendar();
         }
 
@@ -3530,27 +3597,39 @@
             document.getElementById('toggleEvening').classList.toggle('active', document.getElementById('dayEvening').checked);
         }
 
-        function resetDayToDefault() {
-            if (!selectedCalendarDate || !currentCalendarResource) return;
+        function resetDaysToDefault() {
+            if (selectedCalendarDates.length === 0 || !currentCalendarResource) return;
             
             document.getElementById('dayMorning').checked = currentCalendarResource.morning;
             document.getElementById('dayAfternoon').checked = currentCalendarResource.afternoon;
             document.getElementById('dayEvening').checked = currentCalendarResource.evening;
             
-            delete resourceAvailability[selectedCalendarDate];
+            // Remove custom availability for all selected dates
+            selectedCalendarDates.forEach(dateStr => {
+                delete resourceAvailability[dateStr];
+            });
+            
             updateToggleStyle();
             renderCalendar();
-            toast('Reset to default availability', 'info');
+            
+            const count = selectedCalendarDates.length;
+            toast(`Reset ${count} day${count > 1 ? 's' : ''} to default availability`, 'info');
         }
 
-        async function saveDayAvailability() {
-            if (!selectedCalendarDate || !currentCalendarResource) return;
+        async function saveDaysAvailability() {
+            if (selectedCalendarDates.length === 0 || !currentCalendarResource) {
+                toast('Please select at least one day', 'warning');
+                return;
+            }
             
             const morning = document.getElementById('dayMorning').checked;
             const afternoon = document.getElementById('dayAfternoon').checked;
             const evening = document.getElementById('dayEvening').checked;
             
-            resourceAvailability[selectedCalendarDate] = { morning, afternoon, evening };
+            // Update local cache for all selected dates
+            selectedCalendarDates.forEach(dateStr => {
+                resourceAvailability[dateStr] = { morning, afternoon, evening };
+            });
             
             if (currentCalendarResource.id < 0) {
                 toast('Save the resource first to persist calendar changes', 'info');
@@ -3562,23 +3641,30 @@
             if (!token) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/resources/${currentCalendarResource.id}/availability`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        date: selectedCalendarDate,
-                        morning, afternoon, evening
+                // Save all selected dates
+                const savePromises = selectedCalendarDates.map(dateStr => 
+                    fetch(`${API_URL}/api/resources/${currentCalendarResource.id}/availability`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            date: dateStr,
+                            morning, afternoon, evening
+                        })
                     })
-                });
+                );
+                
+                const results = await Promise.all(savePromises);
+                const allSuccessful = results.every(r => r.ok);
 
-                if (response.ok) {
-                    toast('Day availability saved!', 'success');
+                if (allSuccessful) {
+                    const count = selectedCalendarDates.length;
+                    toast(`Saved availability for ${count} day${count > 1 ? 's' : ''}!`, 'success');
                     renderCalendar();
                 } else {
-                    toast('Failed to save day availability', 'error');
+                    toast('Some days failed to save', 'error');
                 }
             } catch (error) {
                 console.error('Error saving day availability:', error);

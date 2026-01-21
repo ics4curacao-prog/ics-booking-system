@@ -2385,7 +2385,6 @@ def save_resources(current_user):
         has_extended_fields = 'first_name' in columns
         
         logger.info(f"Resources table columns: {columns}")
-        logger.info(f"Has extended fields: {has_extended_fields}")
         
         # Check if resource_availability table exists
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='resource_availability'")
