@@ -2308,6 +2308,42 @@
             font-size: 1.1rem;
         }
 
+        /* Inactive service styles */
+        .service-option.service-inactive {
+            opacity: 0.5;
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .service-option.service-inactive:hover {
+            border-color: transparent;
+        }
+
+        .service-option.service-inactive .option-checkbox {
+            cursor: not-allowed;
+        }
+
+        .service-option.service-inactive .service-option-name {
+            color: #999;
+        }
+
+        .service-option.service-inactive .service-option-price {
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .service-unavailable-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
         .option-checkbox {
             display: flex;
             align-items: center;
@@ -3725,6 +3761,7 @@
                     }
                     
                     const price = Math.round(service.base_price);
+                    const isActive = service.is_active !== false; // Default to active if not specified
                     
                     // Update checkbox data-price attribute
                     if (mapping.checkbox) {
@@ -3732,6 +3769,38 @@
                         if (checkbox) {
                             checkbox.dataset.price = price;
                             console.log(`Updated ${mapping.checkbox} checkbox price to ${price}`);
+                            
+                            // Handle inactive services
+                            if (!isActive) {
+                                checkbox.disabled = true;
+                                checkbox.checked = false;
+                                
+                                // Find the parent service-option and add inactive class
+                                const serviceOption = checkbox.closest('.service-option');
+                                if (serviceOption) {
+                                    serviceOption.classList.add('service-inactive');
+                                    
+                                    // Add "Unavailable" badge if not already present
+                                    const nameSpan = serviceOption.querySelector('.service-option-name');
+                                    if (nameSpan && !nameSpan.querySelector('.service-unavailable-badge')) {
+                                        const badge = document.createElement('span');
+                                        badge.className = 'service-unavailable-badge';
+                                        badge.setAttribute('data-translate', 'form_service_unavailable');
+                                        badge.textContent = translations[currentLanguage]?.form_service_unavailable || 'Unavailable';
+                                        nameSpan.appendChild(badge);
+                                    }
+                                }
+                                console.log(`Service ${mapping.checkbox} is INACTIVE - disabled`);
+                            } else {
+                                // Re-enable if previously disabled (in case service becomes active again)
+                                checkbox.disabled = false;
+                                const serviceOption = checkbox.closest('.service-option');
+                                if (serviceOption) {
+                                    serviceOption.classList.remove('service-inactive');
+                                    const badge = serviceOption.querySelector('.service-unavailable-badge');
+                                    if (badge) badge.remove();
+                                }
+                            }
                         }
                     }
                     
@@ -3741,6 +3810,13 @@
                         if (input) {
                             input.dataset.price = price;
                             console.log(`Updated ${mapping.input} input price to ${price}`);
+                            
+                            // Disable quantity input if service is inactive
+                            if (!isActive) {
+                                input.disabled = true;
+                            } else {
+                                input.disabled = false;
+                            }
                         }
                     }
                     
@@ -5100,6 +5176,7 @@ Need help? Check the README.md file for detailed instructions.
                 form_mattress_cleaning: 'Mattress Cleaning',
                 form_electrostatic_cleaning: 'Electrostatic Cleaning',
                 form_pool_cleaning: 'Pool Cleaning',
+                form_service_unavailable: 'Unavailable',
                 form_office_cleaning: 'Office Cleaning (Base Service)',
                 form_num_bedrooms: 'Number of Bedrooms',
                 form_num_bathrooms: 'Number of Bathrooms',
@@ -5299,6 +5376,7 @@ Need help? Check the README.md file for detailed instructions.
                 form_mattress_cleaning: 'Limpieza de Colchones',
                 form_electrostatic_cleaning: 'Limpieza Electrostática',
                 form_pool_cleaning: 'Limpieza de Piscina',
+                form_service_unavailable: 'No Disponible',
                 form_office_cleaning: 'Limpieza de Oficina (Servicio Base)',
                 form_num_bedrooms: 'Número de Habitaciones',
                 form_num_bathrooms: 'Número de Baños',
@@ -5498,6 +5576,7 @@ Need help? Check the README.md file for detailed instructions.
                 form_mattress_cleaning: 'Matras Reiniging',
                 form_electrostatic_cleaning: 'Elektrostatische Reiniging',
                 form_pool_cleaning: 'Zwembad Reiniging',
+                form_service_unavailable: 'Niet Beschikbaar',
                 form_office_cleaning: 'Kantoor Schoonmaak (Basisdienst)',
                 form_num_bedrooms: 'Aantal Slaapkamers',
                 form_num_bathrooms: 'Aantal Badkamers',
@@ -5903,7 +5982,15 @@ Need help? Check the README.md file for detailed instructions.
                 const checkbox = document.getElementById(id);
                 if (checkbox) {
                     const nameSpan = checkbox.parentElement.querySelector('.service-option-name');
-                    if (nameSpan) nameSpan.textContent = serviceOptionNames[id];
+                    if (nameSpan) {
+                        // Preserve the unavailable badge if it exists
+                        const existingBadge = nameSpan.querySelector('.service-unavailable-badge');
+                        nameSpan.textContent = serviceOptionNames[id];
+                        if (existingBadge) {
+                            existingBadge.textContent = t.form_service_unavailable || 'Unavailable';
+                            nameSpan.appendChild(existingBadge);
+                        }
+                    }
                 }
             });
             

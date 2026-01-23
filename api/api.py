@@ -2314,15 +2314,14 @@ def reset_pricing(current_user):
 
 @app.route('/api/pricing/public', methods=['GET'])
 def get_public_pricing():
-    """Get active service pricing for customers"""
+    """Get all service pricing for customers (includes is_active status for display)"""
     try:
         conn = get_db()
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT id, service_name, base_price, unit, description, category, display_order
+            SELECT id, service_name, base_price, unit, description, category, display_order, is_active
             FROM service_pricing 
-            WHERE is_active = 1
             ORDER BY category, display_order, service_name
         ''')
         services = cursor.fetchall()
@@ -2336,7 +2335,8 @@ def get_public_pricing():
                 'base_price': float(service['base_price']),
                 'unit': service['unit'],
                 'description': service['description'] or '',
-                'category': service['category'] or 'Other'
+                'category': service['category'] or 'Other',
+                'is_active': bool(service['is_active'])
             })
         
         return jsonify(services_list), 200
