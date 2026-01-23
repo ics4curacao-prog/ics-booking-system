@@ -441,6 +441,118 @@ init_database()
 run_migrations()
 
 # ============================================================
+# POPULATE DEFAULT AVAILABILITY THROUGH DECEMBER 2026
+# ============================================================
+
+def populate_default_availability():
+    """
+    Populate the resource_availability table with default entries through December 31, 2026.
+    Creates 2 default resources if none exist:
+    - Resource 1: morning, afternoon, evening (Mon-Fri)
+    - Resource 2: morning, afternoon only (no evening)
+    
+    Resulting slot totals:
+    - Monday-Friday: 2 morning, 2 afternoon, 1 evening
+    - Saturday: 2 morning only
+    - Sunday: Closed (0 slots)
+    """
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Check if we have any resources
+        cursor.execute('SELECT COUNT(*) as count FROM resources WHERE active = 1')
+        resource_count = cursor.fetchone()['count']
+        
+        # Create 2 default resources if none exist
+        # Resource 1: Available morning, afternoon, evening (Mon-Fri)
+        # Resource 2: Available morning, afternoon only (no evening)
+        if resource_count == 0:
+            logger.info("Creating 2 default resources for scheduling...")
+            # Resource 1 - full availability including evening
+            cursor.execute('''
+                INSERT INTO resources (name, first_name, last_name, morning, afternoon, evening, active)
+                VALUES (?, ?, ?, 1, 1, 1, 1)
+            ''', ('Team Member 1', 'Team', 'Member 1'))
+            # Resource 2 - no evening availability
+            cursor.execute('''
+                INSERT INTO resources (name, first_name, last_name, morning, afternoon, evening, active)
+                VALUES (?, ?, ?, 1, 1, 0, 1)
+            ''', ('Team Member 2', 'Team', 'Member 2'))
+            conn.commit()
+            logger.info("Created 2 default resources (1 with evening, 1 without)")
+        
+        # Get all active resources with their default evening setting
+        cursor.execute('SELECT id, evening FROM resources WHERE active = 1')
+        resources = cursor.fetchall()
+        
+        if not resources:
+            logger.warning("No active resources found, skipping availability population")
+            conn.close()
+            return
+        
+        # Check if availability already populated (check for entries in 2026)
+        cursor.execute("SELECT COUNT(*) as count FROM resource_availability WHERE date LIKE '2026-%'")
+        existing_2026 = cursor.fetchone()['count']
+        
+        if existing_2026 > 100:  # If we have substantial 2026 entries, skip
+            logger.info(f"Default availability already populated ({existing_2026} entries in 2026)")
+            conn.close()
+            return
+        
+        logger.info(f"Populating default availability for {len(resources)} resources through December 2026...")
+        
+        # Start from today
+        start_date = datetime.date.today()
+        end_date = datetime.date(2026, 12, 31)
+        
+        entries_added = 0
+        current_date = start_date
+        
+        while current_date <= end_date:
+            date_str = current_date.strftime('%Y-%m-%d')
+            day_of_week = current_date.weekday()  # 0=Monday, 6=Sunday
+            
+            # Add entry for each resource
+            for resource in resources:
+                resource_id = resource['id']
+                resource_has_evening = resource['evening']  # Respect resource's evening setting
+                
+                # Determine availability based on day of week
+                if day_of_week == 6:  # Sunday - closed
+                    morning, afternoon, evening = 0, 0, 0
+                elif day_of_week == 5:  # Saturday - morning only
+                    morning, afternoon, evening = 1, 0, 0
+                else:  # Monday-Friday
+                    morning, afternoon = 1, 1
+                    evening = resource_has_evening  # Only if resource does evening
+                
+                try:
+                    cursor.execute('''
+                        INSERT OR IGNORE INTO resource_availability (resource_id, date, morning, afternoon, evening)
+                        VALUES (?, ?, ?, ?, ?)
+                    ''', (resource_id, date_str, morning, afternoon, evening))
+                    if cursor.rowcount > 0:
+                        entries_added += 1
+                except sqlite3.IntegrityError:
+                    pass  # Entry already exists, skip
+            
+            current_date += datetime.timedelta(days=1)
+        
+        conn.commit()
+        conn.close()
+        
+        logger.info(f"Default availability populated: {entries_added} entries added through {end_date}")
+        
+    except Exception as e:
+        logger.error(f"Error populating default availability: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+
+# Populate default availability entries
+populate_default_availability()
+
+# ============================================================
 # HELPER FUNCTION - Get Slot Limits from Resources
 # ============================================================
 
