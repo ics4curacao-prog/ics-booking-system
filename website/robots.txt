@@ -1,26 +1,19 @@
-# ============================================================
-# ICS Website - Robots.txt
-# ============================================================
-# This file tells search engine crawlers which pages to index
+# Robots.txt for ICS Curaçao - https://ics.cw
+# Professional Cleaning Services
 
-# Allow all crawlers
 User-agent: *
-
-# Allow indexing of main pages
 Allow: /
 
-# Disallow admin and API paths (if any exist on same domain)
-Disallow: /admin
-Disallow: /api/
-Disallow: /login
-
-# Disallow temporary and private pages
-Disallow: /temp/
-Disallow: /private/
-Disallow: /test/
-
-# Sitemap location
+# Point to sitemap
 Sitemap: https://ics.cw/sitemap.xml
 
-# Crawl delay (optional - be nice to servers)
-Crawl-delay: 1
+# Block admin area from search engines
+Disallow: /admin/
+Disallow: /api/
+
+# Allow search engine image crawlers
+User-agent: Googlebot-Image
+Allow: /images/
+
+# Block common non-content paths
+Disallow: /cdn-cgi/
