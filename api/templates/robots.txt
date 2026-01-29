@@ -1,0 +1,5 @@
+# robots.txt for admin.ics.cw
+# Block all crawlers from admin area
+
+User-agent: *
+Disallow: /

@@ -1,19 +1,8 @@
-# Robots.txt for ICS Curaçao - https://ics.cw
-# Professional Cleaning Services
+# robots.txt for ics.cw
+# Block admin subdomain and allow main site
 
 User-agent: *
 Allow: /
 
 # Point to sitemap
 Sitemap: https://ics.cw/sitemap.xml
-
-# Block admin area from search engines
-Disallow: /admin/
-Disallow: /api/
-
-# Allow search engine image crawlers
-User-agent: Googlebot-Image
-Allow: /images/
-
-# Block common non-content paths
-Disallow: /cdn-cgi/
