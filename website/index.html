@@ -1027,6 +1027,46 @@
             gap: 1rem;
         }
 
+        /* News Section */
+        .news-section {
+            padding: 7rem 4rem;
+            background: var(--light);
+        }
+
+        .news-coming-soon {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 4rem 3rem;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .news-coming-soon-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.85; }
+        }
+
+        .news-coming-soon h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .news-coming-soon p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
         /* Contact Section */
         .contact-section {
             padding: 7rem 4rem;
@@ -1396,6 +1436,7 @@
             .values-section,
             .about-section,
             .services-section,
+            .news-section,
             .contact-section,
             .booking-section {
                 padding: 5rem 2rem;
@@ -1551,6 +1592,7 @@
             .values-section,
             .about-section,
             .services-section,
+            .news-section,
             .contact-section,
             .booking-section {
                 padding: 3rem 1rem;
@@ -1564,8 +1606,15 @@
                 padding: 2rem 1.5rem;
             }
 
+            .news-coming-soon {
+                padding: 3rem 1.5rem;
+            }
+
+            .news-coming-soon h3 {
+                font-size: 1.6rem;
+            }
+
             .services-grid {
-                gap: 1.5rem;
             }
 
             /* Booking Form */
@@ -2551,6 +2600,7 @@
             <li><a href="#home">HOME</a></li>
             <li><a href="#services">SERVICES</a></li>
             <li><a href="#about">ABOUT</a></li>
+            <li><a href="#news">NEWS</a></li>
             <li><a href="#contact">CONTACT</a></li>
             <li><a href="#book">BOOK ONLINE</a></li>
         </ul>
@@ -2601,6 +2651,7 @@
             <li><a href="#home" class="mobile-nav-link">Home</a></li>
             <li><a href="#about" class="mobile-nav-link">About</a></li>
             <li><a href="#services" class="mobile-nav-link">Services</a></li>
+            <li><a href="#news" class="mobile-nav-link">News</a></li>
             <li><a href="#book" class="mobile-nav-link">Book Now</a></li>
             <li><a href="#contact" class="mobile-nav-link">Contact</a></li>
         </ul>
@@ -3257,6 +3308,19 @@
                     </form>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section" id="news">
+        <div class="section-header">
+            <h2>Latest News</h2>
+            <p>Stay up to date with ICS updates, cleaning tips, and community news</p>
+        </div>
+        <div class="news-coming-soon">
+            <div class="news-coming-soon-icon">📰</div>
+            <h3>Coming Soon</h3>
+            <p>We're working on exciting updates to share with you. Check back soon!</p>
         </div>
     </section>
 
@@ -5007,6 +5071,7 @@ Need help? Check the README.md file for detailed instructions.
                 nav_services: 'SERVICES',
                 nav_about: 'ABOUT',
                 nav_contact: 'CONTACT',
+                nav_news: 'NEWS',
                 nav_book: 'BOOK ONLINE',
                 sign_out: 'Sign Out',
                 
@@ -5198,6 +5263,12 @@ Need help? Check the README.md file for detailed instructions.
                 contact_message_placeholder: 'Tell us about your cleaning needs...',
                 contact_submit: 'Send Message',
                 
+                // News Section
+                news_title: 'Latest News',
+                news_subtitle: 'Stay up to date with ICS updates, cleaning tips, and community news',
+                news_coming_soon: 'Coming Soon',
+                news_coming_soon_desc: 'We\'re working on exciting updates to share with you. Check back soon!',
+                
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. All Rights Reserved.'
             },
@@ -5207,6 +5278,7 @@ Need help? Check the README.md file for detailed instructions.
                 nav_services: 'SERVICIOS',
                 nav_about: 'NOSOTROS',
                 nav_contact: 'CONTACTO',
+                nav_news: 'NOTICIAS',
                 nav_book: 'RESERVAR',
                 sign_out: 'Cerrar Sesión',
                 
@@ -5398,6 +5470,12 @@ Need help? Check the README.md file for detailed instructions.
                 contact_message_placeholder: 'Cuéntenos sobre sus necesidades de limpieza...',
                 contact_submit: 'Enviar Mensaje',
                 
+                // News Section
+                news_title: 'Últimas Noticias',
+                news_subtitle: 'Manténgase al día con las actualizaciones de ICS, consejos de limpieza y noticias de la comunidad',
+                news_coming_soon: 'Próximamente',
+                news_coming_soon_desc: '¡Estamos trabajando en novedades emocionantes para compartir con usted. Vuelva pronto!',
+                
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. Todos los Derechos Reservados.'
             },
@@ -5407,6 +5485,7 @@ Need help? Check the README.md file for detailed instructions.
                 nav_services: 'DIENSTEN',
                 nav_about: 'OVER ONS',
                 nav_contact: 'CONTACT',
+                nav_news: 'NIEUWS',
                 nav_book: 'BOEKEN',
                 sign_out: 'Uitloggen',
                 
@@ -5598,6 +5677,12 @@ Need help? Check the README.md file for detailed instructions.
                 contact_message_placeholder: 'Vertel ons over uw schoonmaakbehoeften...',
                 contact_submit: 'Bericht Versturen',
                 
+                // News Section
+                news_title: 'Laatste Nieuws',
+                news_subtitle: 'Blijf op de hoogte van ICS-updates, schoonmaaktips en gemeenschapsnieuws',
+                news_coming_soon: 'Binnenkort Beschikbaar',
+                news_coming_soon_desc: 'We werken aan spannende updates om met u te delen. Kom snel terug!',
+                
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. Alle Rechten Voorbehouden.'
             }
@@ -5668,8 +5753,18 @@ Need help? Check the README.md file for detailed instructions.
             if (navLinks[0]) navLinks[0].textContent = t.nav_home;
             if (navLinks[1]) navLinks[1].textContent = t.nav_services;
             if (navLinks[2]) navLinks[2].textContent = t.nav_about;
-            if (navLinks[3]) navLinks[3].textContent = t.nav_contact;
-            if (navLinks[4]) navLinks[4].textContent = t.nav_book;
+            if (navLinks[3]) navLinks[3].textContent = t.nav_news;
+            if (navLinks[4]) navLinks[4].textContent = t.nav_contact;
+            if (navLinks[5]) navLinks[5].textContent = t.nav_book;
+            
+            // Mobile Navigation
+            const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
+            if (mobileLinks[0]) mobileLinks[0].textContent = t.nav_home;
+            if (mobileLinks[1]) mobileLinks[1].textContent = t.nav_about;
+            if (mobileLinks[2]) mobileLinks[2].textContent = t.nav_services;
+            if (mobileLinks[3]) mobileLinks[3].textContent = t.nav_news;
+            if (mobileLinks[4]) mobileLinks[4].textContent = t.nav_book;
+            if (mobileLinks[5]) mobileLinks[5].textContent = t.nav_contact;
             
             const signOutBtn = document.getElementById('signout-btn');
             if (signOutBtn) signOutBtn.textContent = t.sign_out;
@@ -5764,6 +5859,23 @@ Need help? Check the README.md file for detailed instructions.
                     if (ps[1] && serviceData[index].note) ps[1].textContent = serviceData[index].note;
                 }
             });
+            
+            // News Section
+            const newsHeader = document.querySelector('.news-section .section-header');
+            if (newsHeader) {
+                const h2 = newsHeader.querySelector('h2');
+                const p = newsHeader.querySelector('p');
+                if (h2) h2.textContent = t.news_title;
+                if (p) p.textContent = t.news_subtitle;
+            }
+            
+            const newsComingSoon = document.querySelector('.news-coming-soon');
+            if (newsComingSoon) {
+                const h3 = newsComingSoon.querySelector('h3');
+                const p = newsComingSoon.querySelector('p');
+                if (h3) h3.textContent = t.news_coming_soon;
+                if (p) p.textContent = t.news_coming_soon_desc;
+            }
             
             // Booking Section Header
             const bookingHeader = document.querySelector('.booking-header');
