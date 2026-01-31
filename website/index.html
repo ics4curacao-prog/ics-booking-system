@@ -1033,38 +1033,119 @@
             background: var(--light);
         }
 
-        .news-coming-soon {
-            max-width: 600px;
+        .news-announcement {
+            max-width: 820px;
             margin: 0 auto;
-            text-align: center;
             background: var(--white);
-            border-radius: 20px;
-            padding: 4rem 3rem;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
         }
 
-        .news-coming-soon-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            animation: pulse 2s ease-in-out infinite;
+        .news-announcement::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--primary), var(--accent));
+            z-index: 1;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.85; }
+        .news-announcement-image {
+            width: 100%;
+            height: 340px;
+            overflow: hidden;
         }
 
-        .news-coming-soon h3 {
+        .news-announcement-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .news-announcement:hover .news-announcement-image img {
+            transform: scale(1.03);
+        }
+
+        .news-announcement-content {
+            padding: 3rem 4rem 3.5rem;
+            text-align: center;
+        }
+
+        .news-announcement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #179AA3);
+            color: var(--white);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .news-announcement h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 2rem;
+            font-size: 2.4rem;
             color: var(--primary);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.25;
         }
 
-        .news-coming-soon p {
+        .news-announcement-divider {
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            margin: 0 auto 2rem;
+            border-radius: 3px;
+        }
+
+        .news-announcement-text {
             color: var(--gray);
             font-size: 1.1rem;
+            line-height: 1.9;
+            margin-bottom: 1.25rem;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .news-announcement-text strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .news-announcement-cta {
+            color: var(--accent);
+            font-size: 1.05rem;
+            font-weight: 600;
             line-height: 1.8;
+            margin-bottom: 2.5rem;
+        }
+
+        .news-announcement-actions {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(45, 74, 82, 0.2);
         }
 
         /* Contact Section */
@@ -1606,12 +1687,31 @@
                 padding: 2rem 1.5rem;
             }
 
-            .news-coming-soon {
-                padding: 3rem 1.5rem;
+            .news-announcement-image {
+                height: 220px;
             }
 
-            .news-coming-soon h3 {
-                font-size: 1.6rem;
+            .news-announcement-content {
+                padding: 2rem 1.5rem 2.5rem;
+            }
+
+            .news-announcement h3 {
+                font-size: 1.7rem;
+            }
+
+            .news-announcement-text {
+                font-size: 1rem;
+            }
+
+            .news-announcement-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .news-announcement-actions .btn {
+                width: 100%;
+                max-width: 280px;
+                text-align: center;
             }
 
             .services-grid {
@@ -3317,10 +3417,21 @@
             <h2>Latest News</h2>
             <p>Stay up to date with ICS updates, cleaning tips, and community news</p>
         </div>
-        <div class="news-coming-soon">
-            <div class="news-coming-soon-icon">📰</div>
-            <h3>Coming Soon</h3>
-            <p>We're working on exciting updates to share with you. Check back soon!</p>
+        <div class="news-announcement">
+            <div class="news-announcement-image">
+                <img loading="lazy" src="images/news_1.jpg" alt="ICS Curaçao Launch Announcement">
+            </div>
+            <div class="news-announcement-content">
+                <div class="news-announcement-badge">🚀 Launch Announcement</div>
+                <h3>Curaçao, Get Ready for a Cleaner Tomorrow!</h3>
+                <div class="news-announcement-divider"></div>
+                <p class="news-announcement-text">The countdown is on! With all permits secured, our website and online booking system live, and a growing social media presence, ICS is officially launching its services in the <strong>last week of February 2026</strong>. Our cutting-edge cleaning technology and eco-friendly products are on their way to the island — and we can't wait to put them to work for you.</p>
+                <p class="news-announcement-cta">Stay tuned for cleaning tips, tricks, and the latest innovations in cleaning technology. The future of clean is almost here!</p>
+                <div class="news-announcement-actions">
+                    <a href="#book" class="btn btn-primary">Book a Cleaning</a>
+                    <a href="#contact" class="btn btn-outline">Get in Touch</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -5266,8 +5377,14 @@ Need help? Check the README.md file for detailed instructions.
                 // News Section
                 news_title: 'Latest News',
                 news_subtitle: 'Stay up to date with ICS updates, cleaning tips, and community news',
-                news_coming_soon: 'Coming Soon',
-                news_coming_soon_desc: 'We\'re working on exciting updates to share with you. Check back soon!',
+                news_badge: '🚀 Launch Announcement',
+                news_headline: 'Curaçao, Get Ready for a Cleaner Tomorrow!',
+                news_text: 'The countdown is on! With all permits secured, our website and online booking system live, and a growing social media presence, ICS is officially launching its services in the ',
+                news_text_date: 'last week of February 2026',
+                news_text_end: '. Our cutting-edge cleaning technology and eco-friendly products are on their way to the island — and we can\'t wait to put them to work for you.',
+                news_cta: 'Stay tuned for cleaning tips, tricks, and the latest innovations in cleaning technology. The future of clean is almost here!',
+                news_btn_book: 'Book a Cleaning',
+                news_btn_contact: 'Get in Touch',
                 
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. All Rights Reserved.'
@@ -5473,8 +5590,14 @@ Need help? Check the README.md file for detailed instructions.
                 // News Section
                 news_title: 'Últimas Noticias',
                 news_subtitle: 'Manténgase al día con las actualizaciones de ICS, consejos de limpieza y noticias de la comunidad',
-                news_coming_soon: 'Próximamente',
-                news_coming_soon_desc: '¡Estamos trabajando en novedades emocionantes para compartir con usted. Vuelva pronto!',
+                news_badge: '🚀 Anuncio de Lanzamiento',
+                news_headline: '¡Curaçao, Prepárese para un Mañana más Limpio!',
+                news_text: '¡La cuenta regresiva ha comenzado! Con todos los permisos asegurados, nuestro sitio web y sistema de reservas en línea activos, y una creciente presencia en redes sociales, ICS lanza oficialmente sus servicios en la ',
+                news_text_date: 'última semana de febrero de 2026',
+                news_text_end: '. Nuestra tecnología de limpieza de vanguardia y productos ecológicos están en camino a la isla — y estamos ansiosos por ponerlos a trabajar para usted.',
+                news_cta: '¡Estén atentos para consejos y trucos de limpieza y las últimas innovaciones en tecnología de limpieza. El futuro de la limpieza está casi aquí!',
+                news_btn_book: 'Reservar una Limpieza',
+                news_btn_contact: 'Contáctenos',
                 
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. Todos los Derechos Reservados.'
@@ -5680,8 +5803,14 @@ Need help? Check the README.md file for detailed instructions.
                 // News Section
                 news_title: 'Laatste Nieuws',
                 news_subtitle: 'Blijf op de hoogte van ICS-updates, schoonmaaktips en gemeenschapsnieuws',
-                news_coming_soon: 'Binnenkort Beschikbaar',
-                news_coming_soon_desc: 'We werken aan spannende updates om met u te delen. Kom snel terug!',
+                news_badge: '🚀 Lanceringsaankondiging',
+                news_headline: 'Curaçao, Maak u Klaar voor een Schonere Toekomst!',
+                news_text: 'Het aftellen is begonnen! Met alle vergunningen op orde, onze website en online boekingssysteem live, en een groeiende aanwezigheid op sociale media, lanceert ICS officieel haar diensten in de ',
+                news_text_date: 'laatste week van februari 2026',
+                news_text_end: '. Onze geavanceerde schoonmaaktechnologie en milieuvriendelijke producten zijn onderweg naar het eiland — en we kunnen niet wachten om ze voor u aan het werk te zetten.',
+                news_cta: 'Blijf op de hoogte voor schoonmaaktips, trucs en de nieuwste innovaties in schoonmaaktechnologie. De toekomst van schoon is bijna hier!',
+                news_btn_book: 'Boek een Schoonmaak',
+                news_btn_contact: 'Neem Contact Op',
                 
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. Alle Rechten Voorbehouden.'
@@ -5869,12 +5998,19 @@ Need help? Check the README.md file for detailed instructions.
                 if (p) p.textContent = t.news_subtitle;
             }
             
-            const newsComingSoon = document.querySelector('.news-coming-soon');
-            if (newsComingSoon) {
-                const h3 = newsComingSoon.querySelector('h3');
-                const p = newsComingSoon.querySelector('p');
-                if (h3) h3.textContent = t.news_coming_soon;
-                if (p) p.textContent = t.news_coming_soon_desc;
+            const newsAnnouncement = document.querySelector('.news-announcement');
+            if (newsAnnouncement) {
+                const badge = newsAnnouncement.querySelector('.news-announcement-badge');
+                const h3 = newsAnnouncement.querySelector('h3');
+                const text = newsAnnouncement.querySelector('.news-announcement-text');
+                const cta = newsAnnouncement.querySelector('.news-announcement-cta');
+                const btns = newsAnnouncement.querySelectorAll('.btn');
+                if (badge) badge.textContent = t.news_badge;
+                if (h3) h3.textContent = t.news_headline;
+                if (text) text.innerHTML = t.news_text + '<strong>' + t.news_text_date + '</strong>' + t.news_text_end;
+                if (cta) cta.textContent = t.news_cta;
+                if (btns[0]) btns[0].textContent = t.news_btn_book;
+                if (btns[1]) btns[1].textContent = t.news_btn_contact;
             }
             
             // Booking Section Header
