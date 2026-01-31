@@ -1058,6 +1058,7 @@
             width: 100%;
             height: 340px;
             overflow: hidden;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark), var(--accent));
         }
 
         .news-announcement-image img {
@@ -1065,6 +1066,7 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease;
+            display: block;
         }
 
         .news-announcement:hover .news-announcement-image img {
@@ -3419,11 +3421,11 @@
         </div>
         <div class="news-announcement">
             <div class="news-announcement-image">
-                <img loading="lazy" src="images/news_1.jpg" alt="ICS Curaçao Launch Announcement">
+                <img loading="lazy" src="images/news_1.jpg" alt="ICS Curaçao Launch Announcement" onerror="this.style.display='none'">
             </div>
             <div class="news-announcement-content">
                 <div class="news-announcement-badge">🚀 Launch Announcement</div>
-                <h3>Curaçao, Get Ready for Inetlligent Cleaning Services!</h3>
+                <h3>Curaçao, Get Ready for Intelligent Cleaning Services!</h3>
                 <div class="news-announcement-divider"></div>
                 <p class="news-announcement-text">The countdown is on! With all permits secured, our website and online booking system live, and a growing social media presence, ICS is officially launching its services in the <strong>last week of February 2026</strong>. Our cutting edge cleaning technology and eco-friendly products are on their way to the island and we can't wait to put them to work for you.</p>
                 <p class="news-announcement-cta">Stay tuned for cleaning tips, tricks, and the latest innovations in cleaning technology. The future of clean is almost here!</p>
