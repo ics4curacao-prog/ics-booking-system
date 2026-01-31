@@ -1057,20 +1057,10 @@
         .news-announcement-image {
             width: 100%;
             height: 340px;
-            overflow: hidden;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark), var(--accent));
-        }
-
-        .news-announcement-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-            display: block;
-        }
-
-        .news-announcement:hover .news-announcement-image img {
-            transform: scale(1.03);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: var(--primary);
         }
 
         .news-announcement-content {
@@ -3420,9 +3410,7 @@
             <p>Stay up to date with ICS updates, cleaning tips, and community news</p>
         </div>
         <div class="news-announcement">
-            <div class="news-announcement-image">
-                <img loading="lazy" src="images/news_1.jpg" alt="ICS Curaçao Launch Announcement" onerror="this.style.display='none'">
-            </div>
+            <div class="news-announcement-image" style="background-image: url('images/news_1.jpg');"></div>
             <div class="news-announcement-content">
                 <div class="news-announcement-badge">🚀 Launch Announcement</div>
                 <h3>Curaçao, Get Ready for Intelligent Cleaning Services!</h3>
