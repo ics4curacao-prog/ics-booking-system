@@ -86,17 +86,17 @@ logger.info(f"Database path: {DATABASE}")
 # EMAIL CONFIGURATION - Use environment variables for security
 # ============================================================
 # Set these in Render Dashboard under Environment Variables:
-# - MAIL_USERNAME: Your Gmail address (for invoices) - ics4curacao@gmail.com
-# - MAIL_PASSWORD: Your Gmail App Password (16 characters)
-# - MAIL_SERVER: smtp.gmail.com (default)
+# - MAIL_USERNAME: Google Workspace email - info@ics.cw
+# - MAIL_PASSWORD: Google Workspace App Password (16 characters)
+# - MAIL_SERVER: smtp.gmail.com (default, same for Google Workspace)
 # - MAIL_PORT: 587 (default)
 
 EMAIL_CONFIG = {
     'smtp_server': os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
     'smtp_port': int(os.environ.get('MAIL_PORT', 587)),
-    'sender_email': os.environ.get('MAIL_USERNAME', ''),
-    'sender_password': os.environ.get('MAIL_PASSWORD', ''),
-    'sender_name': os.environ.get('MAIL_SENDER_NAME', 'Intelligence Cleaning Services'),
+    'sender_email': os.environ.get('MAIL_USERNAME', 'info@ics.cw'),
+    'sender_password': os.environ.get('MAIL_PASSWORD', 'crkbxcdpiwyyqkiz'),
+    'sender_name': os.environ.get('MAIL_SENDER_NAME', 'Intelligent Cleaning Services'),
     'enabled': os.environ.get('MAIL_ENABLED', 'true').lower() == 'true'
 }
 
@@ -106,20 +106,18 @@ if EMAIL_CONFIG['enabled'] and (not EMAIL_CONFIG['sender_email'] or not EMAIL_CO
     EMAIL_CONFIG['enabled'] = False
 
 # ============================================================
-# CONTACT FORM EMAIL CONFIGURATION - Separate account to avoid Gmail loop
+# CONTACT FORM EMAIL CONFIGURATION
 # ============================================================
-# Set these in Render Dashboard under Environment Variables:
-# - CONTACT_MAIL_USERNAME: Separate Gmail for contact form (e.g., afadania74@gmail.com)
-# - CONTACT_MAIL_PASSWORD: App Password for that Gmail account
-#
-# This prevents the Gmail loop problem where emails sent from ics4curacao@gmail.com
-# to info@ics.cw (which forwards to ics4curacao@gmail.com) get silently dropped.
+# Now using Google Workspace (info@ics.cw), the Gmail forwarding loop problem
+# is resolved. Contact form emails can use the same account.
+# Set CONTACT_MAIL_USERNAME and CONTACT_MAIL_PASSWORD in Render if you want
+# a separate account, otherwise it falls back to the main email config.
 
 CONTACT_EMAIL_CONFIG = {
     'smtp_server': os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
     'smtp_port': int(os.environ.get('MAIL_PORT', 587)),
-    'sender_email': os.environ.get('CONTACT_MAIL_USERNAME', ''),
-    'sender_password': os.environ.get('CONTACT_MAIL_PASSWORD', ''),
+    'sender_email': os.environ.get('CONTACT_MAIL_USERNAME', 'info@ics.cw'),
+    'sender_password': os.environ.get('CONTACT_MAIL_PASSWORD', 'crkbxcdpiwyyqkiz'),
     'sender_name': 'ICS Website Contact Form',
     'enabled': True
 }
@@ -1142,7 +1140,7 @@ def generate_invoice_html_for_email(booking):
         
         <!-- Email-specific footer (hidden when printing) -->
         <div class="email-footer" style="text-align: center; padding: 20px; color: #999; font-size: 11px;">
-            <p>This is an automated email from Intelligence Cleaning Services.</p>
+            <p>This is an automated email from Intelligent Cleaning Services.</p>
             <p>If you have any questions, please contact us.</p>
         </div>
     </body>
@@ -1184,7 +1182,7 @@ INVOICE: {invoice_number}
 
 Hello {booking['customer_name'] or 'Valued Customer'},
 
-Thank you for choosing Intelligence Cleaning Services! Please find your invoice attached.
+Thank you for choosing Intelligent Cleaning Services! Please find your invoice attached.
 
 ■ BOOKING INFORMATION
 Invoice Date: {datetime.datetime.now().strftime('%B %d, %Y')}
@@ -1437,7 +1435,7 @@ def api_info():
 def api_version():
     """API information endpoint"""
     return jsonify({
-        'name': 'Intelligence Cleaning Services API',
+        'name': 'Intelligent Cleaning Services API',
         'version': '1.0.0',
         'status': 'running',
         'environment': ENVIRONMENT,
@@ -2983,7 +2981,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     
     print("=" * 60)
-    print("Intelligence Cleaning Solutions - API Server")
+    print("Intelligent Cleaning Services - API Server")
     print("=" * 60)
     print(f"Environment: {ENVIRONMENT}")
     print(f"Starting server on http://0.0.0.0:{port}")
