@@ -5395,6 +5395,14 @@ Need help? Check the README.md file for detailed instructions.
                 news_btn_book: 'Book a Cleaning',
                 news_btn_contact: 'Get in Touch',
                 
+                // News Section - Equipment Card
+                news2_badge: '📦 Equipment Update',
+                news2_headline: 'The Gear Has Arrived!',
+                news2_text: 'Our professional-grade cleaning equipment has officially landed in Curaçao! From smart robot vacuums and powered scrubbers to Bissell CrossWave floor care systems and eco-friendly cleaning solutions — we\'ve invested in the best tools to deliver spotless results every time.',
+                news2_cta: 'Professional-grade cleaning equipment for Curaçao\'s vacation rentals, offices & homes. The future of clean is here!',
+                news2_btn_book: 'Book a Cleaning',
+                news2_btn_services: 'View Services',
+                
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. All Rights Reserved.'
             },
@@ -5607,6 +5615,14 @@ Need help? Check the README.md file for detailed instructions.
                 news_cta: '¡Estén atentos para consejos y trucos de limpieza y las últimas innovaciones en tecnología de limpieza. El futuro de la limpieza está casi aquí!',
                 news_btn_book: 'Reservar una Limpieza',
                 news_btn_contact: 'Contáctenos',
+                
+                // News Section - Equipment Card
+                news2_badge: '📦 Actualización de Equipos',
+                news2_headline: '¡El Equipo Ha Llegado!',
+                news2_text: '¡Nuestro equipo de limpieza profesional ha llegado oficialmente a Curaçao! Desde aspiradoras robot inteligentes y fregadoras eléctricas hasta sistemas Bissell CrossWave y soluciones de limpieza ecológicas — hemos invertido en las mejores herramientas para obtener resultados impecables.',
+                news2_cta: '¡Equipo de limpieza profesional para alquileres vacacionales, oficinas y hogares en Curaçao. El futuro de la limpieza ya está aquí!',
+                news2_btn_book: 'Reservar una Limpieza',
+                news2_btn_services: 'Ver Servicios',
                 
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. Todos los Derechos Reservados.'
@@ -5821,6 +5837,14 @@ Need help? Check the README.md file for detailed instructions.
                 news_btn_book: 'Boek een Schoonmaak',
                 news_btn_contact: 'Neem Contact Op',
                 
+                // News Section - Equipment Card
+                news2_badge: '📦 Uitrusting Update',
+                news2_headline: 'De Apparatuur Is Aangekomen!',
+                news2_text: 'Onze professionele schoonmaakapparatuur is officieel aangekomen op Curaçao! Van slimme robotstofzuigers en elektrische schrobbers tot Bissell CrossWave vloerverzorgingssystemen en milieuvriendelijke schoonmaakoplossingen — we hebben geïnvesteerd in de beste tools voor onberispelijke resultaten.',
+                news2_cta: 'Professionele schoonmaakapparatuur voor vakantieverhuur, kantoren en woningen op Curaçao. De toekomst van schoon is hier!',
+                news2_btn_book: 'Boek een Schoonmaak',
+                news2_btn_services: 'Bekijk Diensten',
+                
                 // Footer
                 footer_copyright: '© 2025 Intelligent Cleaning Services. Alle Rechten Voorbehouden.'
             }
@@ -6007,13 +6031,30 @@ Need help? Check the README.md file for detailed instructions.
                 if (p) p.textContent = t.news_subtitle;
             }
             
-            const newsAnnouncement = document.querySelector('.news-announcement');
-            if (newsAnnouncement) {
-                const badge = newsAnnouncement.querySelector('.news-announcement-badge');
-                const h3 = newsAnnouncement.querySelector('h3');
-                const text = newsAnnouncement.querySelector('.news-announcement-text');
-                const cta = newsAnnouncement.querySelector('.news-announcement-cta');
-                const btns = newsAnnouncement.querySelectorAll('.btn');
+            const newsAnnouncements = document.querySelectorAll('.news-announcement');
+            // First card = Equipment Update
+            if (newsAnnouncements[0]) {
+                const card = newsAnnouncements[0];
+                const badge = card.querySelector('.news-announcement-badge');
+                const h3 = card.querySelector('h3');
+                const text = card.querySelector('.news-announcement-text');
+                const cta = card.querySelector('.news-announcement-cta');
+                const btns = card.querySelectorAll('.btn');
+                if (badge) badge.textContent = t.news2_badge;
+                if (h3) h3.textContent = t.news2_headline;
+                if (text) text.textContent = t.news2_text;
+                if (cta) cta.textContent = t.news2_cta;
+                if (btns[0]) btns[0].textContent = t.news2_btn_book;
+                if (btns[1]) btns[1].textContent = t.news2_btn_services;
+            }
+            // Second card = Launch Announcement
+            if (newsAnnouncements[1]) {
+                const card = newsAnnouncements[1];
+                const badge = card.querySelector('.news-announcement-badge');
+                const h3 = card.querySelector('h3');
+                const text = card.querySelector('.news-announcement-text');
+                const cta = card.querySelector('.news-announcement-cta');
+                const btns = card.querySelectorAll('.btn');
                 if (badge) badge.textContent = t.news_badge;
                 if (h3) h3.textContent = t.news_headline;
                 if (text) text.innerHTML = t.news_text + '<strong>' + t.news_text_date + '</strong>' + t.news_text_end;
