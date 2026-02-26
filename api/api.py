@@ -18,6 +18,9 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 
+# Multilingual translations
+from translations import get_translations, SUPPORTED_LANGUAGES
+
 # PDF generation imports
 from reportlab.lib.pagesizes import letter, A4
 import base64
@@ -1426,8 +1429,62 @@ This message was sent from the ICS website contact form.
 
 # API Info endpoint - now redirects to admin dashboard
 @app.route('/', methods=['GET'])
-def api_info():
-    """Root endpoint - redirect to admin dashboard"""
+def index_en():
+    """English homepage — canonical default."""
+    t = get_translations('en')
+    return render_template(
+        'index.html',
+        t=t,
+        lang='en',
+        supported_languages=SUPPORTED_LANGUAGES,
+        url_en='https://ics.cw/',
+        url_es='https://ics.cw/es/',
+        url_nl='https://ics.cw/nl/',
+    )
+
+@app.route('/es/', methods=['GET'])
+@app.route('/es', methods=['GET'])
+def index_es():
+    """Spanish homepage."""
+    t = get_translations('es')
+    return render_template(
+        'index.html',
+        t=t,
+        lang='es',
+        supported_languages=SUPPORTED_LANGUAGES,
+        url_en='https://ics.cw/',
+        url_es='https://ics.cw/es/',
+        url_nl='https://ics.cw/nl/',
+    )
+
+@app.route('/nl/', methods=['GET'])
+@app.route('/nl', methods=['GET'])
+def index_nl():
+    """Dutch homepage."""
+    t = get_translations('nl')
+    return render_template(
+        'index.html',
+        t=t,
+        lang='nl',
+        supported_languages=SUPPORTED_LANGUAGES,
+        url_en='https://ics.cw/',
+        url_es='https://ics.cw/es/',
+        url_nl='https://ics.cw/nl/',
+    )
+
+@app.route('/auto', methods=['GET'])
+def index_auto():
+    """Auto-detect language from browser and redirect."""
+    accept_lang = request.headers.get('Accept-Language', 'en').lower()
+    if accept_lang.startswith('nl'):
+        return redirect('/nl/', code=302)
+    elif accept_lang.startswith('es'):
+        return redirect('/es/', code=302)
+    return redirect('/', code=302)
+
+@app.route('/admin', methods=['GET'])
+def admin_redirect():
+    """Admin shortcut redirect."""
     return redirect('/admin_login.html')
 
 # API version info endpoint
@@ -2909,6 +2966,83 @@ def update_settings(current_user):
 
 # ============================================================
 # ADMIN DASHBOARD ROUTES - Serve HTML Pages
+# ============================================================
+
+# ============================================================
+# WEBSITE STATIC FILES & SITEMAP
+# ============================================================
+
+# Determine website folder path (sibling to api/ folder)
+WEBSITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'website')
+
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    """Serve CSS files from website/css/"""
+    return send_from_directory(os.path.join(WEBSITE_DIR, 'css'), filename)
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    """Serve JS files from website/js/"""
+    return send_from_directory(os.path.join(WEBSITE_DIR, 'js'), filename)
+
+@app.route('/images/<path:filename>')
+def serve_images(filename):
+    """Serve images from website/images/"""
+    return send_from_directory(os.path.join(WEBSITE_DIR, 'images'), filename)
+
+@app.route('/sitemap.xml')
+def serve_sitemap():
+    """Multilingual sitemap with hreflang annotations."""
+    from flask import Response
+    sitemap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    <url>
+        <loc>https://ics.cw/</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ics.cw/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://ics.cw/es/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://ics.cw/nl/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://ics.cw/"/>
+        <image:image>
+            <image:loc>https://ics.cw/images/image_1.jpg</image:loc>
+            <image:title>Intelligent Cleaning Services Curaçao</image:title>
+            <image:caption>Professional cleaning services for homes, offices, and vacation rentals in Curaçao</image:caption>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://ics.cw/es/</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ics.cw/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://ics.cw/es/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://ics.cw/nl/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://ics.cw/"/>
+    </url>
+    <url>
+        <loc>https://ics.cw/nl/</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ics.cw/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://ics.cw/es/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://ics.cw/nl/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://ics.cw/"/>
+    </url>
+</urlset>"""
+    return Response(sitemap_xml, mimetype='application/xml')
+
+@app.route('/robots.txt')
+def serve_robots():
+    """Serve robots.txt from website folder."""
+    return send_from_directory(WEBSITE_DIR, 'robots.txt')
+
+# ============================================================
+# ADMIN TEMPLATE ROUTES
 # ============================================================
 
 @app.route('/admin_login.html')
