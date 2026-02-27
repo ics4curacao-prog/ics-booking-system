@@ -1430,7 +1430,11 @@ This message was sent from the ICS website contact form.
 # API Info endpoint - now redirects to admin dashboard
 @app.route('/', methods=['GET'])
 def index_en():
-    """English homepage — canonical default."""
+    """English homepage — canonical default.
+    If accessed via admin.ics.cw, redirect to admin login instead."""
+    host = request.host.lower().split(':')[0]  # strip port if any
+    if host == 'admin.ics.cw':
+        return redirect('/admin_login.html')
     t = get_translations('en')
     return render_template(
         'index.html',
@@ -1446,6 +1450,9 @@ def index_en():
 @app.route('/es', methods=['GET'])
 def index_es():
     """Spanish homepage."""
+    host = request.host.lower().split(':')[0]
+    if host == 'admin.ics.cw':
+        return redirect('/admin_login.html')
     t = get_translations('es')
     return render_template(
         'index.html',
@@ -1461,6 +1468,9 @@ def index_es():
 @app.route('/nl', methods=['GET'])
 def index_nl():
     """Dutch homepage."""
+    host = request.host.lower().split(':')[0]
+    if host == 'admin.ics.cw':
+        return redirect('/admin_login.html')
     t = get_translations('nl')
     return render_template(
         'index.html',
