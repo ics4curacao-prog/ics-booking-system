@@ -2711,15 +2711,6 @@
             }
         }
     </style>
-
-    <!-- Runtime JS strings injected server-side for current language -->
-    <script>
-    const pageStrings = {
-        form_service_unavailable: "{{ t.form_service_unavailable | default('Unavailable') }}",
-        booking_confirmed: "{{ t.booking_confirmed | default('Booking confirmed! Slot: {slot} on {date}. Total: {cost} XCG. Booking ID: {id}') }}",
-        booking_failed: "{{ t.booking_failed | default('Booking failed. Please try again.') }}"
-    };
-    </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -3618,50 +3609,10 @@
             });
         });
 
-        // Mobile language dropdown
-        const mobileLangBtn = document.getElementById('mobile-language-btn');
-        const mobileLangDropdown = document.getElementById('mobile-language-dropdown');
-        const mobileLangMenu = document.getElementById('mobile-language-menu');
-
-        if (mobileLangBtn) {
-            mobileLangBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mobileLangDropdown.classList.toggle('active');
-            });
-        }
-
-        // Sync mobile language options with main language switcher
-        const mobileLangOptions = document.querySelectorAll('#mobile-language-menu .language-option');
-        mobileLangOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const lang = this.dataset.lang;
-                const flag = this.dataset.flag;
-                
-                // Update mobile display
-                document.getElementById('mobile-current-flag').textContent = flag;
-                document.getElementById('mobile-current-lang').textContent = lang.toUpperCase();
-                
-                // Update desktop display
-                document.getElementById('current-flag').textContent = flag;
-                document.getElementById('current-lang').textContent = lang.toUpperCase();
-                
-                // Update active states
-                mobileLangOptions.forEach(opt => opt.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Also update desktop options
-                document.querySelectorAll('#language-menu .language-option').forEach(opt => {
-                    opt.classList.remove('active');
-                    if (opt.dataset.lang === lang) opt.classList.add('active');
-                });
-                
-                mobileLangDropdown.classList.remove('active');
-                
-                // Switch language
-                if (typeof switchLanguage === 'function') {
-                    switchLanguage(lang);
-                }
-            });
+        // Mobile language dropdown toggle
+        document.getElementById('mobile-language-btn')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('mobile-language-dropdown')?.classList.toggle('active');
         });
 
         // Sync mobile user section with login state
@@ -3984,7 +3935,7 @@
                                         const badge = document.createElement('span');
                                         badge.className = 'service-unavailable-badge';
                                         badge.setAttribute('data-translate', 'form_service_unavailable');
-                                        badge.textContent = pageStrings.form_service_unavailable || 'Unavailable';
+                                        badge.textContent = translations[currentLanguage]?.form_service_unavailable || 'Unavailable';
                                         nameSpan.appendChild(badge);
                                     }
                                 }
@@ -5078,7 +5029,7 @@ Need help? Check the README.md file for detailed instructions.
             
             if (result.success && result.data.success) {
                 const booking = result.data.booking;
-                const t = pageStrings;
+                const t = translations[currentLanguage];
                 const confirmMsg = t.booking_confirmed
                     .replace('{slot}', timeSlot)
                     .replace('{date}', bookingDate)
@@ -5099,7 +5050,8 @@ Need help? Check the README.md file for detailed instructions.
                     window.location.reload();
                 }, 1500);
             } else {
-                showMessage(result.data.message || pageStrings.booking_failed, 'error');
+                const t = translations[currentLanguage];
+                showMessage(result.data.message || t.booking_failed, 'error');
             }
         });
 
@@ -5222,37 +5174,23 @@ Need help? Check the README.md file for detailed instructions.
             if (routes[lang]) window.location.href = routes[lang];
         }
 
-        // Language dropdown toggle
-        const languageDropdown = document.getElementById('language-dropdown');
-        const languageBtn = document.getElementById('language-btn');
-
-        if (languageBtn && languageDropdown) {
-            languageBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                languageDropdown.classList.toggle('active');
-            });
-        }
+        // Desktop language dropdown toggle
+        document.getElementById('language-btn')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('language-dropdown')?.classList.toggle('active');
+        });
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(e) {
-            if (languageDropdown && !languageDropdown.contains(e.target)) {
-                languageDropdown.classList.remove('active');
+            const desktopDropdown = document.getElementById('language-dropdown');
+            const mobileDropdown  = document.getElementById('mobile-language-dropdown');
+            if (desktopDropdown && !desktopDropdown.contains(e.target)) {
+                desktopDropdown.classList.remove('active');
             }
-            const mobileLangDropdown = document.getElementById('mobile-language-dropdown');
-            if (mobileLangDropdown && !mobileLangDropdown.contains(e.target)) {
-                mobileLangDropdown.classList.remove('active');
+            if (mobileDropdown && !mobileDropdown.contains(e.target)) {
+                mobileDropdown.classList.remove('active');
             }
         });
-
-        // Mobile language dropdown toggle
-        const mobileLangBtn = document.getElementById('mobile-language-btn');
-        const mobileLangDropdown = document.getElementById('mobile-language-dropdown');
-        if (mobileLangBtn && mobileLangDropdown) {
-            mobileLangBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mobileLangDropdown.classList.toggle('active');
-            });
-        }
 
     </script>
 </body>
