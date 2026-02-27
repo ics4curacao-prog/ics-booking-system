@@ -3621,39 +3621,7 @@
             });
         }
 
-        // Sync mobile language options with main language switcher
-        const mobileLangOptions = document.querySelectorAll('#mobile-language-menu .language-option');
-        mobileLangOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const lang = this.dataset.lang;
-                const flag = this.dataset.flag;
-                
-                // Update mobile display
-                document.getElementById('mobile-current-flag').textContent = flag;
-                document.getElementById('mobile-current-lang').textContent = lang.toUpperCase();
-                
-                // Update desktop display
-                document.getElementById('current-flag').textContent = flag;
-                document.getElementById('current-lang').textContent = lang.toUpperCase();
-                
-                // Update active states
-                mobileLangOptions.forEach(opt => opt.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Also update desktop options
-                document.querySelectorAll('#language-menu .language-option').forEach(opt => {
-                    opt.classList.remove('active');
-                    if (opt.dataset.lang === lang) opt.classList.add('active');
-                });
-                
-                mobileLangDropdown.classList.remove('active');
-                
-                // Switch language
-                if (typeof switchLanguage === 'function') {
-                    switchLanguage(lang);
-                }
-            });
-        });
+
 
         // Sync mobile user section with login state
         function updateMobileUserSection() {
@@ -5230,21 +5198,12 @@ Need help? Check the README.md file for detailed instructions.
             if (languageDropdown && !languageDropdown.contains(e.target)) {
                 languageDropdown.classList.remove('active');
             }
-            const mobileLangDropdown = document.getElementById('mobile-language-dropdown');
             if (mobileLangDropdown && !mobileLangDropdown.contains(e.target)) {
                 mobileLangDropdown.classList.remove('active');
             }
         });
 
-        // Mobile language dropdown toggle
-        const mobileLangBtn = document.getElementById('mobile-language-btn');
-        const mobileLangDropdown = document.getElementById('mobile-language-dropdown');
-        if (mobileLangBtn && mobileLangDropdown) {
-            mobileLangBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mobileLangDropdown.classList.toggle('active');
-            });
-        }
+
 
     </script>
 </body>
