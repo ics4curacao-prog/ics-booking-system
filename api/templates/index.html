@@ -1092,6 +1092,22 @@
             background-color: var(--primary);
         }
 
+        .news-announcement-image-grid {
+            width: 100%;
+            height: 340px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+        }
+
+        .news-announcement-image-grid .news-img-half {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
         .news-announcement-content {
             padding: 3rem 4rem 3.5rem;
             text-align: center;
@@ -3437,6 +3453,24 @@
         <div class="section-header">
             <h2>{{ t.news_title }}</h2>
             <p>{{ t.news_subtitle }}</p>
+        </div>
+        <div class="news-announcement">
+            <div class="news-announcement-image-grid">
+                <div class="news-img-half" style="background-image: url('/images/news_3_1.jpg');"></div>
+                <div class="news-img-half" style="background-image: url('/images/news_3_2.jpg');"></div>
+                <div class="news-img-half" style="background-image: url('/images/news_3_3.jpg');"></div>
+            </div>
+            <div class="news-announcement-content">
+                <div class="news-announcement-badge">🚀 We Are Live — March 2026</div>
+                <h3>Services Have Started — And The Results Are Beyond Expectations</h3>
+                <div class="news-announcement-divider"></div>
+                <p class="news-announcement-text">ICS has officially launched its intelligent cleaning services in Curaçao — and the early results are extraordinary. Our <strong>Spairobot robot fleet</strong> and <strong>professional mattress extraction systems</strong> are delivering a level of clean that goes far beyond what conventional methods can achieve. The proof? The evidence speaks for itself. After a single session, our mattress cleaner returned dark, murky water, the robot mop's tank was filled with grime — and our <strong>robot vacuum's dust bin</strong> collected a shocking amount of dust and debris from surfaces that appeared spotless to the naked eye.</p>
+                <p class="news-announcement-cta">We dare to say our intelligent equipment achieves cleaner results than any human being could possibly achieve with conventional tools alone.</p>
+                <div class="news-announcement-actions">
+                    <a href="#book" class="btn btn-primary">Book Now</a>
+                    <a href="#services" class="btn btn-outline">Our Services</a>
+                </div>
+            </div>
         </div>
         <div class="news-announcement">
             <div class="news-announcement-image" style="background-image: url('/images/news_2.jpg');"></div>
