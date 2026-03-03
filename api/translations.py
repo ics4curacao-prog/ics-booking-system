@@ -228,6 +228,12 @@ translations = {
         "news2_cta":            "Professional-grade cleaning equipment for Curaçao's vacation rentals, offices & homes. The future of clean is here!",
         "news2_btn_book":       "Book a Cleaning",
         "news2_btn_services":   "View Services",
+        "news3_badge":          "🚀 We Are Live — March 2026",
+        "news3_headline":       "Services Have Started — And The Results Are Beyond Expectations",
+        "news3_text":           "ICS has officially launched its intelligent cleaning services in Curaçao — and the early results are extraordinary. Our <strong>Spairobot robot fleet</strong> and <strong>professional mattress extraction systems</strong> are delivering a level of clean that goes far beyond what conventional methods can achieve. The proof? The evidence speaks for itself. After a single session, our mattress cleaner returned dark, murky water, the robot mop's tank was filled with grime — and our <strong>robot vacuum's dust bin</strong> collected a shocking amount of dust and debris from surfaces that appeared spotless to the naked eye.",
+        "news3_cta":            "We dare to say our intelligent equipment achieves cleaner results than any human being could possibly achieve with conventional tools alone.",
+        "news3_btn_book":       "Book Now",
+        "news3_btn_services":   "Our Services",
 
         # Footer
         "footer_copyright":     "© 2025 Intelligent Cleaning Services. All Rights Reserved.",
@@ -455,6 +461,12 @@ translations = {
         "news2_cta":            "¡Equipo de limpieza profesional para alquileres vacacionales, oficinas y hogares en Curaçao. El futuro de la limpieza ya está aquí!",
         "news2_btn_book":       "Reservar una Limpieza",
         "news2_btn_services":   "Ver Servicios",
+        "news3_badge":          "🚀 Estamos en Marcha — Marzo 2026",
+        "news3_headline":       "Los Servicios Han Comenzado — Y Los Resultados Superan Las Expectativas",
+        "news3_text":           "ICS ha lanzado oficialmente sus servicios de limpieza inteligente en Curaçao — y los primeros resultados son extraordinarios. Nuestra <strong>flota de robots Spairobot</strong> y los <strong>sistemas profesionales de extracción de colchones</strong> están ofreciendo un nivel de limpieza que va mucho más allá de lo que los métodos convencionales pueden lograr. ¿La prueba? Los hechos hablan por sí solos. Tras una sola sesión, nuestra limpiadora de colchones devolvió agua oscura y turbia, el depósito del robot mopa estaba lleno de suciedad — y el <strong>compartimento de polvo de la aspiradora robot</strong> recogió una cantidad impresionante de polvo y residuos de superficies que parecían impecables a simple vista.",
+        "news3_cta":            "Nos atrevemos a decir que nuestros equipos inteligentes logran resultados más limpios de lo que cualquier ser humano podría alcanzar con herramientas convencionales.",
+        "news3_btn_book":       "Reservar Ahora",
+        "news3_btn_services":   "Nuestros Servicios",
 
         # Footer
         "footer_copyright":     "© 2025 Intelligent Cleaning Services. Todos los Derechos Reservados.",
@@ -682,6 +694,12 @@ translations = {
         "news2_cta":            "Professionele schoonmaakapparatuur voor vakantieverhuur, kantoren en woningen op Curaçao. De toekomst van schoon is hier!",
         "news2_btn_book":       "Boek een Schoonmaak",
         "news2_btn_services":   "Bekijk Diensten",
+        "news3_badge":          "🚀 We Zijn Live — Maart 2026",
+        "news3_headline":       "Diensten Gestart — En De Resultaten Overtreffen De Verwachtingen",
+        "news3_text":           "ICS heeft officieel zijn intelligente schoonmaakdiensten gelanceerd op Curaçao — en de eerste resultaten zijn buitengewoon. Onze <strong>Spairobot robotvloot</strong> en <strong>professionele matrasextractiesystemen</strong> leveren een reinheidsgraad die ver uitstijgt boven wat conventionele methoden kunnen bereiken. Het bewijs? De feiten spreken voor zich. Na één sessie keerde onze matrasreiniger terug met donker, troebel water, de tank van de robotdweil zat vol vuil — en de <strong>stofbak van de robotstofzuiger</strong> bevatte een schokkende hoeveelheid stof en vuil van oppervlakken die er bloot oog schoon uitzagen.",
+        "news3_cta":            "Wij durven te zeggen dat onze intelligente apparatuur schonere resultaten behaalt dan enig mens ooit met conventioneel gereedschap zou kunnen bereiken.",
+        "news3_btn_book":       "Nu Boeken",
+        "news3_btn_services":   "Onze Diensten",
 
         # Footer
         "footer_copyright":     "© 2025 Intelligent Cleaning Services. Alle Rechten Voorbehouden.",
