@@ -3622,6 +3622,16 @@
         // Global variables for booking state
         let currentServiceSubtotal = 0;  // Track service subtotal for resource calculation
         let doubleResourceThreshold = 161;  // Will be loaded from settings
+
+        // Server-rendered translations available to JS
+        const currentLanguage = '{{ lang }}';
+        const translations = {
+            '{{ lang }}': {
+                booking_confirmed:        `{{ t.booking_confirmed }}`,
+                booking_failed:           `{{ t.booking_failed }}`,
+                form_service_unavailable: `{{ t.form_service_unavailable }}`
+            }
+        };
         
         // Mobile Menu Functionality
         const hamburger = document.getElementById('hamburger');
