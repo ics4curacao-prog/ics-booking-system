@@ -2218,6 +2218,194 @@
                 display: none !important;
             }
         }
+
+        /* ===== CREATE BOOKING MODAL ===== */
+        .create-booking-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .create-booking-modal.active { display: flex; align-items: flex-start; justify-content: center; }
+        .cb-container {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 780px;
+            margin: auto;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .cb-header {
+            background: linear-gradient(135deg, #1FAFB8 0%, #148a92 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cb-header h2 { margin: 0; font-size: 1.3rem; }
+        .cb-close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .cb-close-btn:hover { background: rgba(255,255,255,0.35); }
+        .cb-body { padding: 25px; }
+        .cb-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border-left: 4px solid #1FAFB8;
+        }
+        .cb-section h3 {
+            margin: 0 0 14px 0;
+            color: #333;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .cb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .cb-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        .cb-field { display: flex; flex-direction: column; gap: 5px; }
+        .cb-field.full-width { grid-column: 1 / -1; }
+        .cb-field label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .cb-field label .required { color: #e74c3c; }
+        .cb-field input, .cb-field select, .cb-field textarea {
+            padding: 9px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        .cb-field input:focus, .cb-field select:focus, .cb-field textarea:focus {
+            outline: none;
+            border-color: #1FAFB8;
+            box-shadow: 0 0 0 3px rgba(31,175,184,0.1);
+        }
+        .cb-field textarea { resize: vertical; min-height: 70px; }
+
+        /* Services builder */
+        .services-list { display: flex; flex-direction: column; gap: 10px; }
+        .service-row {
+            display: grid;
+            grid-template-columns: 1fr 120px 40px;
+            gap: 8px;
+            align-items: center;
+            background: white;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .service-row select, .service-row input {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 7px 10px;
+            font-size: 0.88rem;
+        }
+        .service-row input { text-align: right; }
+        .btn-remove-service {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c0392b;
+            border-radius: 5px;
+            width: 32px; height: 32px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-remove-service:hover { background: #c0392b; color: white; border-color: #c0392b; }
+        .btn-add-service {
+            background: #e8f8f9;
+            border: 1.5px dashed #1FAFB8;
+            color: #1FAFB8;
+            border-radius: 8px;
+            padding: 9px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+        .btn-add-service:hover { background: #1FAFB8; color: white; }
+
+        /* Pricing summary */
+        .cb-price-summary {
+            background: linear-gradient(135deg, #1FAFB8 0%, #148a92 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .cb-price-item { text-align: center; }
+        .cb-price-item .label { font-size: 0.78rem; opacity: 0.85; text-transform: uppercase; }
+        .cb-price-item .value { font-size: 1.3rem; font-weight: 700; margin-top: 2px; }
+
+        /* Footer */
+        .cb-footer {
+            padding: 18px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            background: #fafafa;
+        }
+        .btn-create-booking {
+            background: linear-gradient(135deg, #1FAFB8 0%, #148a92 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 7px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-create-booking:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(31,175,184,0.4); }
+        .btn-create-booking:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Past date notice */
+        .past-date-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            color: #856404;
+            margin-top: 6px;
+            display: none;
+        }
+        .past-date-notice.visible { display: block; }
+
+        @media (max-width: 600px) {
+            .cb-grid, .cb-grid-3 { grid-template-columns: 1fr; }
+            .cb-field.full-width { grid-column: 1; }
+            .service-row { grid-template-columns: 1fr 90px 36px; }
+        }
     </style>
 </head>
 <body>
@@ -2241,6 +2429,9 @@
         <button class="btn btn-primary" onclick="window.location.href='pricing_management.html'">
             💰 Manage Pricing
         </button>
+        <button class="btn btn-primary" style="background: #27ae60;" onclick="openCreateBookingModal(); toggleMobileMenu();">
+            ➕ Create Booking
+        </button>
         <button class="btn btn-danger" onclick="logout()">
             🚪 Logout
         </button>
@@ -2262,6 +2453,9 @@
             </button>
             <button class="btn btn-primary" onclick="window.location.href='pricing_management.html'">
                 💰 Manage Pricing
+            </button>
+            <button class="btn btn-primary" style="background: #27ae60;" onclick="openCreateBookingModal()">
+                ➕ Create Booking
             </button>
             <button class="btn btn-danger" onclick="logout()">
                 Logout
@@ -2314,6 +2508,11 @@
                 <input type="text" id="searchFilter" placeholder="Name, phone, address..." 
                        oninput="debounceSearch()">
             </div>
+            <div class="filter-group" style="align-self: flex-end;">
+                <button class="btn btn-primary" style="background: #27ae60; padding: 10px 18px; font-size: 0.9rem;" onclick="openCreateBookingModal()">
+                    ➕ Create Booking
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2347,6 +2546,138 @@
         <!-- Mobile Cards Container -->
         <div class="mobile-cards-container" id="mobileCardsContainer">
             <!-- Mobile cards will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- ===== CREATE BOOKING MODAL ===== -->
+    <div class="create-booking-modal" id="createBookingModal">
+        <div class="cb-container">
+            <div class="cb-header">
+                <h2>➕ Create New Booking</h2>
+                <button class="cb-close-btn" onclick="closeCreateBookingModal()">✕</button>
+            </div>
+            <div class="cb-body">
+
+                <!-- Customer Info -->
+                <div class="cb-section">
+                    <h3>👤 Customer Information</h3>
+                    <div class="cb-grid">
+                        <div class="cb-field">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" id="cb_name" placeholder="e.g. Maria Martina" autocomplete="off">
+                        </div>
+                        <div class="cb-field">
+                            <label>Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="cb_phone" placeholder="e.g. +599 9 123 4567" autocomplete="off">
+                        </div>
+                        <div class="cb-field full-width">
+                            <label>Email Address <span style="color:#999; font-weight:400;">(optional – needed to send invoice)</span></label>
+                            <input type="email" id="cb_email" placeholder="e.g. customer@email.com" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Details -->
+                <div class="cb-section">
+                    <h3>📅 Booking Details</h3>
+                    <div class="cb-grid">
+                        <div class="cb-field">
+                            <label>Booking Date <span class="required">*</span></label>
+                            <input type="date" id="cb_date" onchange="checkPastDate()">
+                            <div class="past-date-notice" id="pastDateNotice">
+                                ⏪ Past date selected — registering a historical booking.
+                            </div>
+                        </div>
+                        <div class="cb-field">
+                            <label>Time Slot <span class="required">*</span></label>
+                            <select id="cb_timeslot">
+                                <option value="">— Select Time Slot —</option>
+                                <option value="morning">🌅 Morning (8 AM – 12 PM)</option>
+                                <option value="afternoon">☀️ Afternoon (12 PM – 5 PM)</option>
+                                <option value="evening">🌙 Evening (5 PM – 8 PM)</option>
+                            </select>
+                        </div>
+                        <div class="cb-field">
+                            <label>Service Category <span class="required">*</span></label>
+                            <select id="cb_service_type" onchange="updateServiceOptions()">
+                                <option value="">— Select Category —</option>
+                                <option value="basic">🏠 Basic Cleaning</option>
+                                <option value="deep">🧹 Deep Cleaning</option>
+                                <option value="add-on">✨ Add-on Services</option>
+                                <option value="office">🏢 Office Cleaning</option>
+                            </select>
+                        </div>
+                        <div class="cb-field">
+                            <label>Status</label>
+                            <select id="cb_status">
+                                <option value="pending">🟡 Pending</option>
+                                <option value="confirmed">🟢 Confirmed</option>
+                                <option value="completed">✅ Completed</option>
+                                <option value="cancelled">🔴 Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="cb-section">
+                    <h3>📍 Service Location</h3>
+                    <div class="cb-grid">
+                        <div class="cb-field">
+                            <label>Street Address <span class="required">*</span></label>
+                            <input type="text" id="cb_street" placeholder="e.g. Kaya Grandi 12">
+                        </div>
+                        <div class="cb-field">
+                            <label>Neighborhood / Area</label>
+                            <input type="text" id="cb_neighborhood" placeholder="e.g. Otrobanda, Punda…">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="cb-section">
+                    <h3>🧽 Services & Pricing</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 120px 40px; gap:8px; padding: 0 2px 6px; font-size:0.78rem; font-weight:700; color:#888; text-transform:uppercase;">
+                        <span>Service Name</span><span style="text-align:right;">Price (XCG)</span><span></span>
+                    </div>
+                    <div class="services-list" id="cb_services_list"></div>
+                    <button class="btn-add-service" onclick="addServiceRow()">＋ Add Service Line</button>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="cb-price-summary">
+                    <div class="cb-price-item">
+                        <div class="label">Sub-Total</div>
+                        <div class="value" id="cb_subtotal">0.00 XCG</div>
+                    </div>
+                    <div class="cb-price-item">
+                        <div class="label">OB Tax (6%)</div>
+                        <div class="value" id="cb_ob">0.00 XCG</div>
+                    </div>
+                    <div class="cb-price-item">
+                        <div class="label">Grand Total</div>
+                        <div class="value" id="cb_total">0.00 XCG</div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="cb-section" style="margin-bottom:0;">
+                    <h3>📝 Notes</h3>
+                    <div class="cb-field">
+                        <textarea id="cb_notes" placeholder="Any special instructions, access codes, customer preferences…"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="cb-footer">
+                <button class="btn btn-secondary" onclick="closeCreateBookingModal()">Cancel</button>
+                <button class="btn-create-booking" id="cb_submit_btn" onclick="submitCreateBooking()">
+                    💾 Create Booking
+                </button>
+                <button class="btn-create-booking" id="cb_submit_invoice_btn" onclick="submitCreateBooking(true)" style="background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);">
+                    📄 Create &amp; View Invoice
+                </button>
+            </div>
         </div>
     </div>
 
@@ -3445,6 +3776,283 @@
         }
 
         // Debounce search input
+        // ===== CREATE BOOKING MODAL =====
+
+        // Service options per category
+        const SERVICE_OPTIONS = {
+            'basic': [
+                'Base price for basic residential cleaning',
+                'Additional bedroom (basic cleaning)',
+                'Additional bathroom (basic cleaning)'
+            ],
+            'deep': [
+                'Base price for deep residential cleaning',
+                'Additional bedroom (deep cleaning)',
+                'Additional bathroom (deep cleaning)'
+            ],
+            'add-on': [
+                'Sofa/Couch Cleaning',
+                'Mattress Cleaning',
+                'Electrostatic Cleaning (per room)',
+                'Pool Cleaning'
+            ],
+            'office': [
+                'Base price for office cleaning',
+                'Additional office',
+                'Additional bathroom (office)',
+                'Office Sofa Cleaning',
+                'Office Electrostatic Cleaning'
+            ]
+        };
+
+        let cbServiceCount = 0;
+        let cbShowInvoiceAfterCreate = false;
+
+        function openCreateBookingModal() {
+            // Reset form
+            document.getElementById('cb_name').value = '';
+            document.getElementById('cb_phone').value = '';
+            document.getElementById('cb_email').value = '';
+            document.getElementById('cb_date').value = '';
+            document.getElementById('cb_timeslot').value = '';
+            document.getElementById('cb_service_type').value = '';
+            document.getElementById('cb_status').value = 'pending';
+            document.getElementById('cb_street').value = '';
+            document.getElementById('cb_neighborhood').value = '';
+            document.getElementById('cb_notes').value = '';
+            document.getElementById('cb_services_list').innerHTML = '';
+            document.getElementById('pastDateNotice').classList.remove('visible');
+            cbServiceCount = 0;
+            updatePriceSummary();
+            // Add one blank service row
+            addServiceRow();
+            document.getElementById('createBookingModal').classList.add('active');
+        }
+
+        function closeCreateBookingModal() {
+            document.getElementById('createBookingModal').classList.remove('active');
+        }
+
+        function checkPastDate() {
+            const dateVal = document.getElementById('cb_date').value;
+            const notice = document.getElementById('pastDateNotice');
+            if (!dateVal) { notice.classList.remove('visible'); return; }
+            const today = new Date(); today.setHours(0,0,0,0);
+            const selected = new Date(dateVal + 'T00:00:00');
+            notice.classList.toggle('visible', selected < today);
+        }
+
+        function updateServiceOptions() {
+            // Refresh all service dropdowns based on selected category
+            const category = document.getElementById('cb_service_type').value;
+            document.querySelectorAll('.cb-service-select').forEach(sel => {
+                const currentVal = sel.value;
+                buildServiceSelectOptions(sel, category);
+                // Restore if still valid
+                if (currentVal && sel.querySelector(`option[value="${CSS.escape(currentVal)}"]`)) {
+                    sel.value = currentVal;
+                }
+            });
+        }
+
+        function buildServiceSelectOptions(selectEl, category) {
+            const options = category ? (SERVICE_OPTIONS[category] || []) : [];
+            selectEl.innerHTML = '<option value="">— Type or select service —</option>';
+            options.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = opt; o.textContent = opt;
+                selectEl.appendChild(o);
+            });
+            // Always add a custom option reminder
+            if (options.length > 0) {
+                const o = document.createElement('option');
+                o.value = '__custom__'; o.textContent = '✏️ Enter custom name below…';
+                selectEl.appendChild(o);
+            }
+        }
+
+        function addServiceRow() {
+            cbServiceCount++;
+            const id = cbServiceCount;
+            const category = document.getElementById('cb_service_type').value;
+            const list = document.getElementById('cb_services_list');
+
+            const row = document.createElement('div');
+            row.className = 'service-row';
+            row.id = `cb_service_row_${id}`;
+
+            row.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <select class="cb-service-select" id="cb_svc_select_${id}" onchange="handleServiceSelect(${id})">
+                        <option value="">— Type or select service —</option>
+                    </select>
+                    <input type="text" id="cb_svc_name_${id}" placeholder="Custom service name…"
+                           style="display:none; font-size:0.85rem;"
+                           oninput="updatePriceSummary()">
+                </div>
+                <input type="number" id="cb_svc_price_${id}" placeholder="0.00" min="0" step="0.01"
+                       oninput="updatePriceSummary()" style="font-weight:600;">
+                <button class="btn-remove-service" onclick="removeServiceRow(${id})" title="Remove">✕</button>
+            `;
+
+            list.appendChild(row);
+            buildServiceSelectOptions(document.getElementById(`cb_svc_select_${id}`), category);
+        }
+
+        function handleServiceSelect(id) {
+            const sel = document.getElementById(`cb_svc_select_${id}`);
+            const customInput = document.getElementById(`cb_svc_name_${id}`);
+            if (sel.value === '__custom__') {
+                customInput.style.display = 'block';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+            }
+            updatePriceSummary();
+        }
+
+        function removeServiceRow(id) {
+            const row = document.getElementById(`cb_service_row_${id}`);
+            if (row) row.remove();
+            updatePriceSummary();
+        }
+
+        function getServiceRows() {
+            const rows = [];
+            document.querySelectorAll('.service-row').forEach(row => {
+                const id = row.id.replace('cb_service_row_', '');
+                const sel = document.getElementById(`cb_svc_select_${id}`);
+                const customInput = document.getElementById(`cb_svc_name_${id}`);
+                const priceInput = document.getElementById(`cb_svc_price_${id}`);
+
+                let name = sel ? sel.value : '';
+                if (name === '__custom__') name = customInput ? customInput.value.trim() : '';
+                else if (name && customInput) customInput.style.display = 'none';
+
+                const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
+                if (name || price > 0) rows.push({ name, price });
+            });
+            return rows;
+        }
+
+        function updatePriceSummary() {
+            const rows = getServiceRows();
+            const subtotal = rows.reduce((sum, r) => sum + r.price, 0);
+            const ob = Math.round(subtotal * 0.06 * 100) / 100;
+            const total = subtotal + ob;
+            document.getElementById('cb_subtotal').textContent = subtotal.toFixed(2) + ' XCG';
+            document.getElementById('cb_ob').textContent = ob.toFixed(2) + ' XCG';
+            document.getElementById('cb_total').textContent = total.toFixed(2) + ' XCG';
+        }
+
+        async function submitCreateBooking(showInvoice = false) {
+            const token = checkAuth();
+            if (!token) return;
+
+            // Validate
+            const name = document.getElementById('cb_name').value.trim();
+            const phone = document.getElementById('cb_phone').value.trim();
+            const date = document.getElementById('cb_date').value;
+            const timeslot = document.getElementById('cb_timeslot').value;
+            const serviceType = document.getElementById('cb_service_type').value;
+            const street = document.getElementById('cb_street').value.trim();
+            const neighborhood = document.getElementById('cb_neighborhood').value.trim();
+            const email = document.getElementById('cb_email').value.trim();
+            const status = document.getElementById('cb_status').value;
+            const notes = document.getElementById('cb_notes').value.trim();
+            const serviceRows = getServiceRows();
+
+            if (!name) { toast('Customer name is required', 'error'); document.getElementById('cb_name').focus(); return; }
+            if (!phone) { toast('Phone number is required', 'error'); document.getElementById('cb_phone').focus(); return; }
+            if (!date) { toast('Booking date is required', 'error'); document.getElementById('cb_date').focus(); return; }
+            if (!timeslot) { toast('Please select a time slot', 'error'); return; }
+            if (!serviceType) { toast('Please select a service category', 'error'); return; }
+            if (!street) { toast('Street address is required', 'error'); document.getElementById('cb_street').focus(); return; }
+            if (serviceRows.length === 0 || serviceRows.every(r => !r.name)) {
+                toast('Please add at least one service', 'error'); return;
+            }
+
+            const subtotal = serviceRows.reduce((sum, r) => sum + r.price, 0);
+
+            const submitBtn = document.getElementById('cb_submit_btn');
+            const invoiceBtn = document.getElementById('cb_submit_invoice_btn');
+            submitBtn.disabled = true;
+            invoiceBtn.disabled = true;
+            submitBtn.textContent = '⏳ Creating…';
+            invoiceBtn.textContent = '⏳ Creating…';
+
+            const payload = {
+                customer_name: name,
+                customer_phone: phone,
+                customer_email: email || null,
+                booking_date: date,
+                time_slot: timeslot,
+                service_type: serviceType,
+                street_address: street,
+                neighborhood: neighborhood || null,
+                services: JSON.stringify(serviceRows),
+                total_cost: subtotal,
+                status: status,
+                notes: notes || null,
+                admin_created: true
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/bookings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    toast('✅ Booking created successfully!', 'success');
+                    closeCreateBookingModal();
+                    await loadBookings();
+                    await loadDashboardStats();
+
+                    // Show invoice if requested
+                    if (showInvoice && data.booking) {
+                        setTimeout(() => viewInvoice(data.booking), 400);
+                    } else if (showInvoice && data.booking_id) {
+                        // Fetch the booking and show invoice
+                        setTimeout(async () => {
+                            const found = currentBookings.find(b => b.id === data.booking_id);
+                            if (found) viewInvoice(found);
+                        }, 600);
+                    }
+                } else {
+                    toast(data.message || data.error || 'Failed to create booking', 'error');
+                }
+            } catch (err) {
+                console.error('Create booking error:', err);
+                toast('Network error — could not create booking', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                invoiceBtn.disabled = false;
+                submitBtn.textContent = '💾 Create Booking';
+                invoiceBtn.innerHTML = '📄 Create &amp; View Invoice';
+            }
+        }
+
+        // Close create booking modal when clicking outside
+        document.getElementById('createBookingModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCreateBookingModal();
+        });
+
+        // Close with Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('createBookingModal').classList.contains('active')) {
+                closeCreateBookingModal();
+            }
+        }, true);
+
+        // ===== END CREATE BOOKING MODAL =====
+
         function debounceSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
