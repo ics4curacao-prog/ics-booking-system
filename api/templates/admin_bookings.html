@@ -3784,7 +3784,7 @@
 
         // Fetch pricing from API and cache it
         async function fetchPricingData() {
-            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token') || '';
+            const token = localStorage.getItem('auth_token') || '';
             try {
                 const res = await fetch(`${API_URL}/api/pricing`, {
                     headers: { 'Authorization': `Bearer ${token}` }
