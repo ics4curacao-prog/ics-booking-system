@@ -2644,7 +2644,7 @@
                         <div class="cb-field">
                             <label>Status</label>
                             <select id="cb_status">
-                                <option value="pending">🟡 Pending</option>
+                                <option value="pending" selected>🟡 Pending</option>
                                 <option value="confirmed">🟢 Confirmed</option>
                                 <option value="completed">✅ Completed</option>
                                 <option value="cancelled">🔴 Cancelled</option>
@@ -4207,7 +4207,7 @@
             document.getElementById('cb_date').value = '';
             document.getElementById('cb_timeslot').value = '';
             document.getElementById('cb_service_type').value = '';
-            document.getElementById('cb_status').value = 'pending';
+            const statusEl = document.getElementById('cb_status'); statusEl.value = 'pending'; statusEl.selectedIndex = 0;
             document.getElementById('cb_street').value = '';
             document.getElementById('cb_neighborhood').value = '';
             document.getElementById('cb_notes').value = '';
