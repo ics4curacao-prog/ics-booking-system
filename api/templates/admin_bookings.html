@@ -3782,19 +3782,16 @@
         let cbPricingData = [];   // Array of { id, service_name, base_price, unit, category, is_active }
         let cbServiceCount = 0;
 
-        // Fetch pricing from API and cache it
+        // Fetch pricing from the public API — same endpoint used by index.html, no auth needed
         async function fetchPricingData() {
-            const token = localStorage.getItem('auth_token') || '';
             try {
-                const res = await fetch(`${API_URL}/api/pricing`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch(`${API_URL}/api/pricing/public`);
                 if (res.ok) {
                     const data = await res.json();
-                    // Accept both array response and {services:[...]}
-                    cbPricingData = Array.isArray(data) ? data : (data.services || []);
-                    // Only show active services
-                    cbPricingData = cbPricingData.filter(s => s.is_active !== false);
+                    // Accept both array and {services:[...]} response shapes
+                    const raw = Array.isArray(data) ? data : (data.services || []);
+                    // Only expose active services in the booking form
+                    cbPricingData = raw.filter(s => s.is_active !== false);
                 }
             } catch (e) {
                 console.warn('Could not load pricing data:', e);

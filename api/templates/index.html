@@ -4746,8 +4746,9 @@
                 }
 
             } else if (serviceType === 'office') {
-                // Office Cleaning (always included)
-                const basePrice = 50;
+                // Office Cleaning (always included) - base price from API via data-price attribute
+                const officeCleaningEl = document.getElementById('office-cleaning');
+                const basePrice = officeCleaningEl ? (parseFloat(officeCleaningEl.dataset.price) || 50) : 50;
                 const offices = parseInt(document.getElementById('offices').value);
                 const bathrooms = parseInt(document.getElementById('office-bathrooms').value);
                 const officePrice = parseInt(document.getElementById('offices').dataset.price);
@@ -5039,7 +5040,8 @@ Need help? Check the README.md file for detailed instructions.
                     });
                 }
             } else if (serviceType === 'office') {
-                const basePrice = 50;
+                const officeCleaningEl2 = document.getElementById('office-cleaning');
+                const basePrice = officeCleaningEl2 ? (parseFloat(officeCleaningEl2.dataset.price) || 50) : 50;
                 const offices = parseInt(document.getElementById('offices').value);
                 const bathrooms = parseInt(document.getElementById('office-bathrooms').value);
                 const officePrice = parseInt(document.getElementById('offices').dataset.price);
