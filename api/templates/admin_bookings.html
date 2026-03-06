@@ -3154,6 +3154,19 @@
         }
 
         // Format services for display
+        // Human-readable label for service_type DB values
+        function formatServiceType(raw) {
+            const map = {
+                'basic':       '🏠 Basic Cleaning',
+                'deep':        '🧹 Deep Cleaning',
+                'add-on':      '✨ Add-on Services',
+                'office':      '🏢 Office Cleaning',
+                'residential': '🏠 Residential Cleaning',
+            };
+            if (!raw) return 'Cleaning';
+            return map[raw.toLowerCase()] || (raw.charAt(0).toUpperCase() + raw.slice(1));
+        }
+
         function formatServices(servicesStr) {
             const services = parseServices(servicesStr);
             if (services.length === 0) return 'N/A';
@@ -3282,7 +3295,7 @@
                     <td><strong>${escapeHtml(booking.customerName || 'N/A')}</strong></td>
                     <td>${escapeHtml(booking.customerPhone || 'N/A')}</td>
                     <td class="service-list">
-                        <strong>${escapeHtml(booking.serviceType || 'N/A')}</strong><br>
+                        <strong>${formatServiceType(booking.serviceType)}</strong><br>
                         <small>${formatServices(booking.services)}</small>
                     </td>
                     <td>
@@ -3373,7 +3386,7 @@
                         </div>
                         <div class="mobile-card-row">
                             <span class="mobile-card-label">Service</span>
-                            <span class="mobile-card-value">${escapeHtml(booking.serviceType || 'N/A')}</span>
+                            <span class="mobile-card-value">${formatServiceType(booking.serviceType)}</span>
                         </div>
                         <div class="mobile-card-row">
                             <span class="mobile-card-label">Location</span>
@@ -3629,7 +3642,7 @@
 
                     <div class="invoice-section" style="margin-top: 15px;">
                         <h3>■ Services</h3>
-                        <p style="margin-bottom: 8px;"><strong>Category:</strong> ${escapeHtml((booking.serviceType || 'Cleaning').charAt(0).toUpperCase() + (booking.serviceType || 'cleaning').slice(1))}</p>
+                        <p style="margin-bottom: 8px;"><strong>Category:</strong> ${formatServiceType(booking.serviceType)}</p>
                         <table class="invoice-table">
                             <thead>
                                 <tr>
