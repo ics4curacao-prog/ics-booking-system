@@ -2637,7 +2637,7 @@
                                 <option value="">— Select Category —</option>
                                 <option value="basic">🏠 Basic Cleaning</option>
                                 <option value="deep">🧹 Deep Cleaning</option>
-                                <option value="add-on">✨ Add-on Services</option>
+                                <option value="add-on">✨ Add-on Services Only</option>
                                 <option value="office">🏢 Office Cleaning</option>
                             </select>
                         </div>
@@ -3863,7 +3863,7 @@
                             <div class="cb-svc-qty-item">
                                 <label>Bedrooms</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_bedrooms" min="0" value="0"
+                                    <input type="number" id="cb_bedrooms" min="1" value="1"
                                            data-price="${perBed}" oninput="updateMainPrice()">
                                     <span class="unit-price">+${perBed.toFixed(2)} XCG each</span>
                                 </div>
@@ -3871,7 +3871,7 @@
                             <div class="cb-svc-qty-item">
                                 <label>Bathrooms</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_bathrooms" min="0" value="0"
+                                    <input type="number" id="cb_bathrooms" min="1" value="1"
                                            data-price="${perBath}" oninput="updateMainPrice()">
                                     <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
                                 </div>
@@ -3881,6 +3881,7 @@
                     </div>
                     ${renderResidentialAddons()}`;
                 addAddonListeners();
+                updateMainPrice();
 
             } else if (category === 'deep') {
                 const base   = cbPrice('Base price for deep residential cleaning', 130);
@@ -3896,7 +3897,7 @@
                             <div class="cb-svc-qty-item">
                                 <label>Bedrooms</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_bedrooms" min="0" value="0"
+                                    <input type="number" id="cb_bedrooms" min="1" value="1"
                                            data-price="${perBed}" oninput="updateMainPrice()">
                                     <span class="unit-price">+${perBed.toFixed(2)} XCG each</span>
                                 </div>
@@ -3904,7 +3905,7 @@
                             <div class="cb-svc-qty-item">
                                 <label>Bathrooms</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_bathrooms" min="0" value="0"
+                                    <input type="number" id="cb_bathrooms" min="1" value="1"
                                            data-price="${perBath}" oninput="updateMainPrice()">
                                     <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
                                 </div>
@@ -3914,6 +3915,7 @@
                     </div>
                     ${renderResidentialAddons()}`;
                 addAddonListeners();
+                updateMainPrice();
 
             } else if (category === 'add-on') {
                 panel.innerHTML = `
@@ -3937,7 +3939,7 @@
                             <div class="cb-svc-qty-item">
                                 <label>Additional Offices</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_offices" min="0" value="0"
+                                    <input type="number" id="cb_offices" min="1" value="1"
                                            data-price="${perOffice}" oninput="updateMainPrice()">
                                     <span class="unit-price">+${perOffice.toFixed(2)} XCG each</span>
                                 </div>
@@ -3945,7 +3947,7 @@
                             <div class="cb-svc-qty-item">
                                 <label>Bathrooms</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_bathrooms" min="0" value="0"
+                                    <input type="number" id="cb_bathrooms" min="1" value="1"
                                            data-price="${perBath}" oninput="updateMainPrice()">
                                     <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
                                 </div>
@@ -3980,6 +3982,7 @@
                         </div>
                     </div>`;
                 addAddonListeners();
+                updateMainPrice();
             }
 
             updatePriceSummary();

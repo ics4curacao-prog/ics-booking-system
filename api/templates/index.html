@@ -3155,7 +3155,7 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="checkbox" id="basic-cleaning" data-price="85">
+                                            <input type="radio" name="cleaning-tier" id="basic-cleaning" data-price="85">
                                             <span class="service-option-name">Basic Cleaning</span>
                                         </label>
                                         <span class="service-option-price">85 XCG</span>
@@ -3184,7 +3184,7 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="checkbox" id="deep-cleaning" data-price="130">
+                                            <input type="radio" name="cleaning-tier" id="deep-cleaning" data-price="130">
                                             <span class="service-option-name">Deep Cleaning</span>
                                         </label>
                                         <span class="service-option-price">130 XCG</span>
@@ -3217,7 +3217,7 @@
                                     <div class="service-option">
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
-                                                <input type="checkbox" id="res-sofa-cleaning" data-price="40">
+                                                <input type="checkbox" id="res-sofa-cleaning" data-price="75">
                                                 <span class="service-option-name">Sofa/Couch Cleaning</span>
                                             </label>
                                             <span class="service-option-price">40 XCG each</span>
@@ -3227,7 +3227,7 @@
                                                 <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Sofas/Couches</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('res-sofas')">-</button>
-                                                    <input type="number" id="res-sofas" class="quantity-input" min="1" value="1" data-price="40" readonly>
+                                                    <input type="number" id="res-sofas" class="quantity-input" min="1" value="1" data-price="75" readonly>
                                                     <button type="button" class="quantity-btn" onclick="incrementQty('res-sofas')">+</button>
                                                 </div>
                                             </div>
@@ -3238,17 +3238,17 @@
                                     <div class="service-option">
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
-                                                <input type="checkbox" id="mattress-cleaning" data-price="70">
+                                                <input type="checkbox" id="mattress-cleaning" data-price="75">
                                                 <span class="service-option-name">Mattress Cleaning</span>
                                             </label>
-                                            <span class="service-option-price">70 XCG each</span>
+                                            <span class="service-option-price">75 XCG each</span>
                                         </div>
                                         <div class="quantity-selector" id="mattress-cleaning-qty">
                                             <div>
                                                 <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Mattresses</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('mattresses')">-</button>
-                                                    <input type="number" id="mattresses" class="quantity-input" min="1" value="1" data-price="70" readonly>
+                                                    <input type="number" id="mattresses" class="quantity-input" min="1" value="1" data-price="75" readonly>
                                                     <button type="button" class="quantity-btn" onclick="incrementQty('mattresses')">+</button>
                                                 </div>
                                             </div>
@@ -4635,19 +4635,30 @@
             });
         });
 
-        // Checkbox handling for services
-        document.querySelectorAll('.service-option input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const qtySelector = document.getElementById(this.id + '-qty');
-                if (qtySelector) {
-                    if (this.checked) {
-                        qtySelector.classList.add('active');
-                    } else {
-                        qtySelector.classList.remove('active');
-                    }
+        // Service input handling — covers both radio (basic/deep) and checkboxes
+        function handleServiceInput() {
+            const qtySelector = document.getElementById(this.id + '-qty');
+            if (qtySelector) {
+                if (this.checked) {
+                    qtySelector.classList.add('active');
+                } else {
+                    qtySelector.classList.remove('active');
                 }
-                calculateTotal();
-            });
+            }
+            // If a radio (cleaning tier) is selected, deactivate the other tier's qty panel
+            if (this.type === 'radio' && this.name === 'cleaning-tier') {
+                ['basic-cleaning', 'deep-cleaning'].forEach(id => {
+                    if (id !== this.id) {
+                        const panel = document.getElementById(id + '-qty');
+                        if (panel) panel.classList.remove('active');
+                    }
+                });
+            }
+            calculateTotal();
+        }
+
+        document.querySelectorAll('.service-option input[type="checkbox"], .service-option input[type="radio"]').forEach(input => {
+            input.addEventListener('change', handleServiceInput);
         });
 
         // Price calculation
@@ -4746,7 +4757,7 @@
                 }
 
             } else if (serviceType === 'office') {
-                // Office Cleaning (always included) - base price from API via data-price attribute
+                // Office Cleaning (always included) - read from API-updated data-price
                 const officeCleaningEl = document.getElementById('office-cleaning');
                 const basePrice = officeCleaningEl ? (parseFloat(officeCleaningEl.dataset.price) || 50) : 50;
                 const offices = parseInt(document.getElementById('offices').value);
