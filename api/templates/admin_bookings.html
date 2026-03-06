@@ -2303,51 +2303,85 @@
         }
         .cb-field textarea { resize: vertical; min-height: 70px; }
 
-        /* Services builder */
-        .services-list { display: flex; flex-direction: column; gap: 10px; }
-        .service-row {
-            display: grid;
-            grid-template-columns: 1fr 120px 40px;
-            gap: 8px;
+        /* ---- Structured services panel ---- */
+        .cb-services-panel { display: flex; flex-direction: column; gap: 10px; }
+        .cb-svc-placeholder {
+            background: #f0f0f0;
+            border: 1.5px dashed #ccc;
+            border-radius: 8px;
+            padding: 18px;
+            text-align: center;
+            color: #999;
+            font-size: 0.88rem;
+        }
+        .cb-svc-main {
+            background: white;
+            border: 1.5px solid #1FAFB8;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .cb-svc-main-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 10px;
+        }
+        .cb-svc-main-title { font-weight: 700; color: #1FAFB8; font-size: 0.95rem; }
+        .cb-svc-main-price {
+            font-weight: 700;
+            color: #2D3E50;
+            font-size: 1rem;
+            background: #e8f8f9;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .cb-svc-qty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+        .cb-svc-qty-item { display: flex; flex-direction: column; gap: 4px; }
+        .cb-svc-qty-item label { font-size: 0.78rem; font-weight: 600; color: #666; text-transform: uppercase; }
+        .cb-svc-qty-item .qty-row { display: flex; align-items: center; gap: 8px; }
+        .cb-svc-qty-item input[type=number] {
+            width: 64px; padding: 6px 8px;
+            border: 1.5px solid #ddd; border-radius: 6px;
+            font-size: 0.9rem; font-weight: 600; text-align: center;
+        }
+        .cb-svc-qty-item input[type=number]:focus { outline: none; border-color: #1FAFB8; }
+        .cb-svc-qty-item .unit-price { font-size: 0.78rem; color: #999; }
+        .cb-addon-row {
             background: white;
             border: 1.5px solid #e0e0e0;
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 10px 14px;
+            transition: border-color 0.2s;
         }
-        .service-row select, .service-row input {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 7px 10px;
-            font-size: 0.88rem;
+        .cb-addon-row.active { border-color: #1FAFB8; background: #f5fdfe; }
+        .cb-addon-header { display: flex; align-items: center; gap: 10px; }
+        .cb-addon-header input[type=checkbox] {
+            width: 17px; height: 17px;
+            accent-color: #1FAFB8;
+            cursor: pointer; flex-shrink: 0;
         }
-        .service-row input { text-align: right; }
-        .btn-remove-service {
-            background: #fee;
-            border: 1px solid #fcc;
-            color: #c0392b;
-            border-radius: 5px;
-            width: 32px; height: 32px;
-            cursor: pointer;
-            font-size: 1rem;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
+        .cb-addon-name { flex: 1; font-weight: 600; font-size: 0.9rem; color: #333; cursor: pointer; }
+        .cb-addon-base-price { font-size: 0.82rem; color: #1FAFB8; font-weight: 600; white-space: nowrap; }
+        .cb-addon-qty-wrap {
+            display: none;
+            margin-top: 8px; padding-top: 8px;
+            border-top: 1px solid #eee;
+            align-items: center; gap: 10px;
         }
-        .btn-remove-service:hover { background: #c0392b; color: white; border-color: #c0392b; }
-        .btn-add-service {
-            background: #e8f8f9;
-            border: 1.5px dashed #1FAFB8;
-            color: #1FAFB8;
-            border-radius: 8px;
-            padding: 9px;
-            cursor: pointer;
-            font-size: 0.88rem;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.2s;
-            margin-top: 6px;
+        .cb-addon-row.active .cb-addon-qty-wrap { display: flex; }
+        .cb-addon-qty-wrap label { font-size: 0.8rem; color: #666; font-weight: 600; }
+        .cb-addon-qty-wrap input[type=number] {
+            width: 64px; padding: 5px 8px;
+            border: 1.5px solid #ddd; border-radius: 6px;
+            font-size: 0.9rem; font-weight: 600; text-align: center;
         }
-        .btn-add-service:hover { background: #1FAFB8; color: white; }
+        .cb-addon-qty-wrap input[type=number]:focus { outline: none; border-color: #1FAFB8; }
+        .cb-addon-line-total {
+            margin-left: auto;
+            font-weight: 700; color: #2D3E50; font-size: 0.9rem;
+            background: #e8f8f9; padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+        }
+        @media (max-width: 600px) { .cb-svc-qty-row { grid-template-columns: 1fr; } }
 
         /* Pricing summary */
         .cb-price-summary {
@@ -2637,11 +2671,12 @@
                 <!-- Services -->
                 <div class="cb-section">
                     <h3>🧽 Services & Pricing</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 120px 40px; gap:8px; padding: 0 2px 6px; font-size:0.78rem; font-weight:700; color:#888; text-transform:uppercase;">
-                        <span>Service (from pricing table — price auto-fills)</span><span style="text-align:right;">Price (XCG)</span><span></span>
+                    <p style="font-size:0.82rem;color:#888;margin:-6px 0 12px;">Prices load from Pricing Management. Select a category above first.</p>
+                    <div class="cb-services-panel" id="cb_services_panel">
+                        <div class="cb-svc-placeholder" id="cb_svc_placeholder">
+                            ← Select a Service Category to configure services & quantities
+                        </div>
                     </div>
-                    <div class="services-list" id="cb_services_list"></div>
-                    <button class="btn-add-service" onclick="addServiceRow()">＋ Add Service Line</button>
                 </div>
 
                 <!-- Price Summary -->
@@ -3778,19 +3813,18 @@
         // Debounce search input
         // ===== CREATE BOOKING MODAL =====
 
-        // Live pricing data fetched from API — keyed by service id
-        let cbPricingData = [];   // Array of { id, service_name, base_price, unit, category, is_active }
-        let cbServiceCount = 0;
+        // -------------------------------------------------------
+        // Pricing data fetched from /api/pricing/public
+        // Each entry: { id, service_name, base_price, unit, category, is_active }
+        // -------------------------------------------------------
+        let cbPricingData = [];
 
-        // Fetch pricing from the public API — same endpoint used by index.html, no auth needed
         async function fetchPricingData() {
             try {
                 const res = await fetch(`${API_URL}/api/pricing/public`);
                 if (res.ok) {
                     const data = await res.json();
-                    // Accept both array and {services:[...]} response shapes
                     const raw = Array.isArray(data) ? data : (data.services || []);
-                    // Only expose active services in the booking form
                     cbPricingData = raw.filter(s => s.is_active !== false);
                 }
             } catch (e) {
@@ -3798,14 +3832,359 @@
             }
         }
 
-        // Get services filtered by category
-        function getPricingForCategory(category) {
-            if (!category) return cbPricingData;
-            return cbPricingData.filter(s => s.category === category);
+        // Get price for a named service (returns float or fallback)
+        function cbPrice(serviceName, fallback = 0) {
+            const s = cbPricingData.find(x => x.service_name === serviceName);
+            return s ? parseFloat(s.base_price) : fallback;
         }
 
+        // -------------------------------------------------------
+        // Render the structured services panel based on category
+        // -------------------------------------------------------
+        function renderServicesPanel(category) {
+            const panel = document.getElementById('cb_services_panel');
+            if (!category) {
+                panel.innerHTML = '<div class="cb-svc-placeholder" id="cb_svc_placeholder">← Select a Service Category to configure services & quantities</div>';
+                updatePriceSummary();
+                return;
+            }
+
+            if (category === 'basic') {
+                const base   = cbPrice('Base price for basic residential cleaning', 85);
+                const perBed = cbPrice('Additional bedroom (basic cleaning)', 18);
+                const perBath= cbPrice('Additional bathroom (basic cleaning)', 20);
+                panel.innerHTML = `
+                    <div class="cb-svc-main">
+                        <div class="cb-svc-main-header">
+                            <span class="cb-svc-main-title">🏠 Basic Cleaning</span>
+                            <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
+                        </div>
+                        <div class="cb-svc-qty-row">
+                            <div class="cb-svc-qty-item">
+                                <label>Bedrooms</label>
+                                <div class="qty-row">
+                                    <input type="number" id="cb_bedrooms" min="0" value="0"
+                                           data-price="${perBed}" oninput="updateMainPrice()">
+                                    <span class="unit-price">+${perBed.toFixed(2)} XCG each</span>
+                                </div>
+                            </div>
+                            <div class="cb-svc-qty-item">
+                                <label>Bathrooms</label>
+                                <div class="qty-row">
+                                    <input type="number" id="cb_bathrooms" min="0" value="0"
+                                           data-price="${perBath}" oninput="updateMainPrice()">
+                                    <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="cb_base_price" value="${base}">
+                    </div>
+                    ${renderResidentialAddons()}`;
+                addAddonListeners();
+
+            } else if (category === 'deep') {
+                const base   = cbPrice('Base price for deep residential cleaning', 130);
+                const perBed = cbPrice('Additional bedroom (deep cleaning)', 18);
+                const perBath= cbPrice('Additional bathroom (deep cleaning)', 20);
+                panel.innerHTML = `
+                    <div class="cb-svc-main">
+                        <div class="cb-svc-main-header">
+                            <span class="cb-svc-main-title">🧹 Deep Cleaning</span>
+                            <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
+                        </div>
+                        <div class="cb-svc-qty-row">
+                            <div class="cb-svc-qty-item">
+                                <label>Bedrooms</label>
+                                <div class="qty-row">
+                                    <input type="number" id="cb_bedrooms" min="0" value="0"
+                                           data-price="${perBed}" oninput="updateMainPrice()">
+                                    <span class="unit-price">+${perBed.toFixed(2)} XCG each</span>
+                                </div>
+                            </div>
+                            <div class="cb-svc-qty-item">
+                                <label>Bathrooms</label>
+                                <div class="qty-row">
+                                    <input type="number" id="cb_bathrooms" min="0" value="0"
+                                           data-price="${perBath}" oninput="updateMainPrice()">
+                                    <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="cb_base_price" value="${base}">
+                    </div>
+                    ${renderResidentialAddons()}`;
+                addAddonListeners();
+
+            } else if (category === 'add-on') {
+                panel.innerHTML = `
+                    <p style="font-size:0.82rem;color:#666;margin:0 0 8px;">Select one or more add-on services:</p>
+                    ${renderResidentialAddons()}`;
+                addAddonListeners();
+
+            } else if (category === 'office') {
+                const base     = cbPrice('Base price for office cleaning', 50);
+                const perOffice= cbPrice('Additional office', 18);
+                const perBath  = cbPrice('Additional bathroom (office)', 20);
+                const sofaP    = cbPrice('Office Sofa Cleaning', 40);
+                const electroP = cbPrice('Office Electrostatic Cleaning', 30);
+                panel.innerHTML = `
+                    <div class="cb-svc-main">
+                        <div class="cb-svc-main-header">
+                            <span class="cb-svc-main-title">🏢 Office Cleaning</span>
+                            <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
+                        </div>
+                        <div class="cb-svc-qty-row">
+                            <div class="cb-svc-qty-item">
+                                <label>Additional Offices</label>
+                                <div class="qty-row">
+                                    <input type="number" id="cb_offices" min="0" value="0"
+                                           data-price="${perOffice}" oninput="updateMainPrice()">
+                                    <span class="unit-price">+${perOffice.toFixed(2)} XCG each</span>
+                                </div>
+                            </div>
+                            <div class="cb-svc-qty-item">
+                                <label>Bathrooms</label>
+                                <div class="qty-row">
+                                    <input type="number" id="cb_bathrooms" min="0" value="0"
+                                           data-price="${perBath}" oninput="updateMainPrice()">
+                                    <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="cb_base_price" value="${base}">
+                    </div>
+                    <div class="cb-addon-row" id="cb_addon_office_sofa">
+                        <div class="cb-addon-header">
+                            <input type="checkbox" id="cb_chk_office_sofa" onchange="toggleAddon('office_sofa')">
+                            <label class="cb-addon-name" for="cb_chk_office_sofa">🛋️ Office Sofa/Couch Cleaning</label>
+                            <span class="cb-addon-base-price">${sofaP.toFixed(2)} XCG each</span>
+                        </div>
+                        <div class="cb-addon-qty-wrap" id="cb_qty_wrap_office_sofa">
+                            <label>Qty:</label>
+                            <input type="number" id="cb_qty_office_sofa" min="1" value="1"
+                                   data-price="${sofaP}" oninput="updateAddonTotal('office_sofa')">
+                            <span class="cb-addon-line-total" id="cb_total_office_sofa">${sofaP.toFixed(2)} XCG</span>
+                        </div>
+                    </div>
+                    <div class="cb-addon-row" id="cb_addon_office_electro">
+                        <div class="cb-addon-header">
+                            <input type="checkbox" id="cb_chk_office_electro" onchange="toggleAddon('office_electro')">
+                            <label class="cb-addon-name" for="cb_chk_office_electro">⚡ Office Electrostatic Cleaning</label>
+                            <span class="cb-addon-base-price">${electroP.toFixed(2)} XCG per room</span>
+                        </div>
+                        <div class="cb-addon-qty-wrap" id="cb_qty_wrap_office_electro">
+                            <label>Rooms:</label>
+                            <input type="number" id="cb_qty_office_electro" min="1" value="1"
+                                   data-price="${electroP}" oninput="updateAddonTotal('office_electro')">
+                            <span class="cb-addon-line-total" id="cb_total_office_electro">${electroP.toFixed(2)} XCG</span>
+                        </div>
+                    </div>`;
+                addAddonListeners();
+            }
+
+            updatePriceSummary();
+        }
+
+        function renderResidentialAddons() {
+            const sofaP    = cbPrice('Sofa/Couch Cleaning', 75);
+            const mattP    = cbPrice('Mattress Cleaning', 75);
+            const electroP = cbPrice('Electrostatic Cleaning (per room)', 30);
+            const poolP    = cbPrice('Pool Cleaning', 50);
+            return `
+                <div class="cb-addon-row" id="cb_addon_sofa">
+                    <div class="cb-addon-header">
+                        <input type="checkbox" id="cb_chk_sofa" onchange="toggleAddon('sofa')">
+                        <label class="cb-addon-name" for="cb_chk_sofa">🛋️ Sofa/Couch Cleaning</label>
+                        <span class="cb-addon-base-price">${sofaP.toFixed(2)} XCG each</span>
+                    </div>
+                    <div class="cb-addon-qty-wrap" id="cb_qty_wrap_sofa">
+                        <label>Qty:</label>
+                        <input type="number" id="cb_qty_sofa" min="1" value="1"
+                               data-price="${sofaP}" oninput="updateAddonTotal('sofa')">
+                        <span class="cb-addon-line-total" id="cb_total_sofa">${sofaP.toFixed(2)} XCG</span>
+                    </div>
+                </div>
+                <div class="cb-addon-row" id="cb_addon_mattress">
+                    <div class="cb-addon-header">
+                        <input type="checkbox" id="cb_chk_mattress" onchange="toggleAddon('mattress')">
+                        <label class="cb-addon-name" for="cb_chk_mattress">🛏️ Mattress Cleaning</label>
+                        <span class="cb-addon-base-price">${mattP.toFixed(2)} XCG each</span>
+                    </div>
+                    <div class="cb-addon-qty-wrap" id="cb_qty_wrap_mattress">
+                        <label>Qty:</label>
+                        <input type="number" id="cb_qty_mattress" min="1" value="1"
+                               data-price="${mattP}" oninput="updateAddonTotal('mattress')">
+                        <span class="cb-addon-line-total" id="cb_total_mattress">${mattP.toFixed(2)} XCG</span>
+                    </div>
+                </div>
+                <div class="cb-addon-row" id="cb_addon_electro">
+                    <div class="cb-addon-header">
+                        <input type="checkbox" id="cb_chk_electro" onchange="toggleAddon('electro')">
+                        <label class="cb-addon-name" for="cb_chk_electro">⚡ Electrostatic Cleaning</label>
+                        <span class="cb-addon-base-price">${electroP.toFixed(2)} XCG per room</span>
+                    </div>
+                    <div class="cb-addon-qty-wrap" id="cb_qty_wrap_electro">
+                        <label>Rooms:</label>
+                        <input type="number" id="cb_qty_electro" min="1" value="1"
+                               data-price="${electroP}" oninput="updateAddonTotal('electro')">
+                        <span class="cb-addon-line-total" id="cb_total_electro">${electroP.toFixed(2)} XCG</span>
+                    </div>
+                </div>
+                <div class="cb-addon-row" id="cb_addon_pool">
+                    <div class="cb-addon-header">
+                        <input type="checkbox" id="cb_chk_pool" onchange="toggleAddon('pool')">
+                        <label class="cb-addon-name" for="cb_chk_pool">🏊 Pool Cleaning</label>
+                        <span class="cb-addon-base-price">${poolP.toFixed(2)} XCG each</span>
+                    </div>
+                    <div class="cb-addon-qty-wrap" id="cb_qty_wrap_pool">
+                        <label>Qty:</label>
+                        <input type="number" id="cb_qty_pool" min="1" value="1"
+                               data-price="${poolP}" oninput="updateAddonTotal('pool')">
+                        <span class="cb-addon-line-total" id="cb_total_pool">${poolP.toFixed(2)} XCG</span>
+                    </div>
+                </div>`;
+        }
+
+        // Attach change listeners to all addon qty inputs so summary always updates
+        function addAddonListeners() {
+            document.querySelectorAll('.cb-addon-qty-wrap input[type=number]')
+                .forEach(el => { el.oninput = () => { updatePriceSummary(); }; });
+        }
+
+        function toggleAddon(key) {
+            const chk = document.getElementById(`cb_chk_${key}`);
+            const row = document.getElementById(`cb_addon_${key}`);
+            if (chk && row) {
+                row.classList.toggle('active', chk.checked);
+            }
+            updatePriceSummary();
+        }
+
+        function updateAddonTotal(key) {
+            const input = document.getElementById(`cb_qty_${key}`);
+            const totalEl = document.getElementById(`cb_total_${key}`);
+            if (input && totalEl) {
+                const qty = parseInt(input.value) || 1;
+                const price = parseFloat(input.dataset.price) || 0;
+                totalEl.textContent = (qty * price).toFixed(2) + ' XCG';
+            }
+            updatePriceSummary();
+        }
+
+        function updateMainPrice() {
+            const category = document.getElementById('cb_service_type').value;
+            const baseEl = document.getElementById('cb_base_price');
+            const priceEl = document.getElementById('cb_main_price');
+            if (!baseEl || !priceEl) { updatePriceSummary(); return; }
+
+            const base = parseFloat(baseEl.value) || 0;
+            let extra = 0;
+
+            if (category === 'office') {
+                const officesEl = document.getElementById('cb_offices');
+                const bathEl    = document.getElementById('cb_bathrooms');
+                if (officesEl) extra += (parseInt(officesEl.value) || 0) * (parseFloat(officesEl.dataset.price) || 0);
+                if (bathEl)    extra += (parseInt(bathEl.value) || 0) * (parseFloat(bathEl.dataset.price) || 0);
+            } else {
+                const bedEl  = document.getElementById('cb_bedrooms');
+                const bathEl = document.getElementById('cb_bathrooms');
+                if (bedEl)  extra += (parseInt(bedEl.value) || 0) * (parseFloat(bedEl.dataset.price) || 0);
+                if (bathEl) extra += (parseInt(bathEl.value) || 0) * (parseFloat(bathEl.dataset.price) || 0);
+            }
+
+            priceEl.textContent = (base + extra).toFixed(2) + ' XCG';
+            updatePriceSummary();
+        }
+
+        // -------------------------------------------------------
+        // Collect all selected services into a structured array
+        // -------------------------------------------------------
+        function getServiceRows() {
+            const category = document.getElementById('cb_service_type').value;
+            const rows = [];
+            if (!category) return rows;
+
+            if (category === 'basic' || category === 'deep') {
+                const base   = parseFloat(document.getElementById('cb_base_price')?.value) || 0;
+                const bedEl  = document.getElementById('cb_bedrooms');
+                const bathEl = document.getElementById('cb_bathrooms');
+                const beds   = parseInt(bedEl?.value) || 0;
+                const baths  = parseInt(bathEl?.value) || 0;
+                const bedP   = parseFloat(bedEl?.dataset.price) || 0;
+                const bathP  = parseFloat(bathEl?.dataset.price) || 0;
+                const price  = base + (beds * bedP) + (baths * bathP);
+                const label  = category === 'basic' ? 'Basic Cleaning' : 'Deep Cleaning';
+                rows.push({
+                    name: `${label} (${beds} bedroom${beds!==1?'s':''}, ${baths} bathroom${baths!==1?'s':''})`,
+                    price
+                });
+                // Residential add-ons
+                ['sofa','mattress','electro','pool'].forEach(key => {
+                    const chk = document.getElementById(`cb_chk_${key}`);
+                    if (chk?.checked) {
+                        const qtyEl = document.getElementById(`cb_qty_${key}`);
+                        const qty   = parseInt(qtyEl?.value) || 1;
+                        const unitP = parseFloat(qtyEl?.dataset.price) || 0;
+                        const names = {sofa:'Sofa/Couch Cleaning',mattress:'Mattress Cleaning',electro:'Electrostatic Cleaning',pool:'Pool Cleaning'};
+                        const units = {sofa:'',mattress:'',electro:' rooms',pool:''};
+                        rows.push({ name: `${names[key]} (${qty}${units[key]})`, price: qty * unitP });
+                    }
+                });
+
+            } else if (category === 'add-on') {
+                ['sofa','mattress','electro','pool'].forEach(key => {
+                    const chk = document.getElementById(`cb_chk_${key}`);
+                    if (chk?.checked) {
+                        const qtyEl = document.getElementById(`cb_qty_${key}`);
+                        const qty   = parseInt(qtyEl?.value) || 1;
+                        const unitP = parseFloat(qtyEl?.dataset.price) || 0;
+                        const names = {sofa:'Sofa/Couch Cleaning',mattress:'Mattress Cleaning',electro:'Electrostatic Cleaning',pool:'Pool Cleaning'};
+                        const units = {sofa:'',mattress:'',electro:' rooms',pool:''};
+                        rows.push({ name: `${names[key]} (${qty}${units[key]})`, price: qty * unitP });
+                    }
+                });
+
+            } else if (category === 'office') {
+                const base    = parseFloat(document.getElementById('cb_base_price')?.value) || 0;
+                const offEl   = document.getElementById('cb_offices');
+                const bathEl  = document.getElementById('cb_bathrooms');
+                const offices = parseInt(offEl?.value) || 0;
+                const baths   = parseInt(bathEl?.value) || 0;
+                const offP    = parseFloat(offEl?.dataset.price) || 0;
+                const bathP   = parseFloat(bathEl?.dataset.price) || 0;
+                const price   = base + (offices * offP) + (baths * bathP);
+                rows.push({
+                    name: `Office Cleaning (${offices} office${offices!==1?'s':''}, ${baths} bathroom${baths!==1?'s':''})`,
+                    price
+                });
+                ['office_sofa','office_electro'].forEach(key => {
+                    const chk = document.getElementById(`cb_chk_${key}`);
+                    if (chk?.checked) {
+                        const qtyEl = document.getElementById(`cb_qty_${key}`);
+                        const qty   = parseInt(qtyEl?.value) || 1;
+                        const unitP = parseFloat(qtyEl?.dataset.price) || 0;
+                        const names = {office_sofa:'Office Sofa/Couch Cleaning',office_electro:'Office Electrostatic Cleaning'};
+                        rows.push({ name: `${names[key]} (${qty})`, price: qty * unitP });
+                    }
+                });
+            }
+            return rows;
+        }
+
+        function updatePriceSummary() {
+            const rows = getServiceRows();
+            const subtotal = rows.reduce((s, r) => s + r.price, 0);
+            const ob = Math.round(subtotal * 0.06 * 100) / 100;
+            const total = subtotal + ob;
+            document.getElementById('cb_subtotal').textContent = subtotal.toFixed(2) + ' XCG';
+            document.getElementById('cb_ob').textContent       = ob.toFixed(2) + ' XCG';
+            document.getElementById('cb_total').textContent    = total.toFixed(2) + ' XCG';
+        }
+
+        // -------------------------------------------------------
+        // Modal open / close
+        // -------------------------------------------------------
         async function openCreateBookingModal() {
-            // Reset form
             document.getElementById('cb_name').value = '';
             document.getElementById('cb_phone').value = '';
             document.getElementById('cb_email').value = '';
@@ -3816,18 +4195,11 @@
             document.getElementById('cb_street').value = '';
             document.getElementById('cb_neighborhood').value = '';
             document.getElementById('cb_notes').value = '';
-            document.getElementById('cb_services_list').innerHTML = '';
             document.getElementById('pastDateNotice').classList.remove('visible');
-            cbServiceCount = 0;
 
-            // Show modal immediately, load pricing in background
             document.getElementById('createBookingModal').classList.add('active');
-
-            // Fetch latest pricing (always refresh on open)
             await fetchPricingData();
-
-            updatePriceSummary();
-            addServiceRow();  // Start with one blank row
+            renderServicesPanel(''); // show placeholder
         }
 
         function closeCreateBookingModal() {
@@ -3843,200 +4215,60 @@
             notice.classList.toggle('visible', selected < today);
         }
 
-        // Called when category dropdown changes — refresh all service rows
+        // Called by the Service Category dropdown onchange
         function updateServiceOptions() {
             const category = document.getElementById('cb_service_type').value;
-            document.querySelectorAll('.service-row').forEach(row => {
-                const id = row.id.replace('cb_service_row_', '');
-                const sel = document.getElementById(`cb_svc_select_${id}`);
-                if (sel) {
-                    const prevVal = sel.value;
-                    buildServiceSelectOptions(sel, category);
-                    // If the previously-selected service still exists in the new category, keep it
-                    if (prevVal && sel.querySelector(`option[value="${prevVal.replace(/"/g, '\\"')}"]`)) {
-                        sel.value = prevVal;
-                    }
-                }
-                // Hide custom text input when category changes
-                const customInput = document.getElementById(`cb_svc_name_${id}`);
-                if (customInput) customInput.style.display = 'none';
-            });
+            renderServicesPanel(category);
         }
 
-        function buildServiceSelectOptions(selectEl, category) {
-            const services = getPricingForCategory(category);
-            selectEl.innerHTML = '';
-
-            const placeholder = document.createElement('option');
-            placeholder.value = '';
-            placeholder.textContent = services.length
-                ? '— Select a service —'
-                : (category ? 'No active services in this category' : '— Select category first —');
-            selectEl.appendChild(placeholder);
-
-            // Sort by display_order then name
-            const sorted = [...services].sort((a, b) =>
-                (a.display_order || 999) - (b.display_order || 999) ||
-                (a.service_name || '').localeCompare(b.service_name || '')
-            );
-
-            sorted.forEach(svc => {
-                const o = document.createElement('option');
-                o.value = svc.service_name;
-                o.dataset.price = svc.base_price;
-                o.dataset.unit = svc.unit || '';
-                o.textContent = `${svc.service_name}  —  ${parseFloat(svc.base_price).toFixed(2)} XCG${svc.unit ? ' / ' + svc.unit : ''}`;
-                selectEl.appendChild(o);
-            });
-
-            // Custom entry always available at the bottom
-            const customOpt = document.createElement('option');
-            customOpt.value = '__custom__';
-            customOpt.textContent = '✏️ Enter custom service name…';
-            selectEl.appendChild(customOpt);
-        }
-
-        function addServiceRow() {
-            cbServiceCount++;
-            const id = cbServiceCount;
-            const category = document.getElementById('cb_service_type').value;
-            const list = document.getElementById('cb_services_list');
-
-            const row = document.createElement('div');
-            row.className = 'service-row';
-            row.id = `cb_service_row_${id}`;
-            row.innerHTML = `
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <select class="cb-service-select" id="cb_svc_select_${id}"
-                            onchange="handleServiceSelect(${id})"></select>
-                    <input type="text" id="cb_svc_name_${id}"
-                           placeholder="Custom service name…"
-                           style="display:none;font-size:0.85rem;"
-                           oninput="updatePriceSummary()">
-                </div>
-                <input type="number" id="cb_svc_price_${id}"
-                       placeholder="0.00" min="0" step="0.01"
-                       oninput="updatePriceSummary()"
-                       style="font-weight:600;"
-                       title="Price auto-filled from pricing table. Edit to override.">
-                <button class="btn-remove-service" onclick="removeServiceRow(${id})" title="Remove">✕</button>
-            `;
-            list.appendChild(row);
-            buildServiceSelectOptions(document.getElementById(`cb_svc_select_${id}`), category);
-        }
-
-        function handleServiceSelect(id) {
-            const sel = document.getElementById(`cb_svc_select_${id}`);
-            const customInput = document.getElementById(`cb_svc_name_${id}`);
-            const priceInput = document.getElementById(`cb_svc_price_${id}`);
-
-            if (sel.value === '__custom__') {
-                customInput.style.display = 'block';
-                customInput.focus();
-                priceInput.value = '';
-            } else if (sel.value) {
-                customInput.style.display = 'none';
-                // Auto-fill price from the selected option's data attribute
-                const selectedOpt = sel.options[sel.selectedIndex];
-                if (selectedOpt && selectedOpt.dataset.price) {
-                    priceInput.value = parseFloat(selectedOpt.dataset.price).toFixed(2);
-                    // Brief highlight to show it was auto-filled
-                    priceInput.style.background = '#e8f8f9';
-                    priceInput.style.borderColor = '#1FAFB8';
-                    setTimeout(() => {
-                        priceInput.style.background = '';
-                        priceInput.style.borderColor = '';
-                    }, 1200);
-                }
-            } else {
-                customInput.style.display = 'none';
-            }
-            updatePriceSummary();
-        }
-
-        function removeServiceRow(id) {
-            const row = document.getElementById(`cb_service_row_${id}`);
-            if (row) row.remove();
-            updatePriceSummary();
-        }
-
-        function getServiceRows() {
-            const rows = [];
-            document.querySelectorAll('.service-row').forEach(row => {
-                const id = row.id.replace('cb_service_row_', '');
-                const sel = document.getElementById(`cb_svc_select_${id}`);
-                const customInput = document.getElementById(`cb_svc_name_${id}`);
-                const priceInput = document.getElementById(`cb_svc_price_${id}`);
-
-                let name = sel ? sel.value : '';
-                if (name === '__custom__') {
-                    name = customInput ? customInput.value.trim() : '';
-                }
-                const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
-                if (name && name !== '__custom__') rows.push({ name, price });
-            });
-            return rows;
-        }
-
-        function updatePriceSummary() {
-            const rows = getServiceRows();
-            const subtotal = rows.reduce((sum, r) => sum + r.price, 0);
-            const ob = Math.round(subtotal * 0.06 * 100) / 100;
-            const total = subtotal + ob;
-            document.getElementById('cb_subtotal').textContent = subtotal.toFixed(2) + ' XCG';
-            document.getElementById('cb_ob').textContent = ob.toFixed(2) + ' XCG';
-            document.getElementById('cb_total').textContent = total.toFixed(2) + ' XCG';
-        }
-
+        // -------------------------------------------------------
+        // Submit
+        // -------------------------------------------------------
         async function submitCreateBooking(showInvoice = false) {
             const token = checkAuth();
             if (!token) return;
 
-            const name = document.getElementById('cb_name').value.trim();
-            const phone = document.getElementById('cb_phone').value.trim();
-            const date = document.getElementById('cb_date').value;
-            const timeslot = document.getElementById('cb_timeslot').value;
+            const name        = document.getElementById('cb_name').value.trim();
+            const phone       = document.getElementById('cb_phone').value.trim();
+            const date        = document.getElementById('cb_date').value;
+            const timeslot    = document.getElementById('cb_timeslot').value;
             const serviceType = document.getElementById('cb_service_type').value;
-            const street = document.getElementById('cb_street').value.trim();
-            const neighborhood = document.getElementById('cb_neighborhood').value.trim();
-            const email = document.getElementById('cb_email').value.trim();
-            const status = document.getElementById('cb_status').value;
-            const notes = document.getElementById('cb_notes').value.trim();
+            const street      = document.getElementById('cb_street').value.trim();
+            const neighborhood= document.getElementById('cb_neighborhood').value.trim();
+            const email       = document.getElementById('cb_email').value.trim();
+            const status      = document.getElementById('cb_status').value;
+            const notes       = document.getElementById('cb_notes').value.trim();
             const serviceRows = getServiceRows();
 
-            if (!name)       { toast('Customer name is required', 'error'); document.getElementById('cb_name').focus(); return; }
-            if (!phone)      { toast('Phone number is required', 'error'); document.getElementById('cb_phone').focus(); return; }
-            if (!date)       { toast('Booking date is required', 'error'); document.getElementById('cb_date').focus(); return; }
-            if (!timeslot)   { toast('Please select a time slot', 'error'); return; }
-            if (!serviceType){ toast('Please select a service category', 'error'); return; }
-            if (!street)     { toast('Street address is required', 'error'); document.getElementById('cb_street').focus(); return; }
-            if (serviceRows.length === 0) {
-                toast('Please add at least one service', 'error'); return;
-            }
+            if (!name)        { toast('Customer name is required', 'error'); document.getElementById('cb_name').focus(); return; }
+            if (!phone)       { toast('Phone number is required', 'error'); document.getElementById('cb_phone').focus(); return; }
+            if (!date)        { toast('Booking date is required', 'error'); document.getElementById('cb_date').focus(); return; }
+            if (!timeslot)    { toast('Please select a time slot', 'error'); return; }
+            if (!serviceType) { toast('Please select a service category', 'error'); return; }
+            if (!street)      { toast('Street address is required', 'error'); document.getElementById('cb_street').focus(); return; }
+            if (serviceRows.length === 0) { toast('Please select at least one service', 'error'); return; }
 
-            const subtotal = serviceRows.reduce((sum, r) => sum + r.price, 0);
+            const subtotal = serviceRows.reduce((s, r) => s + r.price, 0);
 
-            const submitBtn = document.getElementById('cb_submit_btn');
+            const submitBtn  = document.getElementById('cb_submit_btn');
             const invoiceBtn = document.getElementById('cb_submit_invoice_btn');
-            submitBtn.disabled = true;
-            invoiceBtn.disabled = true;
-            submitBtn.textContent = '⏳ Creating…';
-            invoiceBtn.textContent = '⏳ Creating…';
+            submitBtn.disabled = invoiceBtn.disabled = true;
+            submitBtn.textContent = invoiceBtn.textContent = '⏳ Creating…';
 
             const payload = {
-                customer_name: name,
+                customer_name:  name,
                 customer_phone: phone,
                 customer_email: email || null,
-                booking_date: date,
-                time_slot: timeslot,
-                service_type: serviceType,
+                booking_date:   date,
+                time_slot:      timeslot,
+                service_type:   serviceType,
                 street_address: street,
-                neighborhood: neighborhood || null,
-                services: JSON.stringify(serviceRows),
-                total_cost: subtotal,
-                status: status,
-                notes: notes || null,
-                admin_created: true
+                neighborhood:   neighborhood || null,
+                services:       JSON.stringify(serviceRows),
+                total_cost:     subtotal,
+                status,
+                notes:          notes || null,
+                admin_created:  true
             };
 
             try {
@@ -4048,7 +4280,6 @@
                     },
                     body: JSON.stringify(payload)
                 });
-
                 const data = await response.json();
 
                 if (response.ok && data.success) {
@@ -4056,7 +4287,6 @@
                     closeCreateBookingModal();
                     await loadBookings();
                     await loadDashboardStats();
-
                     if (showInvoice && data.booking) {
                         setTimeout(() => viewInvoice(data.booking), 400);
                     } else if (showInvoice && data.booking_id) {
@@ -4072,18 +4302,16 @@
                 console.error('Create booking error:', err);
                 toast('Network error — could not create booking', 'error');
             } finally {
-                submitBtn.disabled = false;
-                invoiceBtn.disabled = false;
+                submitBtn.disabled = invoiceBtn.disabled = false;
                 submitBtn.textContent = '💾 Create Booking';
-                invoiceBtn.innerHTML = '📄 Create &amp; View Invoice';
+                invoiceBtn.innerHTML  = '📄 Create &amp; View Invoice';
             }
         }
 
-        // Close create booking modal when clicking outside
+        // Close modal when clicking outside
         document.getElementById('createBookingModal').addEventListener('click', function(e) {
             if (e.target === this) closeCreateBookingModal();
         });
-
         // Close with Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.getElementById('createBookingModal').classList.contains('active')) {
