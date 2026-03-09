@@ -2435,6 +2435,31 @@
         }
         .past-date-notice.visible { display: block; }
 
+        /* Slot availability status badge */
+        .slot-avail-status {
+            display: none;
+            align-items: center;
+            gap: 7px;
+            margin-top: 6px;
+            padding: 7px 11px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+        .slot-avail-status.visible { display: flex; }
+        .slot-avail-status.checking {
+            background: #f0f4ff; border: 1px solid #b3c6f7; color: #3a5bbf;
+        }
+        .slot-avail-status.available {
+            background: #eafaf1; border: 1px solid #82e0aa; color: #1e8449;
+        }
+        .slot-avail-status.limited {
+            background: #fef9e7; border: 1px solid #f7dc6f; color: #b7950b;
+        }
+        .slot-avail-status.unavailable {
+            background: #fdedec; border: 1px solid #f1948a; color: #c0392b;
+        }
+
         @media (max-width: 600px) {
             .cb-grid, .cb-grid-3 { grid-template-columns: 1fr; }
             .cb-field.full-width { grid-column: 1; }
@@ -2617,19 +2642,20 @@
                     <div class="cb-grid">
                         <div class="cb-field">
                             <label>Booking Date <span class="required">*</span></label>
-                            <input type="date" id="cb_date" onchange="checkPastDate()">
+                            <input type="date" id="cb_date" onchange="checkPastDate(); checkSlotAvailability();">
                             <div class="past-date-notice" id="pastDateNotice">
                                 ⏪ Past date selected — registering a historical booking.
                             </div>
                         </div>
                         <div class="cb-field">
                             <label>Time Slot <span class="required">*</span></label>
-                            <select id="cb_timeslot">
+                            <select id="cb_timeslot" onchange="checkSlotAvailability()">
                                 <option value="">— Select Time Slot —</option>
                                 <option value="morning">🌅 Morning (8 AM – 12 PM)</option>
                                 <option value="afternoon">☀️ Afternoon (12 PM – 5 PM)</option>
                                 <option value="evening">🌙 Evening (5 PM – 8 PM)</option>
                             </select>
+                            <div class="slot-avail-status" id="cb_avail_status"></div>
                         </div>
                         <div class="cb-field">
                             <label>Service Category <span class="required">*</span></label>
@@ -4246,6 +4272,9 @@
             document.getElementById('cb_neighborhood').value = '';
             document.getElementById('cb_notes').value = '';
             document.getElementById('pastDateNotice').classList.remove('visible');
+            const availStatus = document.getElementById('cb_avail_status');
+            availStatus.className = 'slot-avail-status';
+            availStatus.innerHTML = '';
 
             document.getElementById('createBookingModal').classList.add('active');
             await fetchPricingData();
@@ -4263,6 +4292,82 @@
             const today = new Date(); today.setHours(0,0,0,0);
             const selected = new Date(dateVal + 'T00:00:00');
             notice.classList.toggle('visible', selected < today);
+        }
+
+        // Track slot availability state for submit guard
+        let slotAvailabilityState = null; // null=unchecked, 'available', 'limited', 'unavailable'
+
+        async function checkSlotAvailability() {
+            const dateVal = document.getElementById('cb_date').value;
+            const slot    = document.getElementById('cb_timeslot').value;
+            const badge   = document.getElementById('cb_avail_status');
+
+            if (!dateVal || !slot) {
+                badge.className = 'slot-avail-status';
+                badge.innerHTML = '';
+                slotAvailabilityState = null;
+                return;
+            }
+
+            // Show "checking" state
+            badge.className = 'slot-avail-status checking visible';
+            badge.innerHTML = '⏳ Checking availability…';
+            slotAvailabilityState = null;
+
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                // Fetch all active resources
+                const resResponse = await fetch(`${API_URL}/api/resources`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!resResponse.ok) throw new Error('Failed to load resources');
+                const resData = await resResponse.json();
+                const activeResources = (resData.resources || []).filter(r => r.active && r.id > 0);
+
+                if (activeResources.length === 0) {
+                    badge.className = 'slot-avail-status unavailable visible';
+                    badge.innerHTML = '⚠️ No active resources configured';
+                    slotAvailabilityState = 'unavailable';
+                    return;
+                }
+
+                // Fetch availability for each active resource
+                let availableCount = 0;
+                await Promise.all(activeResources.map(async (resource) => {
+                    try {
+                        const r = await fetch(`${API_URL}/api/resources/${resource.id}/availability`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (!r.ok) return;
+                        const d = await r.json();
+                        const avail = d.success ? (d.availability || {}) : {};
+                        const dayAvail = avail[dateVal] || null;
+                        if (dayAvail && dayAvail[slot] === true) availableCount++;
+                    } catch (e) { /* ignore per-resource errors */ }
+                }));
+
+                const total = activeResources.length;
+                if (availableCount === 0) {
+                    badge.className = 'slot-avail-status unavailable visible';
+                    badge.innerHTML = `🚫 No resources available for this date & slot`;
+                    slotAvailabilityState = 'unavailable';
+                } else if (availableCount < total) {
+                    badge.className = 'slot-avail-status limited visible';
+                    badge.innerHTML = `⚠️ ${availableCount} of ${total} resource${total>1?'s':''} available`;
+                    slotAvailabilityState = 'limited';
+                } else {
+                    badge.className = 'slot-avail-status available visible';
+                    badge.innerHTML = `✅ ${availableCount} resource${total>1?'s':''} available`;
+                    slotAvailabilityState = 'available';
+                }
+            } catch (err) {
+                console.error('Availability check error:', err);
+                badge.className = 'slot-avail-status checking visible';
+                badge.innerHTML = '⚠️ Could not verify availability';
+                slotAvailabilityState = null;
+            }
         }
 
         // Called by the Service Category dropdown onchange
@@ -4300,6 +4405,18 @@
             if (serviceType === 'custom') {
                 const customPrice = parseFloat(document.getElementById('cb_custom_price')?.value);
                 if (!customPrice || customPrice <= 0) { toast('Please enter a valid custom price', 'error'); document.getElementById('cb_custom_price')?.focus(); return; }
+            }
+
+            // Availability guard — warn admin if no resources are available for future dates
+            const today = new Date(); today.setHours(0,0,0,0);
+            const selectedDate = new Date(date + 'T00:00:00');
+            const isFuture = selectedDate >= today;
+            if (isFuture && slotAvailabilityState === 'unavailable') {
+                const proceed = confirm(
+                    `⚠️ No resources are scheduled as available for this date & time slot.\n\n` +
+                    `This may result in an unassigned booking.\n\nProceed anyway?`
+                );
+                if (!proceed) return;
             }
 
             const subtotal = serviceRows.reduce((s, r) => s + r.price, 0);
