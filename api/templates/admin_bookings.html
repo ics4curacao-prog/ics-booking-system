@@ -2639,6 +2639,7 @@
                                 <option value="deep">🧹 Deep Cleaning</option>
                                 <option value="add-on">✨ Add-on Services Only</option>
                                 <option value="office">🏢 Office Cleaning</option>
+                                <option value="custom">✏️ Custom</option>
                             </select>
                         </div>
                         <div class="cb-field">
@@ -3996,6 +3997,34 @@
                     </div>`;
                 addAddonListeners();
                 updateMainPrice();
+
+            } else if (category === 'custom') {
+                panel.innerHTML = `
+                    <div class="cb-svc-main" style="border:2px dashed #1FAFB8;background:#f0fafb;">
+                        <div class="cb-svc-main-header" style="margin-bottom:14px;">
+                            <span class="cb-svc-main-title">✏️ Custom Pricing</span>
+                        </div>
+                        <div style="display:grid;gap:12px;">
+                            <div>
+                                <label style="font-size:0.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px;">Service Description <span style="color:#e74c3c;">*</span></label>
+                                <input type="text" id="cb_custom_description"
+                                       placeholder="e.g. Villa deep clean + windows + balcony"
+                                       style="width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:0.93rem;"
+                                       oninput="updatePriceSummary()">
+                            </div>
+                            <div>
+                                <label style="font-size:0.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px;">Custom Price (XCG) <span style="color:#e74c3c;">*</span></label>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <input type="number" id="cb_custom_price" min="0" step="0.01" value=""
+                                           placeholder="0.00"
+                                           style="width:160px;padding:9px 12px;border:2px solid #1FAFB8;border-radius:6px;font-size:1.05rem;font-weight:600;text-align:right;"
+                                           oninput="updatePriceSummary()">
+                                    <span style="color:#666;font-weight:500;">XCG</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                updatePriceSummary();
             }
 
             updatePriceSummary();
@@ -4183,6 +4212,11 @@
                         rows.push({ name: `${names[key]} (${qty})`, price: qty * unitP });
                     }
                 });
+
+            } else if (category === 'custom') {
+                const desc  = (document.getElementById('cb_custom_description')?.value || '').trim() || 'Custom Service';
+                const price = parseFloat(document.getElementById('cb_custom_price')?.value) || 0;
+                rows.push({ name: desc, price });
             }
             return rows;
         }
@@ -4263,6 +4297,10 @@
             if (!serviceType) { toast('Please select a service category', 'error'); return; }
             if (!street)      { toast('Street address is required', 'error'); document.getElementById('cb_street').focus(); return; }
             if (serviceRows.length === 0) { toast('Please select at least one service', 'error'); return; }
+            if (serviceType === 'custom') {
+                const customPrice = parseFloat(document.getElementById('cb_custom_price')?.value);
+                if (!customPrice || customPrice <= 0) { toast('Please enter a valid custom price', 'error'); document.getElementById('cb_custom_price')?.focus(); return; }
+            }
 
             const subtotal = serviceRows.reduce((s, r) => s + r.price, 0);
 
