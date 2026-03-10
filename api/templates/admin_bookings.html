@@ -895,6 +895,24 @@
             background: #218838;
         }
 
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+        }
+
+        .btn-copy {
+            background: #8e44ad;
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: #7d3c98;
+        }
+
         .btn-invoice {
             background: #17a2b8;
             color: white;
@@ -2612,7 +2630,7 @@
     <div class="create-booking-modal" id="createBookingModal">
         <div class="cb-container">
             <div class="cb-header">
-                <h2>➕ Create New Booking</h2>
+                <h2 id="cb_modal_title">➕ Create New Booking</h2>
                 <button class="cb-close-btn" onclick="closeCreateBookingModal()">✕</button>
             </div>
             <div class="cb-body">
@@ -3352,6 +3370,12 @@
                                     Complete
                                 </button>
                             ` : ''}
+                            <button class="btn btn-edit btn-sm" onclick="editBooking(${booking.id})">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn btn-copy btn-sm" onclick="copyBooking(${booking.id})">
+                                📋 Copy
+                            </button>
                             ${booking.status !== 'cancelled' && booking.status !== 'pending' ? `
                                 <button class="btn btn-invoice btn-sm" 
                                         onclick="showInvoice(${booking.id})">
@@ -3448,6 +3472,8 @@
                                     Complete
                                 </button>
                             ` : ''}
+                            <button class="btn btn-edit btn-sm" onclick="editBooking(${booking.id})">✏️ Edit</button>
+                            <button class="btn btn-copy btn-sm" onclick="copyBooking(${booking.id})">📋 Copy</button>
                             ${booking.status !== 'cancelled' && booking.status !== 'pending' ? `
                                 <button class="btn btn-invoice btn-sm" onclick="showInvoice(${booking.id})">
                                     📄 Invoice
@@ -4260,7 +4286,13 @@
         // -------------------------------------------------------
         // Modal open / close
         // -------------------------------------------------------
+        let editingBookingId = null; // null = create mode, number = edit mode
+
         async function openCreateBookingModal() {
+            editingBookingId = null;
+            document.getElementById('cb_modal_title').textContent = '➕ Create New Booking';
+            document.getElementById('cb_submit_btn').textContent = '💾 Create Booking';
+            document.getElementById('cb_submit_invoice_btn').innerHTML = '📄 Create &amp; View Invoice';
             document.getElementById('cb_name').value = '';
             document.getElementById('cb_phone').value = '';
             document.getElementById('cb_email').value = '';
@@ -4283,6 +4315,12 @@
 
         function closeCreateBookingModal() {
             document.getElementById('createBookingModal').classList.remove('active');
+            editingBookingId = null;
+            document.getElementById('cb_modal_title').textContent = '➕ Create New Booking';
+            document.getElementById('cb_submit_btn').textContent = '💾 Create Booking';
+            const invoiceBtn = document.getElementById('cb_submit_invoice_btn');
+            invoiceBtn.style.display = '';
+            invoiceBtn.innerHTML = '📄 Create &amp; View Invoice';
         }
 
         function checkPastDate() {
@@ -4303,16 +4341,6 @@
             const badge   = document.getElementById('cb_avail_status');
 
             if (!dateVal || !slot) {
-                badge.className = 'slot-avail-status';
-                badge.innerHTML = '';
-                slotAvailabilityState = null;
-                return;
-            }
-
-            // Skip availability check for past dates — no validation needed
-            const _today = new Date(); _today.setHours(0, 0, 0, 0);
-            const _selected = new Date(dateVal + 'T00:00:00');
-            if (_selected < _today) {
                 badge.className = 'slot-avail-status';
                 badge.innerHTML = '';
                 slotAvailabilityState = null;
@@ -4452,9 +4480,13 @@
                 admin_created:  true
             };
 
+            const isEdit = editingBookingId !== null;
+            const url    = isEdit ? `${API_URL}/api/bookings/${editingBookingId}` : `${API_URL}/api/bookings`;
+            const method = isEdit ? 'PUT' : 'POST';
+
             try {
-                const response = await fetch(`${API_URL}/api/bookings`, {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -4464,29 +4496,188 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    toast('✅ Booking created successfully!', 'success');
+                    toast(isEdit ? '✅ Booking updated successfully!' : '✅ Booking created successfully!', 'success');
                     closeCreateBookingModal();
                     await loadBookings();
                     await loadDashboardStats();
-                    if (showInvoice && data.booking) {
+                    if (!isEdit && showInvoice && data.booking) {
                         setTimeout(() => viewInvoice(data.booking), 400);
-                    } else if (showInvoice && data.booking_id) {
+                    } else if (!isEdit && showInvoice && data.booking_id) {
                         setTimeout(async () => {
                             const found = currentBookings.find(b => b.id === data.booking_id);
                             if (found) viewInvoice(found);
                         }, 600);
                     }
                 } else {
-                    toast(data.message || data.error || 'Failed to create booking', 'error');
+                    toast(data.message || data.error || (isEdit ? 'Failed to update booking' : 'Failed to create booking'), 'error');
                 }
             } catch (err) {
-                console.error('Create booking error:', err);
-                toast('Network error — could not create booking', 'error');
+                console.error('Create/edit booking error:', err);
+                toast('Network error — could not save booking', 'error');
             } finally {
                 submitBtn.disabled = invoiceBtn.disabled = false;
-                submitBtn.textContent = '💾 Create Booking';
+                submitBtn.textContent = isEdit ? '💾 Save Changes' : '💾 Create Booking';
                 invoiceBtn.innerHTML  = '📄 Create &amp; View Invoice';
             }
+        }
+
+        // ── Edit booking ─────────────────────────────────────────
+        async function editBooking(bookingId) {
+            const booking = currentBookings.find(b => b.id === bookingId);
+            if (!booking) { toast('Booking not found', 'error'); return; }
+
+            // Open modal in clean state first, load pricing
+            editingBookingId = bookingId;
+            document.getElementById('cb_modal_title').textContent = `✏️ Edit Booking #${bookingId}`;
+            document.getElementById('cb_submit_btn').textContent = '💾 Save Changes';
+            document.getElementById('cb_submit_invoice_btn').style.display = 'none'; // hide for edits
+
+            // Reset availability badge
+            const availStatus = document.getElementById('cb_avail_status');
+            availStatus.className = 'slot-avail-status'; availStatus.innerHTML = '';
+            slotAvailabilityState = null;
+            document.getElementById('pastDateNotice').classList.remove('visible');
+
+            // Fill customer info
+            document.getElementById('cb_name').value         = booking.customerName  || '';
+            document.getElementById('cb_phone').value        = booking.customerPhone || '';
+            document.getElementById('cb_email').value        = booking.customerEmail || '';
+            document.getElementById('cb_date').value         = booking.bookingDate   || '';
+            document.getElementById('cb_timeslot').value     = booking.timeSlot      || '';
+            document.getElementById('cb_street').value       = booking.streetAddress || '';
+            document.getElementById('cb_neighborhood').value = booking.neighborhood  || '';
+            document.getElementById('cb_notes').value        = booking.notes         || '';
+
+            // Status
+            const statusEl = document.getElementById('cb_status');
+            statusEl.value = booking.status || 'pending';
+
+            // Load pricing then populate services
+            await fetchPricingData();
+            const category = booking.serviceType || '';
+            document.getElementById('cb_service_type').value = category;
+            renderServicesPanel(category);
+            await new Promise(r => setTimeout(r, 50)); // let DOM settle
+            populateServicesFromBooking(booking);
+
+            document.getElementById('createBookingModal').classList.add('active');
+
+            // Run availability check for existing date (future only)
+            checkPastDate();
+            checkSlotAvailability();
+        }
+
+        // ── Copy booking ──────────────────────────────────────────
+        async function copyBooking(bookingId) {
+            const booking = currentBookings.find(b => b.id === bookingId);
+            if (!booking) { toast('Booking not found', 'error'); return; }
+
+            editingBookingId = null;
+            document.getElementById('cb_modal_title').textContent = '📋 Copy Booking';
+            document.getElementById('cb_submit_btn').textContent = '💾 Create Booking';
+            document.getElementById('cb_submit_invoice_btn').style.display = '';
+            document.getElementById('cb_submit_invoice_btn').innerHTML = '📄 Create &amp; View Invoice';
+
+            // Reset availability badge
+            const availStatus = document.getElementById('cb_avail_status');
+            availStatus.className = 'slot-avail-status'; availStatus.innerHTML = '';
+            slotAvailabilityState = null;
+            document.getElementById('pastDateNotice').classList.remove('visible');
+
+            // Copy customer + location + notes; clear date/time/status
+            document.getElementById('cb_name').value         = booking.customerName  || '';
+            document.getElementById('cb_phone').value        = booking.customerPhone || '';
+            document.getElementById('cb_email').value        = booking.customerEmail || '';
+            document.getElementById('cb_date').value         = ''; // intentionally blank
+            document.getElementById('cb_timeslot').value     = '';
+            document.getElementById('cb_street').value       = booking.streetAddress || '';
+            document.getElementById('cb_neighborhood').value = booking.neighborhood  || '';
+            document.getElementById('cb_notes').value        = booking.notes         || '';
+            const statusEl = document.getElementById('cb_status');
+            statusEl.value = 'pending';
+
+            // Load pricing then populate services
+            await fetchPricingData();
+            const category = booking.serviceType || '';
+            document.getElementById('cb_service_type').value = category;
+            renderServicesPanel(category);
+            await new Promise(r => setTimeout(r, 50));
+            populateServicesFromBooking(booking);
+
+            document.getElementById('createBookingModal').classList.add('active');
+        }
+
+        // ── Parse saved services JSON back into form fields ───────
+        function populateServicesFromBooking(booking) {
+            let services = [];
+            try { services = JSON.parse(booking.services || '[]'); } catch(e) {}
+            const category = booking.serviceType || '';
+
+            if (category === 'custom') {
+                const svc = services[0] || {};
+                const descEl  = document.getElementById('cb_custom_description');
+                const priceEl = document.getElementById('cb_custom_price');
+                if (descEl)  descEl.value  = svc.name  || '';
+                if (priceEl) priceEl.value = svc.price || 0;
+                updatePriceSummary();
+                return;
+            }
+
+            if (category === 'basic' || category === 'deep') {
+                // Primary row: "Basic Cleaning (2 bedrooms, 1 bathroom)"
+                const primary = services.find(s => /cleaning/i.test(s.name) && !/sofa|mattress|electro|pool/i.test(s.name));
+                if (primary) {
+                    const bedMatch  = primary.name.match(/(\d+)\s*bedroom/i);
+                    const bathMatch = primary.name.match(/(\d+)\s*bathroom/i);
+                    const bedEl  = document.getElementById('cb_bedrooms');
+                    const bathEl = document.getElementById('cb_bathrooms');
+                    if (bedEl  && bedMatch)  bedEl.value  = bedMatch[1];
+                    if (bathEl && bathMatch) bathEl.value = bathMatch[1];
+                    updateMainPrice();
+                }
+            }
+
+            if (category === 'office') {
+                const primary = services.find(s => /office cleaning/i.test(s.name));
+                if (primary) {
+                    const offMatch  = primary.name.match(/(\d+)\s*office/i);
+                    const bathMatch = primary.name.match(/(\d+)\s*bathroom/i);
+                    const offEl  = document.getElementById('cb_offices');
+                    const bathEl = document.getElementById('cb_bathrooms');
+                    if (offEl  && offMatch)  offEl.value  = offMatch[1];
+                    if (bathEl && bathMatch) bathEl.value = bathMatch[1];
+                    updateMainPrice();
+                }
+            }
+
+            // Add-ons (apply to basic/deep/office/add-on categories)
+            const addonMap = {
+                sofa:          { label: /sofa|couch/i,        qtyEl: 'cb_qty_sofa',         chkEl: 'cb_chk_sofa' },
+                mattress:      { label: /mattress/i,           qtyEl: 'cb_qty_mattress',     chkEl: 'cb_chk_mattress' },
+                electro:       { label: /electrostatic/i,      qtyEl: 'cb_qty_electro',      chkEl: 'cb_chk_electro' },
+                pool:          { label: /pool/i,               qtyEl: 'cb_qty_pool',         chkEl: 'cb_chk_pool' },
+                office_sofa:   { label: /office sofa|office couch/i, qtyEl: 'cb_qty_office_sofa',  chkEl: 'cb_chk_office_sofa' },
+                office_electro:{ label: /office electrostatic/i,     qtyEl: 'cb_qty_office_electro', chkEl: 'cb_chk_office_electro' }
+            };
+
+            services.forEach(svc => {
+                for (const [, def] of Object.entries(addonMap)) {
+                    if (def.label.test(svc.name)) {
+                        const chk = document.getElementById(def.chkEl);
+                        const qty = document.getElementById(def.qtyEl);
+                        if (chk) {
+                            chk.checked = true;
+                            chk.dispatchEvent(new Event('change')); // show qty row
+                        }
+                        if (qty) {
+                            const qtyMatch = svc.name.match(/\((\d+)/);
+                            if (qtyMatch) qty.value = qtyMatch[1];
+                        }
+                    }
+                }
+            });
+
+            updatePriceSummary();
         }
 
         // Close modal when clicking outside
