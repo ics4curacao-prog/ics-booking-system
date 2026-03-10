@@ -4309,6 +4309,16 @@
                 return;
             }
 
+            // Skip availability check for past dates — no validation needed
+            const _today = new Date(); _today.setHours(0, 0, 0, 0);
+            const _selected = new Date(dateVal + 'T00:00:00');
+            if (_selected < _today) {
+                badge.className = 'slot-avail-status';
+                badge.innerHTML = '';
+                slotAvailabilityState = null;
+                return;
+            }
+
             // Show "checking" state
             badge.className = 'slot-avail-status checking visible';
             badge.innerHTML = '⏳ Checking availability…';
