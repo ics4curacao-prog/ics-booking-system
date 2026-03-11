@@ -402,14 +402,10 @@ def init_database():
         logger.info("Seeding initial services...")
         # These service names MUST match the servicePriceMapping in website.html
         services = [
-            # Basic Cleaning
-            ('Base price for basic residential cleaning', 85.00, 'per service', 'Base price for basic residential cleaning service', 1, 'basic', 1),
-            ('Additional bedroom (basic cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for basic cleaning', 1, 'basic', 2),
-            ('Additional bathroom (basic cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for basic cleaning', 1, 'basic', 3),
-            # Deep Cleaning
-            ('Base price for deep residential cleaning', 130.00, 'per service', 'Base price for deep residential cleaning service', 1, 'deep', 4),
-            ('Additional bedroom (deep cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for deep cleaning', 1, 'deep', 5),
-            ('Additional bathroom (deep cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for deep cleaning', 1, 'deep', 6),
+            # Basic Cleaning (flat rate)
+            ('Basic Cleaning', 125.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'basic', 1),
+            # Deep Cleaning (flat rate)
+            ('Deep Cleaning', 200.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'deep', 4),
             # Add-on Services
             ('Sofa/Couch Cleaning', 40.00, 'per service', 'Deep cleaning for sofas and couches', 1, 'add-on', 7),
             ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
@@ -2340,14 +2336,10 @@ def reset_pricing(current_user):
         
         # Insert the correct services that match website.html servicePriceMapping
         services = [
-            # Basic Cleaning
-            ('Base price for basic residential cleaning', 85.00, 'per service', 'Base price for basic residential cleaning service', 1, 'basic', 1),
-            ('Additional bedroom (basic cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for basic cleaning', 1, 'basic', 2),
-            ('Additional bathroom (basic cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for basic cleaning', 1, 'basic', 3),
-            # Deep Cleaning
-            ('Base price for deep residential cleaning', 130.00, 'per service', 'Base price for deep residential cleaning service', 1, 'deep', 4),
-            ('Additional bedroom (deep cleaning)', 18.00, 'per bedroom', 'Additional charge per bedroom for deep cleaning', 1, 'deep', 5),
-            ('Additional bathroom (deep cleaning)', 20.00, 'per bathroom', 'Additional charge per bathroom for deep cleaning', 1, 'deep', 6),
+            # Basic Cleaning (flat rate)
+            ('Basic Cleaning', 125.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'basic', 1),
+            # Deep Cleaning (flat rate)
+            ('Deep Cleaning', 200.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'deep', 4),
             # Add-on Services
             ('Sofa/Couch Cleaning', 40.00, 'per service', 'Deep cleaning for sofas and couches', 1, 'add-on', 7),
             ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),

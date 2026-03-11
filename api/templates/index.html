@@ -3155,28 +3155,10 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="basic-cleaning" data-price="85">
+                                            <input type="radio" name="cleaning-tier" id="basic-cleaning" data-price="125">
                                             <span class="service-option-name">Basic Cleaning</span>
                                         </label>
-                                        <span class="service-option-price">85 XCG</span>
-                                    </div>
-                                    <div class="quantity-selector" id="basic-cleaning-qty">
-                                        <div>
-                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Bedrooms</label>
-                                            <div class="quantity-controls">
-                                                <button type="button" class="quantity-btn" onclick="decrementQty('basic-bedrooms')">-</button>
-                                                <input type="number" id="basic-bedrooms" class="quantity-input" min="1" value="1" data-price="18" readonly>
-                                                <button type="button" class="quantity-btn" onclick="incrementQty('basic-bedrooms')">+</button>
-                                            </div>
-                                        </div>
-                                        <div style="margin-left: 2rem;">
-                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Bathrooms</label>
-                                            <div class="quantity-controls">
-                                                <button type="button" class="quantity-btn" onclick="decrementQty('basic-bathrooms')">-</button>
-                                                <input type="number" id="basic-bathrooms" class="quantity-input" min="1" value="1" data-price="20" readonly>
-                                                <button type="button" class="quantity-btn" onclick="incrementQty('basic-bathrooms')">+</button>
-                                            </div>
-                                        </div>
+                                        <span class="service-option-price">125 XCG</span>
                                     </div>
                                 </div>
 
@@ -3184,30 +3166,17 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="deep-cleaning" data-price="130">
+                                            <input type="radio" name="cleaning-tier" id="deep-cleaning" data-price="200">
                                             <span class="service-option-name">Deep Cleaning</span>
                                         </label>
-                                        <span class="service-option-price">130 XCG</span>
-                                    </div>
-                                    <div class="quantity-selector" id="deep-cleaning-qty">
-                                        <div>
-                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Bedrooms</label>
-                                            <div class="quantity-controls">
-                                                <button type="button" class="quantity-btn" onclick="decrementQty('deep-bedrooms')">-</button>
-                                                <input type="number" id="deep-bedrooms" class="quantity-input" min="1" value="1" data-price="18" readonly>
-                                                <button type="button" class="quantity-btn" onclick="incrementQty('deep-bedrooms')">+</button>
-                                            </div>
-                                        </div>
-                                        <div style="margin-left: 2rem;">
-                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Bathrooms</label>
-                                            <div class="quantity-controls">
-                                                <button type="button" class="quantity-btn" onclick="decrementQty('deep-bathrooms')">-</button>
-                                                <input type="number" id="deep-bathrooms" class="quantity-input" min="1" value="1" data-price="20" readonly>
-                                                <button type="button" class="quantity-btn" onclick="incrementQty('deep-bathrooms')">+</button>
-                                            </div>
-                                        </div>
+                                        <span class="service-option-price">200 XCG</span>
                                     </div>
                                 </div>
+
+                                <!-- Flat-rate disclaimer -->
+                                <p style="font-size: 0.78rem; color: #6b7a8d; margin: -0.5rem 0 1.25rem; line-height: 1.5; font-style: italic;">
+                                    {{ t.form_flat_rate_disclaimer }}
+                                </p>
 
                                 <!-- Residential Extra Services -->
                                 <div class="extra-services-section">
@@ -3862,31 +3831,15 @@
         // Mapping from database service names to HTML element configurations
         const servicePriceMapping = {
             // Residential services
-            'Base price for basic residential cleaning': {
+            'Basic Cleaning': {
                 checkbox: 'basic-cleaning',
                 priceDisplay: 'basic-cleaning',
                 displayFormat: '{price} XCG'
             },
-            'Base price for deep residential cleaning': {
+            'Deep Cleaning': {
                 checkbox: 'deep-cleaning',
                 priceDisplay: 'deep-cleaning',
                 displayFormat: '{price} XCG'
-            },
-            'Additional bedroom (basic cleaning)': {
-                input: 'basic-bedrooms',
-                priceDisplay: null // No display text to update
-            },
-            'Additional bedroom (deep cleaning)': {
-                input: 'deep-bedrooms',
-                priceDisplay: null
-            },
-            'Additional bathroom (basic cleaning)': {
-                input: 'basic-bathrooms',
-                priceDisplay: null
-            },
-            'Additional bathroom (deep cleaning)': {
-                input: 'deep-bathrooms',
-                priceDisplay: null
             },
             'Sofa/Couch Cleaning': {
                 checkbox: 'res-sofa-cleaning',
@@ -4673,35 +4626,17 @@
                 // Basic Cleaning
                 const basicCleaning = document.getElementById('basic-cleaning');
                 if (basicCleaning && basicCleaning.checked) {
-                    const basePrice = parseInt(basicCleaning.dataset.price);
-                    const bedrooms = parseInt(document.getElementById('basic-bedrooms').value);
-                    const bathrooms = parseInt(document.getElementById('basic-bathrooms').value);
-                    const bedroomPrice = parseInt(document.getElementById('basic-bedrooms').dataset.price);
-                    const bathroomPrice = parseInt(document.getElementById('basic-bathrooms').dataset.price);
-                    
-                    const subtotal = basePrice + (bedrooms * bedroomPrice) + (bathrooms * bathroomPrice);
-                    total += subtotal;
-                    breakdown.push({
-                        name: `Basic Cleaning (${bedrooms} bedrooms, ${bathrooms} bathrooms)`,
-                        price: subtotal
-                    });
+                    const price = parseInt(basicCleaning.dataset.price);
+                    total += price;
+                    breakdown.push({ name: 'Basic Cleaning', price: price });
                 }
 
                 // Deep Cleaning
                 const deepCleaning = document.getElementById('deep-cleaning');
                 if (deepCleaning && deepCleaning.checked) {
-                    const basePrice = parseInt(deepCleaning.dataset.price);
-                    const bedrooms = parseInt(document.getElementById('deep-bedrooms').value);
-                    const bathrooms = parseInt(document.getElementById('deep-bathrooms').value);
-                    const bedroomPrice = parseInt(document.getElementById('deep-bedrooms').dataset.price);
-                    const bathroomPrice = parseInt(document.getElementById('deep-bathrooms').dataset.price);
-                    
-                    const subtotal = basePrice + (bedrooms * bedroomPrice) + (bathrooms * bathroomPrice);
-                    total += subtotal;
-                    breakdown.push({
-                        name: `Deep Cleaning (${bedrooms} bedrooms, ${bathrooms} bathrooms)`,
-                        price: subtotal
-                    });
+                    const price = parseInt(deepCleaning.dataset.price);
+                    total += price;
+                    breakdown.push({ name: 'Deep Cleaning', price: price });
                 }
 
                 // Sofa Cleaning
@@ -4971,35 +4906,17 @@ Need help? Check the README.md file for detailed instructions.
             // Collect selected services with prices
             if (serviceType === 'residential') {
                 if (document.getElementById('basic-cleaning').checked) {
-                    const basicCleaning = document.getElementById('basic-cleaning');
-                    const basePrice = parseInt(basicCleaning.dataset.price);
-                    const bedrooms = parseInt(document.getElementById('basic-bedrooms').value);
-                    const bathrooms = parseInt(document.getElementById('basic-bathrooms').value);
-                    const bedroomPrice = parseInt(document.getElementById('basic-bedrooms').dataset.price);
-                    const bathroomPrice = parseInt(document.getElementById('basic-bathrooms').dataset.price);
-                    const subtotal = basePrice + (bedrooms * bedroomPrice) + (bathrooms * bathroomPrice);
-                    
+                    const price = parseInt(document.getElementById('basic-cleaning').dataset.price);
                     bookingData.services.push({
                         name: 'Basic Cleaning',
-                        bedrooms: bedrooms,
-                        bathrooms: bathrooms,
-                        price: subtotal
+                        price: price
                     });
                 }
                 if (document.getElementById('deep-cleaning').checked) {
-                    const deepCleaning = document.getElementById('deep-cleaning');
-                    const basePrice = parseInt(deepCleaning.dataset.price);
-                    const bedrooms = parseInt(document.getElementById('deep-bedrooms').value);
-                    const bathrooms = parseInt(document.getElementById('deep-bathrooms').value);
-                    const bedroomPrice = parseInt(document.getElementById('deep-bedrooms').dataset.price);
-                    const bathroomPrice = parseInt(document.getElementById('deep-bathrooms').dataset.price);
-                    const subtotal = basePrice + (bedrooms * bedroomPrice) + (bathrooms * bathroomPrice);
-                    
+                    const price = parseInt(document.getElementById('deep-cleaning').dataset.price);
                     bookingData.services.push({
                         name: 'Deep Cleaning',
-                        bedrooms: bedrooms,
-                        bathrooms: bathrooms,
-                        price: subtotal
+                        price: price
                     });
                 }
                 if (document.getElementById('res-sofa-cleaning').checked) {
