@@ -2988,6 +2988,11 @@ def serve_images(filename):
     """Serve images from website/images/"""
     return send_from_directory(os.path.join(WEBSITE_DIR, 'images'), filename)
 
+@app.route('/videos/<path:filename>')
+def serve_videos(filename):
+    """Serve videos from persistent disk /data/videos/"""
+    return send_from_directory('/data/videos', filename)
+
 @app.route('/sitemap.xml')
 def serve_sitemap():
     """Multilingual sitemap with hreflang annotations."""
