@@ -412,9 +412,7 @@ def init_database():
             ('Electrostatic Cleaning (per room)', 30.00, 'per room', 'Electrostatic disinfection cleaning per room', 1, 'add-on', 9),
             ('Pool Cleaning', 50.00, 'per service', 'Pool cleaning service', 1, 'add-on', 10),
             # Office Cleaning
-            ('Base price for office cleaning', 50.00, 'per service', 'Base price for office cleaning service', 1, 'office', 11),
-            ('Additional office', 18.00, 'per room', 'Additional charge per office room', 1, 'office', 12),
-            ('Additional bathroom (office)', 20.00, 'per bathroom', 'Additional charge per bathroom for office cleaning', 1, 'office', 13),
+            ('Office Cleaning', 1.75, 'per m²', 'Office cleaning rate per square metre.', 1, 'office', 11),
             ('Office Sofa Cleaning', 40.00, 'per service', 'Deep cleaning for office sofas and couches', 1, 'office', 14),
             ('Office Electrostatic Cleaning', 30.00, 'per room', 'Electrostatic disinfection cleaning for offices', 1, 'office', 15),
         ]
@@ -2346,9 +2344,7 @@ def reset_pricing(current_user):
             ('Electrostatic Cleaning (per room)', 30.00, 'per room', 'Electrostatic disinfection cleaning per room', 1, 'add-on', 9),
             ('Pool Cleaning', 50.00, 'per service', 'Pool cleaning service', 1, 'add-on', 10),
             # Office Cleaning
-            ('Base price for office cleaning', 50.00, 'per service', 'Base price for office cleaning service', 1, 'office', 11),
-            ('Additional office', 18.00, 'per room', 'Additional charge per office room', 1, 'office', 12),
-            ('Additional bathroom (office)', 20.00, 'per bathroom', 'Additional charge per bathroom for office cleaning', 1, 'office', 13),
+            ('Office Cleaning', 1.75, 'per m²', 'Office cleaning rate per square metre.', 1, 'office', 11),
             ('Office Sofa Cleaning', 40.00, 'per service', 'Deep cleaning for office sofas and couches', 1, 'office', 14),
             ('Office Electrostatic Cleaning', 30.00, 'per room', 'Electrostatic disinfection cleaning for offices', 1, 'office', 15),
         ]

@@ -3276,26 +3276,18 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="checkbox" id="office-cleaning" data-price="50" checked disabled>
-                                            <span class="service-option-name">Office Cleaning (Base Service)</span>
+                                            <input type="checkbox" id="office-cleaning" data-price="1.75" checked disabled>
+                                            <span class="service-option-name">{{ t.form_office_cleaning }}</span>
                                         </label>
-                                        <span class="service-option-price">50 XCG</span>
+                                        <span class="service-option-price" id="office-cleaning-price-display">1.75 XCG/m²</span>
                                     </div>
                                     <div class="quantity-selector active" id="office-cleaning-qty">
                                         <div>
-                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Offices</label>
+                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_office_sqm }}</label>
                                             <div class="quantity-controls">
-                                                <button type="button" class="quantity-btn" onclick="decrementQty('offices')">-</button>
-                                                <input type="number" id="offices" class="quantity-input" min="1" value="1" data-price="18" readonly>
-                                                <button type="button" class="quantity-btn" onclick="incrementQty('offices')">+</button>
-                                            </div>
-                                        </div>
-                                        <div style="margin-left: 2rem;">
-                                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Bathrooms</label>
-                                            <div class="quantity-controls">
-                                                <button type="button" class="quantity-btn" onclick="decrementQty('office-bathrooms')">-</button>
-                                                <input type="number" id="office-bathrooms" class="quantity-input" min="1" value="1" data-price="20" readonly>
-                                                <button type="button" class="quantity-btn" onclick="incrementQty('office-bathrooms')">+</button>
+                                                <button type="button" class="quantity-btn" onclick="decrementQty('office-sqm')">-</button>
+                                                <input type="number" id="office-sqm" class="quantity-input" min="1" value="50" data-price="1.75" oninput="calculateTotal()" readonly>
+                                                <button type="button" class="quantity-btn" onclick="incrementQty('office-sqm')">+</button>
                                             </div>
                                         </div>
                                     </div>
@@ -3866,18 +3858,11 @@
                 displayFormat: '{price} XCG each'
             },
             // Office services
-            'Base price for office cleaning': {
+            'Office Cleaning': {
                 checkbox: 'office-cleaning',
+                input: 'office-sqm',
                 priceDisplay: 'office-cleaning',
-                displayFormat: '{price} XCG'
-            },
-            'Additional office': {
-                input: 'offices',
-                priceDisplay: null
-            },
-            'Additional bathroom (office)': {
-                input: 'office-bathrooms',
-                priceDisplay: null
+                displayFormat: '{price} XCG/m²'
             },
             'Office Sofa Cleaning': {
                 checkbox: 'office-sofa-cleaning',
@@ -4692,18 +4677,14 @@
                 }
 
             } else if (serviceType === 'office') {
-                // Office Cleaning (always included) - read from API-updated data-price
+                // Office Cleaning — rate per m²
                 const officeCleaningEl = document.getElementById('office-cleaning');
-                const basePrice = officeCleaningEl ? (parseFloat(officeCleaningEl.dataset.price) || 50) : 50;
-                const offices = parseInt(document.getElementById('offices').value);
-                const bathrooms = parseInt(document.getElementById('office-bathrooms').value);
-                const officePrice = parseInt(document.getElementById('offices').dataset.price);
-                const bathroomPrice = parseInt(document.getElementById('office-bathrooms').dataset.price);
-                
-                const subtotal = basePrice + (offices * officePrice) + (bathrooms * bathroomPrice);
+                const ratePerSqm = officeCleaningEl ? (parseFloat(officeCleaningEl.dataset.price) || 1.75) : 1.75;
+                const sqm = parseFloat(document.getElementById('office-sqm').value) || 0;
+                const subtotal = sqm * ratePerSqm;
                 total += subtotal;
                 breakdown.push({
-                    name: `Office Cleaning (${offices} offices, ${bathrooms} bathrooms)`,
+                    name: `Office Cleaning (${sqm} m²)`,
                     price: subtotal
                 });
 
@@ -4969,17 +4950,12 @@ Need help? Check the README.md file for detailed instructions.
                 }
             } else if (serviceType === 'office') {
                 const officeCleaningEl2 = document.getElementById('office-cleaning');
-                const basePrice = officeCleaningEl2 ? (parseFloat(officeCleaningEl2.dataset.price) || 50) : 50;
-                const offices = parseInt(document.getElementById('offices').value);
-                const bathrooms = parseInt(document.getElementById('office-bathrooms').value);
-                const officePrice = parseInt(document.getElementById('offices').dataset.price);
-                const bathroomPrice = parseInt(document.getElementById('office-bathrooms').dataset.price);
-                const subtotal = basePrice + (offices * officePrice) + (bathrooms * bathroomPrice);
-                
+                const ratePerSqm = officeCleaningEl2 ? (parseFloat(officeCleaningEl2.dataset.price) || 1.75) : 1.75;
+                const sqm = parseFloat(document.getElementById('office-sqm').value) || 0;
+                const subtotal = sqm * ratePerSqm;
                 bookingData.services.push({
                     name: 'Office Cleaning',
-                    offices: offices,
-                    bathrooms: bathrooms,
+                    sqm: sqm,
                     price: subtotal
                 });
                 if (document.getElementById('office-sofa-cleaning').checked) {

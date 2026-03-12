@@ -3952,36 +3952,26 @@
                 addAddonListeners();
 
             } else if (category === 'office') {
-                const base     = cbPrice('Base price for office cleaning', 50);
-                const perOffice= cbPrice('Additional office', 18);
-                const perBath  = cbPrice('Additional bathroom (office)', 20);
+                const rate     = cbPrice('Office Cleaning', 1.75);
                 const sofaP    = cbPrice('Office Sofa Cleaning', 40);
                 const electroP = cbPrice('Office Electrostatic Cleaning', 30);
                 panel.innerHTML = `
                     <div class="cb-svc-main">
                         <div class="cb-svc-main-header">
                             <span class="cb-svc-main-title">🏢 Office Cleaning</span>
-                            <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
+                            <span class="cb-svc-main-price" id="cb_main_price">${(50 * rate).toFixed(2)} XCG</span>
                         </div>
                         <div class="cb-svc-qty-row">
                             <div class="cb-svc-qty-item">
-                                <label>Additional Offices</label>
+                                <label>Office Area (m²)</label>
                                 <div class="qty-row">
-                                    <input type="number" id="cb_offices" min="1" value="1"
-                                           data-price="${perOffice}" oninput="updateMainPrice()">
-                                    <span class="unit-price">+${perOffice.toFixed(2)} XCG each</span>
-                                </div>
-                            </div>
-                            <div class="cb-svc-qty-item">
-                                <label>Bathrooms</label>
-                                <div class="qty-row">
-                                    <input type="number" id="cb_bathrooms" min="1" value="1"
-                                           data-price="${perBath}" oninput="updateMainPrice()">
-                                    <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
+                                    <input type="number" id="cb_office_sqm" min="1" value="50"
+                                           data-price="${rate}" oninput="updateMainPrice()">
+                                    <span class="unit-price">${rate.toFixed(2)} XCG/m²</span>
                                 </div>
                             </div>
                         </div>
-                        <input type="hidden" id="cb_base_price" value="${base}">
+                        <input type="hidden" id="cb_base_price" value="0">
                     </div>
                     <div class="cb-addon-row" id="cb_addon_office_sofa">
                         <div class="cb-addon-header">
@@ -4140,10 +4130,8 @@
             let extra = 0;
 
             if (category === 'office') {
-                const officesEl = document.getElementById('cb_offices');
-                const bathEl    = document.getElementById('cb_bathrooms');
-                if (officesEl) extra += (parseInt(officesEl.value) || 0) * (parseFloat(officesEl.dataset.price) || 0);
-                if (bathEl)    extra += (parseInt(bathEl.value) || 0) * (parseFloat(bathEl.dataset.price) || 0);
+                const sqmEl = document.getElementById('cb_office_sqm');
+                if (sqmEl) extra = (parseFloat(sqmEl.value) || 0) * (parseFloat(sqmEl.dataset.price) || 0);
             }
             // basic/deep are flat rates — no extra calculation needed
 
@@ -4190,16 +4178,12 @@
                 });
 
             } else if (category === 'office') {
-                const base    = parseFloat(document.getElementById('cb_base_price')?.value) || 0;
-                const offEl   = document.getElementById('cb_offices');
-                const bathEl  = document.getElementById('cb_bathrooms');
-                const offices = parseInt(offEl?.value) || 0;
-                const baths   = parseInt(bathEl?.value) || 0;
-                const offP    = parseFloat(offEl?.dataset.price) || 0;
-                const bathP   = parseFloat(bathEl?.dataset.price) || 0;
-                const price   = base + (offices * offP) + (baths * bathP);
+                const sqmEl = document.getElementById('cb_office_sqm');
+                const sqm   = parseFloat(sqmEl?.value) || 0;
+                const rate  = parseFloat(sqmEl?.dataset.price) || 1.75;
+                const price = sqm * rate;
                 rows.push({
-                    name: `Office Cleaning (${offices} office${offices!==1?'s':''}, ${baths} bathroom${baths!==1?'s':''})`,
+                    name: `Office Cleaning (${sqm} m²)`,
                     price
                 });
                 ['office_sofa','office_electro'].forEach(key => {
@@ -4579,12 +4563,9 @@
             if (category === 'office') {
                 const primary = services.find(s => /office cleaning/i.test(s.name));
                 if (primary) {
-                    const offMatch  = primary.name.match(/(\d+)\s*office/i);
-                    const bathMatch = primary.name.match(/(\d+)\s*bathroom/i);
-                    const offEl  = document.getElementById('cb_offices');
-                    const bathEl = document.getElementById('cb_bathrooms');
-                    if (offEl  && offMatch)  offEl.value  = offMatch[1];
-                    if (bathEl && bathMatch) bathEl.value = bathMatch[1];
+                    const sqmMatch = primary.name.match(/([\d.]+)\s*m²/i);
+                    const sqmEl = document.getElementById('cb_office_sqm');
+                    if (sqmEl && sqmMatch) sqmEl.value = sqmMatch[1];
                     updateMainPrice();
                 }
             }
