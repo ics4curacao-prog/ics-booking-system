@@ -173,7 +173,7 @@ translations = {
         "form_electrostatic_cleaning":  "Electrostatic Cleaning",
         "form_pool_cleaning":           "Pool Cleaning",
         "form_service_unavailable":     "Unavailable",
-        "form_flat_rate_disclaimer":    "Basic &amp; Deep Cleaning rates are based on a standard property of 135 m² with 3 bedrooms and 2 bathrooms. Deviations from that standard that may affect the pricing will be communicated and agreed with the client prior to execution of the service.",
+        "form_flat_rate_disclaimer":    "Basic & Deep Cleaning rates are based on a standard property of 135 m² with 3 bedrooms and 2 bathrooms. Deviations from that standard that may affect the pricing will be communicated and agreed with the client prior to execution of the service.",
         "form_office_cleaning":         "Office Cleaning (Base Service)",
         "form_num_bedrooms":            "Number of Bedrooms",
         "form_num_bathrooms":           "Number of Bathrooms",

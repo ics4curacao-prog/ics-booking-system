@@ -3916,33 +3916,14 @@
             }
 
             if (category === 'basic') {
-                const base   = cbPrice('Base price for basic residential cleaning', 85);
-                const perBed = cbPrice('Additional bedroom (basic cleaning)', 18);
-                const perBath= cbPrice('Additional bathroom (basic cleaning)', 20);
+                const base = cbPrice('Basic Cleaning', 125);
                 panel.innerHTML = `
                     <div class="cb-svc-main">
                         <div class="cb-svc-main-header">
                             <span class="cb-svc-main-title">🏠 Basic Cleaning</span>
                             <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
                         </div>
-                        <div class="cb-svc-qty-row">
-                            <div class="cb-svc-qty-item">
-                                <label>Bedrooms</label>
-                                <div class="qty-row">
-                                    <input type="number" id="cb_bedrooms" min="1" value="1"
-                                           data-price="${perBed}" oninput="updateMainPrice()">
-                                    <span class="unit-price">+${perBed.toFixed(2)} XCG each</span>
-                                </div>
-                            </div>
-                            <div class="cb-svc-qty-item">
-                                <label>Bathrooms</label>
-                                <div class="qty-row">
-                                    <input type="number" id="cb_bathrooms" min="1" value="1"
-                                           data-price="${perBath}" oninput="updateMainPrice()">
-                                    <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
-                                </div>
-                            </div>
-                        </div>
+                        <p style="font-size:0.78rem;color:#6b7a8d;margin:6px 0 0;font-style:italic;">Flat rate — standard property: 135 m², 3 bedrooms, 2 bathrooms.</p>
                         <input type="hidden" id="cb_base_price" value="${base}">
                     </div>
                     ${renderResidentialAddons()}`;
@@ -3950,33 +3931,14 @@
                 updateMainPrice();
 
             } else if (category === 'deep') {
-                const base   = cbPrice('Base price for deep residential cleaning', 130);
-                const perBed = cbPrice('Additional bedroom (deep cleaning)', 18);
-                const perBath= cbPrice('Additional bathroom (deep cleaning)', 20);
+                const base = cbPrice('Deep Cleaning', 200);
                 panel.innerHTML = `
                     <div class="cb-svc-main">
                         <div class="cb-svc-main-header">
                             <span class="cb-svc-main-title">🧹 Deep Cleaning</span>
                             <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
                         </div>
-                        <div class="cb-svc-qty-row">
-                            <div class="cb-svc-qty-item">
-                                <label>Bedrooms</label>
-                                <div class="qty-row">
-                                    <input type="number" id="cb_bedrooms" min="1" value="1"
-                                           data-price="${perBed}" oninput="updateMainPrice()">
-                                    <span class="unit-price">+${perBed.toFixed(2)} XCG each</span>
-                                </div>
-                            </div>
-                            <div class="cb-svc-qty-item">
-                                <label>Bathrooms</label>
-                                <div class="qty-row">
-                                    <input type="number" id="cb_bathrooms" min="1" value="1"
-                                           data-price="${perBath}" oninput="updateMainPrice()">
-                                    <span class="unit-price">+${perBath.toFixed(2)} XCG each</span>
-                                </div>
-                            </div>
-                        </div>
+                        <p style="font-size:0.78rem;color:#6b7a8d;margin:6px 0 0;font-style:italic;">Flat rate — standard property: 135 m², 3 bedrooms, 2 bathrooms.</p>
                         <input type="hidden" id="cb_base_price" value="${base}">
                     </div>
                     ${renderResidentialAddons()}`;
@@ -4182,12 +4144,8 @@
                 const bathEl    = document.getElementById('cb_bathrooms');
                 if (officesEl) extra += (parseInt(officesEl.value) || 0) * (parseFloat(officesEl.dataset.price) || 0);
                 if (bathEl)    extra += (parseInt(bathEl.value) || 0) * (parseFloat(bathEl.dataset.price) || 0);
-            } else {
-                const bedEl  = document.getElementById('cb_bedrooms');
-                const bathEl = document.getElementById('cb_bathrooms');
-                if (bedEl)  extra += (parseInt(bedEl.value) || 0) * (parseFloat(bedEl.dataset.price) || 0);
-                if (bathEl) extra += (parseInt(bathEl.value) || 0) * (parseFloat(bathEl.dataset.price) || 0);
             }
+            // basic/deep are flat rates — no extra calculation needed
 
             priceEl.textContent = (base + extra).toFixed(2) + ' XCG';
             updatePriceSummary();
@@ -4202,19 +4160,9 @@
             if (!category) return rows;
 
             if (category === 'basic' || category === 'deep') {
-                const base   = parseFloat(document.getElementById('cb_base_price')?.value) || 0;
-                const bedEl  = document.getElementById('cb_bedrooms');
-                const bathEl = document.getElementById('cb_bathrooms');
-                const beds   = parseInt(bedEl?.value) || 0;
-                const baths  = parseInt(bathEl?.value) || 0;
-                const bedP   = parseFloat(bedEl?.dataset.price) || 0;
-                const bathP  = parseFloat(bathEl?.dataset.price) || 0;
-                const price  = base + (beds * bedP) + (baths * bathP);
-                const label  = category === 'basic' ? 'Basic Cleaning' : 'Deep Cleaning';
-                rows.push({
-                    name: `${label} (${beds} bedroom${beds!==1?'s':''}, ${baths} bathroom${baths!==1?'s':''})`,
-                    price
-                });
+                const base  = parseFloat(document.getElementById('cb_base_price')?.value) || 0;
+                const label = category === 'basic' ? 'Basic Cleaning' : 'Deep Cleaning';
+                rows.push({ name: label, price: base });
                 // Residential add-ons
                 ['sofa','mattress','electro','pool'].forEach(key => {
                     const chk = document.getElementById(`cb_chk_${key}`);
@@ -4624,17 +4572,8 @@
             }
 
             if (category === 'basic' || category === 'deep') {
-                // Primary row: "Basic Cleaning (2 bedrooms, 1 bathroom)"
-                const primary = services.find(s => /cleaning/i.test(s.name) && !/sofa|mattress|electro|pool/i.test(s.name));
-                if (primary) {
-                    const bedMatch  = primary.name.match(/(\d+)\s*bedroom/i);
-                    const bathMatch = primary.name.match(/(\d+)\s*bathroom/i);
-                    const bedEl  = document.getElementById('cb_bedrooms');
-                    const bathEl = document.getElementById('cb_bathrooms');
-                    if (bedEl  && bedMatch)  bedEl.value  = bedMatch[1];
-                    if (bathEl && bathMatch) bathEl.value = bathMatch[1];
-                    updateMainPrice();
-                }
+                // Flat rate — no bedroom/bathroom fields to restore
+                updateMainPrice();
             }
 
             if (category === 'office') {
