@@ -80,9 +80,9 @@
             "name": "Curaçao"
         },
         "serviceType": [
-            "House Cleaning",
+            "Midstay Cleaning",
+            "Turnover Cleaning",
             "Office Cleaning",
-            "Vacation Rental Cleaning",
             "Deep Cleaning",
             "Pool Cleaning",
             "Mattress Cleaning",
@@ -99,10 +99,10 @@
         "@type": "ItemList",
         "name": "ICS Cleaning Services Curaçao",
         "itemListElement": [
-            {"@type": "Service", "position": 1, "name": "House Cleaning Curaçao", "description": "Professional house cleaning in Curaçao for homes and residential properties.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 2, "name": "Vacation Rental & Airbnb Cleaning Curaçao", "description": "Fast, reliable Airbnb and vacation rental turnover cleaning in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 3, "name": "Office Cleaning Curaçao", "description": "Commercial and office cleaning services in Willemstad, Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 4, "name": "Deep Cleaning Curaçao", "description": "Thorough deep cleaning for homes, offices, and vacation rentals in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
+            {"@type": "Service", "position": 1, "name": "Midstay Cleaning Curaçao", "description": "Mid-stay refresh cleaning for vacation rentals in Curaçao. Linen change, bathroom & kitchen reset.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
+            {"@type": "Service", "position": 2, "name": "Turnover Cleaning Curaçao", "description": "Fast, reliable vacation rental turnover cleaning in Curaçao. Full reset for the next guest.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
+            {"@type": "Service", "position": 3, "name": "Deep Cleaning Curaçao", "description": "Thorough deep cleaning restoring property to like-new condition in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
+            {"@type": "Service", "position": 4, "name": "Office Cleaning Curaçao", "description": "Commercial and office cleaning services in Willemstad, Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
             {"@type": "Service", "position": 5, "name": "Mattress Cleaning Curaçao", "description": "Professional mattress cleaning and sanitization in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
             {"@type": "Service", "position": 6, "name": "Sofa & Couch Cleaning Curaçao", "description": "Expert sofa and couch cleaning in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
             {"@type": "Service", "position": 7, "name": "Pool Cleaning Curaçao", "description": "Professional pool cleaning and maintenance in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
@@ -2909,19 +2909,27 @@
         </div>
         <div class="services-grid">
             <div class="service-card">
+                <div class="service-image" style="background-image: url('/images/image_13.jpg'); background-size: cover; background-position: center;"></div>
+                <div class="service-content">
+                    <h3>{{ t.service_midstay_title }}</h3>
+                    <p>{{ t.service_midstay_goal }}</p>
+                    <p>{{ t.service_midstay_includes }}</p>
+                </div>
+            </div>
+            <div class="service-card">
                 <div class="service-image" style="background-image: url('/images/image_9.jpg'); background-size: cover; background-position: center;"></div>
                 <div class="service-content">
-                    <h3>{{ t.service_basic_title }}</h3>
-                    <p>Basic Cleaning consists of: floor sweeping/ vacuuming, floor mopping, furniture and countertop dusting, make bed, *bed sheets change, *bath and kitchen towels change.</p> 
-					<p>*if available</p>
+                    <h3>{{ t.service_turnover_title }}</h3>
+                    <p>{{ t.service_turnover_goal }}</p>
+                    <p>{{ t.service_turnover_includes }}</p>
                 </div>
             </div>
             <div class="service-card">
                 <div class="service-image" style="background-image: url('/images/image_10.jpg'); background-size: cover; background-position: center;"></div>
                 <div class="service-content">
                     <h3>{{ t.service_deep_title }}</h3>
-                    <p>Deep Cleaning consists of: floor sweeping/ vacuuming, floor mopping, furniture and countertop dusting, door and window cleaning, bathroom and kitchen tile degreasing, bathroom and kitchen extractors cleaning, disinfecting door handles and switches, fridge and oven cleaning, make bed, *bed sheets change, *bath and kitchen towels change.</p> 
-					<p>*if available</p>
+                    <p>{{ t.service_deep_goal }}</p>
+                    <p>{{ t.service_deep_includes }}</p>
                 </div>
             </div>
             <div class="service-card">
@@ -3158,14 +3166,25 @@
                             <div class="service-details" id="residential-services">
                                 <h5 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1.5rem; font-weight: 600;">Residential Cleaning Options</h5>
                                 
-                                <!-- Basic Cleaning -->
+                                <!-- Midstay Cleaning -->
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="basic-cleaning" data-price="125">
-                                            <span class="service-option-name">Basic Cleaning</span>
+                                            <input type="radio" name="cleaning-tier" id="midstay-cleaning" data-price="100">
+                                            <span class="service-option-name">Midstay Cleaning</span>
                                         </label>
-                                        <span class="service-option-price">125 XCG</span>
+                                        <span class="service-option-price">100 XCG</span>
+                                    </div>
+                                </div>
+
+                                <!-- Turnover Cleaning -->
+                                <div class="service-option">
+                                    <div class="service-option-header">
+                                        <label class="option-checkbox">
+                                            <input type="radio" name="cleaning-tier" id="turnover-cleaning" data-price="175">
+                                            <span class="service-option-name">Turnover Cleaning</span>
+                                        </label>
+                                        <span class="service-option-price">175 XCG</span>
                                     </div>
                                 </div>
 
@@ -3173,10 +3192,10 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="deep-cleaning" data-price="200">
+                                            <input type="radio" name="cleaning-tier" id="deep-cleaning" data-price="225">
                                             <span class="service-option-name">Deep Cleaning</span>
                                         </label>
-                                        <span class="service-option-price">200 XCG</span>
+                                        <span class="service-option-price">225 XCG</span>
                                     </div>
                                 </div>
 
@@ -3830,9 +3849,14 @@
         // Mapping from database service names to HTML element configurations
         const servicePriceMapping = {
             // Residential services
-            'Basic Cleaning': {
-                checkbox: 'basic-cleaning',
-                priceDisplay: 'basic-cleaning',
+            'Midstay Cleaning': {
+                checkbox: 'midstay-cleaning',
+                priceDisplay: 'midstay-cleaning',
+                displayFormat: '{price} XCG'
+            },
+            'Turnover Cleaning': {
+                checkbox: 'turnover-cleaning',
+                priceDisplay: 'turnover-cleaning',
                 displayFormat: '{price} XCG'
             },
             'Deep Cleaning': {
@@ -4580,7 +4604,7 @@
             });
         });
 
-        // Service input handling — covers both radio (basic/deep) and checkboxes
+        // Service input handling — covers both radio (midstay/turnover/deep) and checkboxes
         function handleServiceInput() {
             const qtySelector = document.getElementById(this.id + '-qty');
             if (qtySelector) {
@@ -4592,7 +4616,7 @@
             }
             // If a radio (cleaning tier) is selected, deactivate the other tier's qty panel
             if (this.type === 'radio' && this.name === 'cleaning-tier') {
-                ['basic-cleaning', 'deep-cleaning'].forEach(id => {
+                ['midstay-cleaning', 'turnover-cleaning', 'deep-cleaning'].forEach(id => {
                     if (id !== this.id) {
                         const panel = document.getElementById(id + '-qty');
                         if (panel) panel.classList.remove('active');
@@ -4615,12 +4639,20 @@
             const serviceType = document.getElementById('selected-service-type').value;
 
             if (serviceType === 'residential') {
-                // Basic Cleaning
-                const basicCleaning = document.getElementById('basic-cleaning');
-                if (basicCleaning && basicCleaning.checked) {
-                    const price = parseInt(basicCleaning.dataset.price);
+                // Midstay Cleaning
+                const midstayCleaning = document.getElementById('midstay-cleaning');
+                if (midstayCleaning && midstayCleaning.checked) {
+                    const price = parseInt(midstayCleaning.dataset.price);
                     total += price;
-                    breakdown.push({ name: 'Basic Cleaning', price: price });
+                    breakdown.push({ name: 'Midstay Cleaning', price: price });
+                }
+
+                // Turnover Cleaning
+                const turnoverCleaning = document.getElementById('turnover-cleaning');
+                if (turnoverCleaning && turnoverCleaning.checked) {
+                    const price = parseInt(turnoverCleaning.dataset.price);
+                    total += price;
+                    breakdown.push({ name: 'Turnover Cleaning', price: price });
                 }
 
                 // Deep Cleaning
@@ -4893,10 +4925,17 @@ Need help? Check the README.md file for detailed instructions.
 
             // Collect selected services with prices
             if (serviceType === 'residential') {
-                if (document.getElementById('basic-cleaning').checked) {
-                    const price = parseInt(document.getElementById('basic-cleaning').dataset.price);
+                if (document.getElementById('midstay-cleaning').checked) {
+                    const price = parseInt(document.getElementById('midstay-cleaning').dataset.price);
                     bookingData.services.push({
-                        name: 'Basic Cleaning',
+                        name: 'Midstay Cleaning',
+                        price: price
+                    });
+                }
+                if (document.getElementById('turnover-cleaning').checked) {
+                    const price = parseInt(document.getElementById('turnover-cleaning').dataset.price);
+                    bookingData.services.push({
+                        name: 'Turnover Cleaning',
                         price: price
                     });
                 }

@@ -402,10 +402,12 @@ def init_database():
         logger.info("Seeding initial services...")
         # These service names MUST match the servicePriceMapping in website.html
         services = [
-            # Basic Cleaning (flat rate)
-            ('Basic Cleaning', 125.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'basic', 1),
+            # Midstay Cleaning (flat rate)
+            ('Midstay Cleaning', 100.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'midstay', 1),
+            # Turnover Cleaning (flat rate)
+            ('Turnover Cleaning', 175.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'turnover', 2),
             # Deep Cleaning (flat rate)
-            ('Deep Cleaning', 200.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'deep', 4),
+            ('Deep Cleaning', 225.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'deep', 3),
             # Add-on Services
             ('Sofa/Couch Cleaning', 40.00, 'per service', 'Deep cleaning for sofas and couches', 1, 'add-on', 7),
             ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
@@ -2334,10 +2336,12 @@ def reset_pricing(current_user):
         
         # Insert the correct services that match website.html servicePriceMapping
         services = [
-            # Basic Cleaning (flat rate)
-            ('Basic Cleaning', 125.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'basic', 1),
+            # Midstay Cleaning (flat rate)
+            ('Midstay Cleaning', 100.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'midstay', 1),
+            # Turnover Cleaning (flat rate)
+            ('Turnover Cleaning', 175.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'turnover', 2),
             # Deep Cleaning (flat rate)
-            ('Deep Cleaning', 200.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'deep', 4),
+            ('Deep Cleaning', 225.00, 'per service', 'Flat rate – standard property: 135m², 3 bedrooms, 2 bathrooms.', 1, 'deep', 3),
             # Add-on Services
             ('Sofa/Couch Cleaning', 40.00, 'per service', 'Deep cleaning for sofas and couches', 1, 'add-on', 7),
             ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
