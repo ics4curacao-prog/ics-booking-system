@@ -3301,7 +3301,7 @@
                                             <span class="service-option-price" style="color: var(--primary); font-style: italic;">T&amp;M</span>
                                         </div>
                                         <div style="margin-top: 0.6rem; padding: 0.65rem 0.85rem; background: #f0fbfc; border-left: 3px solid var(--primary); border-radius: 4px; font-size: 0.85rem; color: #2D3E50; line-height: 1.5;">
-                                            🔍 <strong>{{ t.form_assessment_required }}</strong> {{ t.form_glass_tm_note }}
+                                            🔍 <strong>{{ t.form_assessment_required }}</strong> {{ t.form_glass_tm_note | safe }}
                                         </div>
                                     </div>
                                 </div>
@@ -3436,7 +3436,7 @@
                                     <span class="cost-total-amount" id="total-cost">0 XCG</span>
                                 </div>
                                 <div id="glass-wall-note" style="display:none; margin-top: 0.75rem; padding: 0.6rem 0.85rem; background: #f0fbfc; border-left: 3px solid var(--primary); border-radius: 4px; font-size: 0.82rem; color: #2D3E50; line-height: 1.5;">
-                                    ⚠️ {{ t.form_glass_excluded_note }}
+                                    ⚠️ {{ t.form_glass_excluded_note | safe }}
                                 </div>
                             </div>
                         </div>
