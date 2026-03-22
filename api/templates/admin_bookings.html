@@ -4091,6 +4091,19 @@
                                data-price="${poolP}" oninput="updateAddonTotal('pool')">
                         <span class="cb-addon-line-total" id="cb_total_pool">${poolP.toFixed(2)} XCG</span>
                     </div>
+                </div>
+                <div class="cb-addon-row" id="cb_addon_glass">
+                    <div class="cb-addon-header">
+                        <input type="checkbox" id="cb_chk_glass" onchange="toggleAddon('glass')">
+                        <label class="cb-addon-name" for="cb_chk_glass">🪟 Glass Wall Cleaning</label>
+                        <span class="cb-addon-base-price" style="font-style:italic;color:#1FAFB8;">T&amp;M</span>
+                    </div>
+                    <div class="cb-addon-qty-wrap" id="cb_qty_wrap_glass">
+                        <label>Agreed Price (XCG):</label>
+                        <input type="number" id="cb_glass_price" min="0" step="0.01" value="0"
+                               oninput="updateGlassTotal()" style="width:110px;">
+                        <span class="cb-addon-line-total" id="cb_total_glass">0.00 XCG</span>
+                    </div>
                 </div>`;
         }
 
@@ -4116,6 +4129,16 @@
                 const qty = parseInt(input.value) || 1;
                 const price = parseFloat(input.dataset.price) || 0;
                 totalEl.textContent = (qty * price).toFixed(2) + ' XCG';
+            }
+            updatePriceSummary();
+        }
+
+        function updateGlassTotal() {
+            const priceEl = document.getElementById('cb_glass_price');
+            const totalEl = document.getElementById('cb_total_glass');
+            if (priceEl && totalEl) {
+                const price = parseFloat(priceEl.value) || 0;
+                totalEl.textContent = price.toFixed(2) + ' XCG';
             }
             updatePriceSummary();
         }
@@ -4163,6 +4186,12 @@
                         rows.push({ name: `${names[key]} (${qty}${units[key]})`, price: qty * unitP });
                     }
                 });
+                // Glass Wall Cleaning (T&M — manual price)
+                const glassChk1 = document.getElementById('cb_chk_glass');
+                if (glassChk1?.checked) {
+                    const glassPrice = parseFloat(document.getElementById('cb_glass_price')?.value) || 0;
+                    rows.push({ name: 'Glass Wall Cleaning', price: glassPrice });
+                }
 
             } else if (category === 'add-on') {
                 ['sofa','mattress','electro','pool'].forEach(key => {
@@ -4176,6 +4205,12 @@
                         rows.push({ name: `${names[key]} (${qty}${units[key]})`, price: qty * unitP });
                     }
                 });
+                // Glass Wall Cleaning (T&M — manual price)
+                const glassChk2 = document.getElementById('cb_chk_glass');
+                if (glassChk2?.checked) {
+                    const glassPrice2 = parseFloat(document.getElementById('cb_glass_price')?.value) || 0;
+                    rows.push({ name: 'Glass Wall Cleaning', price: glassPrice2 });
+                }
 
             } else if (category === 'office') {
                 const sqmEl = document.getElementById('cb_office_sqm');
@@ -4581,6 +4616,14 @@
             };
 
             services.forEach(svc => {
+                // Glass Wall Cleaning — restore manual price
+                if (/glass wall/i.test(svc.name)) {
+                    const chk = document.getElementById('cb_chk_glass');
+                    const priceEl = document.getElementById('cb_glass_price');
+                    if (chk) { chk.checked = true; chk.dispatchEvent(new Event('change')); }
+                    if (priceEl) { priceEl.value = svc.price || 0; updateGlassTotal(); }
+                    return;
+                }
                 for (const [, def] of Object.entries(addonMap)) {
                     if (def.label.test(svc.name)) {
                         const chk = document.getElementById(def.chkEl);
