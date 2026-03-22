@@ -3169,7 +3169,7 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="midstay-cleaning" data-price="100">
+                                            <input type="checkbox" name="cleaning-tier" id="midstay-cleaning" data-price="100">
                                             <span class="service-option-name">Midstay Cleaning</span>
                                         </label>
                                         <span class="service-option-price">100 XCG</span>
@@ -3180,7 +3180,7 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="turnover-cleaning" data-price="175">
+                                            <input type="checkbox" name="cleaning-tier" id="turnover-cleaning" data-price="175">
                                             <span class="service-option-name">Turnover Cleaning</span>
                                         </label>
                                         <span class="service-option-price">175 XCG</span>
@@ -3191,7 +3191,7 @@
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
-                                            <input type="radio" name="cleaning-tier" id="deep-cleaning" data-price="225">
+                                            <input type="checkbox" name="cleaning-tier" id="deep-cleaning" data-price="225">
                                             <span class="service-option-name">Deep Cleaning</span>
                                         </label>
                                         <span class="service-option-price">225 XCG</span>
@@ -3382,7 +3382,6 @@
                                 <div class="time-slot" data-slot="morning">
                                     <div class="slot-icon">🌅</div>
                                     <div class="slot-name">Morning</div>
-                                    <div class="slot-time">7:00 AM - 11:00 AM</div>
                                     <div class="slot-availability available" data-slot-badge="morning">
                                         2 slots available
                                     </div>
@@ -3390,7 +3389,6 @@
                                 <div class="time-slot" data-slot="afternoon">
                                     <div class="slot-icon">☀️</div>
                                     <div class="slot-name">Afternoon</div>
-                                    <div class="slot-time">11:00 AM - 3:00 PM</div>
                                     <div class="slot-availability available" data-slot-badge="afternoon">
                                         2 slots available
                                     </div>
@@ -3398,7 +3396,6 @@
                                 <div class="time-slot" data-slot="evening">
                                     <div class="slot-icon">🌙</div>
                                     <div class="slot-name">Evening</div>
-                                    <div class="slot-time">3:00 PM - 7:00 PM</div>
                                     <div class="slot-availability available" data-slot-badge="evening">
                                         1 slot available
                                     </div>
@@ -4613,10 +4610,12 @@
                     qtySelector.classList.remove('active');
                 }
             }
-            // If a radio (cleaning tier) is selected, deactivate the other tier's qty panel
-            if (this.type === 'radio' && this.name === 'cleaning-tier') {
+            // If a cleaning tier checkbox is selected, uncheck the others (exclusive but deselectable)
+            if (this.name === 'cleaning-tier' && this.checked) {
                 ['midstay-cleaning', 'turnover-cleaning', 'deep-cleaning'].forEach(id => {
                     if (id !== this.id) {
+                        const other = document.getElementById(id);
+                        if (other) other.checked = false;
                         const panel = document.getElementById(id + '-qty');
                         if (panel) panel.classList.remove('active');
                     }
@@ -4625,7 +4624,7 @@
             calculateTotal();
         }
 
-        document.querySelectorAll('.service-option input[type="checkbox"], .service-option input[type="radio"]').forEach(input => {
+        document.querySelectorAll('.service-option input[type="checkbox"]').forEach(input => {
             input.addEventListener('change', handleServiceInput);
         });
 
