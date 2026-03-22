@@ -83,8 +83,7 @@ translations = {
         "service_pool_title":           "Pool Cleaning",
         "service_pool_desc":            "Our Pool cleaning takes care of particles and stains along the waterline the pool wall and floor.",
         "service_office_title":         "Office Cleaning",
-        "service_office_desc":          "Office Cleaning consists of: floor sweeping/vacuuming, floor mopping, furniture, desktop and countertop dusting, dishwashing, door and window cleaning (inside), *restroom and pantry towel change, restroom and pantry extractor cleaning",
-        "service_office_note":          "*if available",
+        "service_office_desc":          "Office Cleaning consists of: floor sweeping/vacuuming, floor mopping, furniture, desktop and countertop dusting, dishwashing, door and window cleaning (inside), restroom and pantry towel change, restroom and pantry extractor cleaning",
         "service_glass_title":          "Glass Wall Cleaning",
         "service_glass_desc":           "Professional cleaning for large glass wall surfaces. We remove fingerprints, smudges, dust, and streaks to restore crystal clear transparency and enhance the appearance of your space.",
 
@@ -321,7 +320,7 @@ translations = {
         "service_pool_title":           "Limpieza de Piscinas",
         "service_pool_desc":            "Nuestra limpieza de piscinas se encarga de las partículas y manchas a lo largo de la línea de agua, las paredes y el piso de la piscina.",
         "service_office_title":         "Limpieza de Oficinas",
-        "service_office_desc":          "La Limpieza de Oficinas consiste en: barrido/aspirado de pisos, trapeado de pisos, limpieza de polvo de muebles, escritorios y encimeras, limpieza de puertas y ventanas (interior), *cambio de toallas de baño y cocina, limpieza de extractores de baño y cocina.",
+        "service_office_desc":          "La Limpieza de Oficinas consiste en: barrido/aspirado de pisos, trapeado de pisos, limpieza de polvo de muebles, escritorios y encimeras, limpieza de puertas y ventanas (interior), cambio de toallas de baño y cocina, limpieza de extractores de baño y cocina.",
         "service_glass_title":          "Limpieza de Paredes de Vidrio",
         "service_glass_desc":           "Limpieza profesional para superficies de paredes de vidrio grandes. Eliminamos huellas dactilares, manchas, polvo y rayas para restaurar la transparencia cristalina y mejorar la apariencia de su espacio.",
 
@@ -558,7 +557,7 @@ translations = {
         "service_pool_title":           "Zwembad Reiniging",
         "service_pool_desc":            "Onze zwembadreinigning zorgt voor deeltjes en vlekken langs de waterlijn, de zwembadwand en vloer.",
         "service_office_title":         "Kantoor Schoonmaak",
-        "service_office_desc":          "Kantoor Schoonmaak bestaat uit: vloeren vegen/stofzuigen, vloeren dweilen, meubels, bureau en aanrecht afstoffen, deuren en ramen reinigen (binnen), *toilet- en pantryhanddoeken verschonen, toilet- en pantryafzuigkap reinigen.",
+        "service_office_desc":          "Kantoor Schoonmaak bestaat uit: vloeren vegen/stofzuigen, vloeren dweilen, meubels, bureau en aanrecht afstoffen, deuren en ramen reinigen (binnen), toilet- en pantryhanddoeken verschonen, toilet- en pantryafzuigkap reinigen.",
         "service_glass_title":          "Glazen Wand Reiniging",
         "service_glass_desc":           "Professionele reiniging voor grote glazen wandoppervlakken. We verwijderen vingerafdrukken, vegen, stof en strepen om kristalheldere transparantie te herstellen en het uiterlijk van uw ruimte te verbeteren.",
 
