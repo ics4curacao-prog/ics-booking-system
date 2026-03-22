@@ -413,6 +413,7 @@ def init_database():
             ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
             ('Electrostatic Cleaning (per room)', 30.00, 'per room', 'Electrostatic disinfection cleaning per room', 1, 'add-on', 9),
             ('Pool Cleaning', 50.00, 'per service', 'Pool cleaning service', 1, 'add-on', 10),
+            ('Glass Wall Cleaning', 0.00, 'T&M', 'Priced on a time & material basis. ICS will contact the client after booking to assess scope and confirm pricing.', 1, 'add-on', 16),
             # Office Cleaning
             ('Office Cleaning', 1.75, 'per m²', 'Office cleaning rate per square metre.', 1, 'office', 11),
             ('Office Sofa Cleaning', 40.00, 'per service', 'Deep cleaning for office sofas and couches', 1, 'office', 14),
@@ -2347,6 +2348,7 @@ def reset_pricing(current_user):
             ('Mattress Cleaning', 70.00, 'per service', 'Deep cleaning and sanitization for mattresses', 1, 'add-on', 8),
             ('Electrostatic Cleaning (per room)', 30.00, 'per room', 'Electrostatic disinfection cleaning per room', 1, 'add-on', 9),
             ('Pool Cleaning', 50.00, 'per service', 'Pool cleaning service', 1, 'add-on', 10),
+            ('Glass Wall Cleaning', 0.00, 'T&M', 'Priced on a time & material basis. ICS will contact the client after booking to assess scope and confirm pricing.', 1, 'add-on', 16),
             # Office Cleaning
             ('Office Cleaning', 1.75, 'per m²', 'Office cleaning rate per square metre.', 1, 'office', 11),
             ('Office Sofa Cleaning', 40.00, 'per service', 'Deep cleaning for office sofas and couches', 1, 'office', 14),

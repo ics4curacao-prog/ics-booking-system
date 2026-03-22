@@ -3290,6 +3290,20 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Glass Wall Cleaning -->
+                                    <div class="service-option">
+                                        <div class="service-option-header">
+                                            <label class="option-checkbox">
+                                                <input type="checkbox" id="glass-wall-cleaning" onchange="calculateTotal()">
+                                                <span class="service-option-name">{{ t.form_glass_cleaning }}</span>
+                                            </label>
+                                            <span class="service-option-price" style="color: var(--primary); font-style: italic;">T&amp;M</span>
+                                        </div>
+                                        <div style="margin-top: 0.6rem; padding: 0.65rem 0.85rem; background: #f0fbfc; border-left: 3px solid var(--primary); border-radius: 4px; font-size: 0.85rem; color: #2D3E50; line-height: 1.5;">
+                                            🔍 <strong>{{ t.form_assessment_required }}</strong> {{ t.form_glass_tm_note }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -3420,6 +3434,9 @@
                                 <div class="cost-total">
                                     <span class="cost-total-label">Total</span>
                                     <span class="cost-total-amount" id="total-cost">0 XCG</span>
+                                </div>
+                                <div id="glass-wall-note" style="display:none; margin-top: 0.75rem; padding: 0.6rem 0.85rem; background: #f0fbfc; border-left: 3px solid var(--primary); border-radius: 4px; font-size: 0.82rem; color: #2D3E50; line-height: 1.5;">
+                                    ⚠️ {{ t.form_glass_excluded_note }}
                                 </div>
                             </div>
                         </div>
@@ -4713,6 +4730,15 @@
                     });
                 }
 
+                // Glass Wall Cleaning — T&M, no price added to total
+                const glassWallCleaning = document.getElementById('glass-wall-cleaning');
+                if (glassWallCleaning && glassWallCleaning.checked) {
+                    breakdown.push({
+                        name: 'Glass Wall Cleaning',
+                        price: null  // T&M — excluded from total
+                    });
+                }
+
             } else if (serviceType === 'office') {
                 // Office Cleaning — rate per m²
                 const officeCleaningEl = document.getElementById('office-cleaning');
@@ -4756,15 +4782,29 @@
             const breakdownDiv = document.getElementById('cost-breakdown');
             breakdownDiv.innerHTML = '';
             
+            let glassSelected = false;
             breakdown.forEach(item => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'cost-item';
-                itemDiv.innerHTML = `
-                    <span class="cost-item-name">${item.name}</span>
-                    <span class="cost-item-price">${item.price} XCG</span>
-                `;
+                if (item.price === null) {
+                    // T&M item — show with "T&M" label instead of price
+                    glassSelected = true;
+                    itemDiv.innerHTML = `
+                        <span class="cost-item-name">${item.name}</span>
+                        <span class="cost-item-price" style="font-style: italic; color: var(--primary);">T&M</span>
+                    `;
+                } else {
+                    itemDiv.innerHTML = `
+                        <span class="cost-item-name">${item.name}</span>
+                        <span class="cost-item-price">${item.price} XCG</span>
+                    `;
+                }
                 breakdownDiv.appendChild(itemDiv);
             });
+
+            // Show/hide the glass wall exclusion note
+            const glassNote = document.getElementById('glass-wall-note');
+            if (glassNote) glassNote.style.display = glassSelected ? 'block' : 'none';
 
             // Calculate OB (6% VAT) and grand total
             const subtotal = total;
@@ -4889,7 +4929,8 @@ Need help? Check the README.md file for detailed instructions.
             const totalCost = parseInt(document.getElementById('total-cost').textContent);
             // Get subtotal (without OB) to send to backend - OB will be calculated when displaying invoice
             const subtotalCost = parseFloat(document.getElementById('subtotal-cost').textContent);
-            if (totalCost === 0) {
+            const glassOnlySelected = document.getElementById('glass-wall-cleaning') && document.getElementById('glass-wall-cleaning').checked;
+            if (totalCost === 0 && !glassOnlySelected) {
                 showMessage('Please select at least one cleaning service', 'error');
                 return;
             }
@@ -4990,6 +5031,13 @@ Need help? Check the README.md file for detailed instructions.
                         name: 'Pool Cleaning',
                         quantity: quantity,
                         price: subtotal
+                    });
+                }
+                if (document.getElementById('glass-wall-cleaning') && document.getElementById('glass-wall-cleaning').checked) {
+                    bookingData.services.push({
+                        name: 'Glass Wall Cleaning',
+                        price: 0,
+                        notes: 'Time & material — assessment required. ICS will contact client to confirm pricing before service.'
                     });
                 }
             } else if (serviceType === 'office') {
