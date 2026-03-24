@@ -1851,13 +1851,31 @@ def get_user_bookings(current_user, user_id):
 def get_all_bookings(current_user):
     """Get all bookings (admin only)"""
     try:
+        status = request.args.get('status')
+        date = request.args.get('date')
+        search = request.args.get('search')
+
         conn = get_db()
         cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM bookings 
-            ORDER BY booking_date DESC, created_at DESC
-        ''')
+
+        query = 'SELECT * FROM bookings WHERE 1=1'
+        params = []
+
+        if status:
+            query += ' AND status = ?'
+            params.append(status)
+
+        if date:
+            query += ' AND booking_date = ?'
+            params.append(date)
+
+        if search:
+            query += ' AND (customer_name LIKE ? OR customer_phone LIKE ? OR street_address LIKE ? OR neighborhood LIKE ?)'
+            params.extend([f'%{search}%'] * 4)
+
+        query += ' ORDER BY booking_date DESC, created_at DESC'
+
+        cursor.execute(query, params)
         bookings = cursor.fetchall()
         conn.close()
         
