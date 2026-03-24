@@ -2682,6 +2682,7 @@
                                 <option value="basic">🏠 Basic Cleaning</option>
                                 <option value="deep">🧹 Deep Cleaning</option>
                                 <option value="add-on">✨ Add-on Services Only</option>
+                                <option value="glass">🪟 Glass Wall Cleaning</option>
                                 <option value="office">🏢 Office Cleaning</option>
                                 <option value="custom">✏️ Custom</option>
                             </select>
@@ -3095,9 +3096,9 @@
         // Format time slot
         function formatTimeSlot(slot) {
             const slots = {
-                'morning': 'Morning (8AM-12PM)',
-                'afternoon': 'Afternoon (12PM-4PM)',
-                'evening': 'Evening (4PM-8PM)'
+                'morning': 'Morning',
+                'afternoon': 'Afternoon',
+                'evening': 'Evening'
             };
             return slots[slot] || slot;
         }
@@ -3205,6 +3206,7 @@
                 'basic':       '🏠 Basic Cleaning',
                 'deep':        '🧹 Deep Cleaning',
                 'add-on':      '✨ Add-on Services',
+                'glass':       '🪟 Glass Wall Cleaning',
                 'office':      '🏢 Office Cleaning',
                 'residential': '🏠 Residential Cleaning',
             };
@@ -3950,6 +3952,31 @@
                     <p style="font-size:0.82rem;color:#666;margin:0 0 8px;">Select one or more add-on services:</p>
                     ${renderResidentialAddons()}`;
                 addAddonListeners();
+
+            } else if (category === 'glass') {
+                panel.innerHTML = `
+                    <div class="cb-svc-main">
+                        <div class="cb-svc-main-header">
+                            <span class="cb-svc-main-title">🪟 Glass Wall Cleaning</span>
+                            <span class="cb-svc-main-price" id="cb_main_price">T&amp;M</span>
+                        </div>
+                        <p style="font-size:0.78rem;color:#6b7a8d;margin:6px 0 12px;font-style:italic;">Time &amp; Materials — enter the agreed price below.</p>
+                        <input type="hidden" id="cb_base_price" value="0">
+                    </div>
+                    <div class="cb-addon-row active" id="cb_addon_glass">
+                        <div class="cb-addon-header">
+                            <input type="checkbox" id="cb_chk_glass" checked onchange="toggleAddon('glass')">
+                            <label class="cb-addon-name" for="cb_chk_glass">🪟 Glass Wall Cleaning</label>
+                            <span class="cb-addon-base-price" style="font-style:italic;color:#1FAFB8;">T&amp;M</span>
+                        </div>
+                        <div class="cb-addon-qty-wrap" id="cb_qty_wrap_glass">
+                            <label>Agreed Price (XCG):</label>
+                            <input type="number" id="cb_glass_price" min="0" step="0.01" value="0"
+                                   oninput="updateGlassTotal()" style="width:110px;">
+                            <span class="cb-addon-line-total" id="cb_total_glass">0.00 XCG</span>
+                        </div>
+                    </div>`;
+                updatePriceSummary();
 
             } else if (category === 'office') {
                 const rate     = cbPrice('Office Cleaning', 1.75);
