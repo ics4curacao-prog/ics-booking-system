@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard - ICS</title>
+    <script src="admin_config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --teal:      #1FAFB8;
+            --teal-dark: #179aa3;
+            --navy:      #2D3E50;
+            --navy-dark: #1f3f4b;
+            --bg:        #f0f4f8;
+            --white:     #ffffff;
+            --border:    #e2e8f0;
+            --text:      #334155;
+            --muted:     #64748b;
+            --green:     #10b981;
+            --amber:     #f59e0b;
+            --red:       #ef4444;
+            --purple:    #8b5cf6;
+            --indigo:    #6366f1;
+            --rose:      #f43f5e;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────── */
+        .header {
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-brand h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+        .header-brand span {
+            font-size: 1.4rem;
+        }
+        .header-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-secondary { background: rgba(255,255,255,0.12); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.22); }
+        .btn-teal { background: var(--teal); color: #fff; }
+        .btn-teal:hover { background: var(--teal-dark); }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+
+        /* ─── MAIN ───────────────────────────────────────── */
+        .main {
+            padding: 28px 32px 40px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* ─── FILTER BAR ─────────────────────────────────── */
+        .filter-bar {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        .filter-bar label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--text);
+            background: #fff;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .filter-bar select:focus { border-color: var(--teal); }
+        .divider { width: 1px; height: 32px; background: var(--border); }
+        .filter-info {
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+        #applyFiltersBtn {
+            padding: 8px 18px;
+            font-size: 0.84rem;
+        }
+
+        /* ─── KPI GRID ───────────────────────────────────── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 22px 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 14px 14px 0 0;
+        }
+        .kpi-card.green::before  { background: var(--green); }
+        .kpi-card.teal::before   { background: var(--teal); }
+        .kpi-card.amber::before  { background: var(--amber); }
+        .kpi-card.purple::before { background: var(--purple); }
+
+        .kpi-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
+        }
+        .kpi-card.green  .kpi-icon { background: #d1fae5; }
+        .kpi-card.teal   .kpi-icon { background: #ccf6f8; }
+        .kpi-card.amber  .kpi-icon { background: #fef3c7; }
+        .kpi-card.purple .kpi-icon { background: #ede9fe; }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            line-height: 1;
+        }
+        .kpi-value .currency {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-left: 3px;
+        }
+        .kpi-sub {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        /* ─── CHARTS GRID ────────────────────────────────── */
+        .charts-row {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .charts-row.two-col { grid-template-columns: 2fr 1fr; }
+        .charts-row.three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .chart-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--navy-dark);
+            font-weight: 600;
+        }
+        .chart-subtitle {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+        .chart-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 9px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: var(--muted);
+        }
+        .chart-container { position: relative; }
+
+        /* ─── SERVICE BREAKDOWN TABLE ────────────────────── */
+        .breakdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+        .breakdown-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--muted);
+            border-bottom: 2px solid var(--border);
+        }
+        .breakdown-table th:not(:first-child) { text-align: right; }
+        .breakdown-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+        .breakdown-table td:not(:first-child) { text-align: right; }
+        .breakdown-table tr:last-child td { border-bottom: none; }
+        .breakdown-table tr:hover td { background: #f8fafc; }
+
+        .svc-dot {
+            display: inline-block;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .svc-name { font-weight: 500; }
+        .svc-revenue { color: var(--teal); font-weight: 600; }
+        .svc-ob { color: var(--amber); font-weight: 500; }
+        .svc-total { color: var(--navy-dark); font-weight: 700; }
+        .svc-count {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        /* ─── BOOKINGS TABLE ─────────────────────────────── */
+        .bookings-table-wrap {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.84rem;
+        }
+        .bookings-table th {
+            padding: 10px 14px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--muted);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+            text-align: left;
+        }
+        .bookings-table th.num { text-align: right; }
+        .bookings-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .bookings-table td.num { text-align: right; }
+        .bookings-table tr:last-child td { border-bottom: none; }
+        .bookings-table tr:hover td { background: #f8fafc; }
+
+        .status-pill {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status-pill.completed  { background: #d1fae5; color: #065f46; }
+        .status-pill.pending    { background: #fef3c7; color: #92400e; }
+        .status-pill.confirmed  { background: #dbeafe; color: #1e40af; }
+        .status-pill.cancelled  { background: #fee2e2; color: #991b1b; }
+
+        /* ─── EMPTY / LOADING ────────────────────────────── */
+        .state-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* ─── RESPONSIVE ─────────────────────────────────── */
+        @media (max-width: 1100px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-row.two-col { grid-template-columns: 1fr; }
+            .charts-row.three-col { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 680px) {
+            .main { padding: 16px; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; }
+            .charts-row.three-col { grid-template-columns: 1fr; }
+            .header { padding: 0 16px; }
+            .header-brand h1 { font-size: 1rem; }
+            .header-nav .btn span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-brand">
+        <span>📊</span>
+        <h1>Financial Dashboard</h1>
+    </div>
+    <div class="header-nav">
+        <button class="btn btn-secondary" onclick="location.href='admin_bookings.html'">📅 <span>Bookings</span></button>
+        <button class="btn btn-secondary" onclick="location.href='pricing_management.html'">💰 <span>Pricing</span></button>
+        <button class="btn btn-secondary" onclick="location.href='user_management.html'">👥 <span>Users</span></button>
+        <button class="btn btn-danger" onclick="logout()">🚪 <span>Logout</span></button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label>Month</label>
+            <select id="filterMonth">
+                <option value="">All Months</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+        </div>
+        <div class="divider"></div>
+        <div class="filter-group">
+            <label>Year</label>
+            <select id="filterYear"></select>
+        </div>
+        <div class="divider"></div>
+        <div class="filter-group">
+            <label>Status</label>
+            <select id="filterStatus">
+                <option value="">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        <button class="btn btn-teal" id="applyFiltersBtn" onclick="applyFilters()">Apply</button>
+        <button class="btn btn-secondary" onclick="resetFilters()" style="background:#f1f5f9;color:var(--text);">Reset</button>
+        <span class="filter-info" id="filterInfo">Loading…</span>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+        <div class="kpi-card green">
+            <div class="kpi-icon">💵</div>
+            <div class="kpi-label">Sub-Total Revenue</div>
+            <div class="kpi-value" id="kpiSubtotal">—<span class="currency">XCG</span></div>
+            <div class="kpi-sub" id="kpiSubtotalSub">—</div>
+        </div>
+        <div class="kpi-card teal">
+            <div class="kpi-icon">🏛️</div>
+            <div class="kpi-label">OB Tax (6%)</div>
+            <div class="kpi-value" id="kpiOB">—<span class="currency">XCG</span></div>
+            <div class="kpi-sub" id="kpiOBSub">—</div>
+        </div>
+        <div class="kpi-card amber">
+            <div class="kpi-icon">💎</div>
+            <div class="kpi-label">Grand Total</div>
+            <div class="kpi-value" id="kpiGrand">—<span class="currency">XCG</span></div>
+            <div class="kpi-sub" id="kpiGrandSub">—</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-label">Bookings</div>
+            <div class="kpi-value" id="kpiBookings">—</div>
+            <div class="kpi-sub" id="kpiBookingsSub">—</div>
+        </div>
+    </div>
+
+    <!-- REVENUE TREND + DONUT -->
+    <div class="charts-row two-col">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-title">Revenue Trend</div>
+                    <div class="chart-subtitle">Sub-total & Grand Total by month</div>
+                </div>
+                <span class="chart-badge" id="trendBadge">12 months</span>
+            </div>
+            <div class="chart-container" style="height:260px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-title">By Service Type</div>
+                    <div class="chart-subtitle">Revenue share</div>
+                </div>
+            </div>
+            <div class="chart-container" style="height:260px;">
+                <canvas id="donutChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICE BREAKDOWN TABLE -->
+    <div class="charts-row" style="grid-template-columns:1fr;">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-title">Service Type Breakdown</div>
+                    <div class="chart-subtitle">Revenue, OB tax, and grand total per service category</div>
+                </div>
+            </div>
+            <table class="breakdown-table" id="breakdownTable">
+                <thead>
+                    <tr>
+                        <th>Service Type</th>
+                        <th>Bookings</th>
+                        <th>Sub-Total</th>
+                        <th>OB Tax (6%)</th>
+                        <th>Grand Total</th>
+                        <th>Share</th>
+                    </tr>
+                </thead>
+                <tbody id="breakdownBody">
+                    <tr><td colspan="6" class="state-msg">Loading…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INDIVIDUAL BOOKINGS TABLE -->
+    <div class="charts-row" style="grid-template-columns:1fr;">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-title">Booking Detail</div>
+                    <div class="chart-subtitle">Individual transactions for selected period</div>
+                </div>
+                <span class="chart-badge" id="bookingCountBadge">—</span>
+            </div>
+            <div class="bookings-table-wrap">
+                <table class="bookings-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th class="num">Sub-Total</th>
+                            <th class="num">OB (6%)</th>
+                            <th class="num">Grand Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsBody">
+                        <tr><td colspan="8" class="state-msg">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /main -->
+
+<script>
+// ── AUTH ───────────────────────────────────────────────────────
+function getToken() {
+    const token = localStorage.getItem('auth_token');
+    if (!token) { location.href = 'admin_login.html'; return null; }
+    return token;
+}
+function logout() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+    location.href = 'admin_login.html';
+}
+
+// ── CHART INSTANCES ────────────────────────────────────────────
+let trendChart = null, donutChart = null;
+
+const SERVICE_COLORS = {
+    'basic':     '#1FAFB8',
+    'deep':      '#2D3E50',
+    'midstay':   '#10b981',
+    'turnover':  '#8b5cf6',
+    'add-on':    '#f59e0b',
+    'glass':     '#6366f1',
+    'office':    '#f43f5e',
+    'custom':    '#64748b',
+};
+function svcColor(key) {
+    return SERVICE_COLORS[key?.toLowerCase()] || '#94a3b8';
+}
+const SVC_LABELS = {
+    'basic':    '🏠 Basic Cleaning',
+    'deep':     '🧹 Deep Cleaning',
+    'midstay':  '🌙 Midstay Cleaning',
+    'turnover': '🔄 Turnover Cleaning',
+    'add-on':   '✨ Add-on Services',
+    'glass':    '🪟 Glass Wall Cleaning',
+    'office':   '🏢 Office Cleaning',
+    'custom':   '✏️ Custom',
+};
+function svcLabel(k) { return SVC_LABELS[k?.toLowerCase()] || (k ? k.charAt(0).toUpperCase() + k.slice(1) : 'Other'); }
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── POPULATE YEAR DROPDOWN ─────────────────────────────────────
+function populateYears() {
+    const sel = document.getElementById('filterYear');
+    const currentYear = new Date().getFullYear();
+    sel.innerHTML = '<option value="">All Years</option>';
+    for (let y = currentYear; y >= 2024; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        if (y === currentYear) opt.selected = true;
+        sel.appendChild(opt);
+    }
+}
+
+// ── FETCH ALL BOOKINGS ─────────────────────────────────────────
+async function fetchBookings() {
+    const token = getToken();
+    if (!token) return [];
+    const resp = await fetch(`${API_URL}/api/bookings`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return data.bookings || [];
+}
+
+// ── FILTER LOGIC ───────────────────────────────────────────────
+let allBookings = [];
+let filtered = [];
+
+function applyFilters() {
+    const month  = document.getElementById('filterMonth').value;
+    const year   = document.getElementById('filterYear').value;
+    const status = document.getElementById('filterStatus').value;
+
+    filtered = allBookings.filter(b => {
+        const d = b.bookingDate || '';
+        const [y, m] = d.split('-');
+        if (year   && y !== year) return false;
+        if (month  && parseInt(m, 10) !== parseInt(month, 10)) return false;
+        if (status && b.status !== status) return false;
+        return true;
+    });
+
+    renderAll();
+}
+
+function resetFilters() {
+    document.getElementById('filterMonth').value  = '';
+    document.getElementById('filterYear').value   = new Date().getFullYear();
+    document.getElementById('filterStatus').value = '';
+    applyFilters();
+}
+
+// ── FMT HELPERS ────────────────────────────────────────────────
+function fmt(n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtDate(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    return `${MONTH_NAMES[parseInt(m,10)-1]} ${parseInt(day,10)}, ${y}`;
+}
+
+// ── RENDER ALL ─────────────────────────────────────────────────
+function renderAll() {
+    updateFilterInfo();
+    renderKPIs();
+    renderTrendChart();
+    renderDonutChart();
+    renderBreakdownTable();
+    renderBookingsTable();
+}
+
+function updateFilterInfo() {
+    const month  = document.getElementById('filterMonth');
+    const year   = document.getElementById('filterYear');
+    const status = document.getElementById('filterStatus');
+    const parts  = [];
+    if (year.value)   parts.push(year.options[year.selectedIndex].text);
+    if (month.value)  parts.push(month.options[month.selectedIndex].text);
+    if (status.value) parts.push(status.options[status.selectedIndex].text);
+    const label = parts.length ? parts.join(' · ') : 'All time';
+    document.getElementById('filterInfo').textContent = `${filtered.length} bookings · ${label}`;
+}
+
+// ── KPI CARDS ──────────────────────────────────────────────────
+function renderKPIs() {
+    const nonCancelled = filtered.filter(b => b.status !== 'cancelled');
+    const completed    = filtered.filter(b => b.status === 'completed');
+
+    const subtotal = nonCancelled.reduce((s, b) => s + (parseFloat(b.totalCost) || 0), 0);
+    const ob       = Math.round(subtotal * 0.06 * 100) / 100;
+    const grand    = subtotal + ob;
+
+    const compSub  = completed.reduce((s, b) => s + (parseFloat(b.totalCost) || 0), 0);
+    const compOB   = Math.round(compSub * 0.06 * 100) / 100;
+    const compGrand = compSub + compOB;
+
+    setKPI('kpiSubtotal',   fmt(subtotal),  `${fmt(compSub)} XCG confirmed/completed`);
+    setKPI('kpiOB',         fmt(ob),        `${fmt(compOB)} XCG confirmed/completed`);
+    setKPI('kpiGrand',      fmt(grand),     `${fmt(compGrand)} XCG confirmed/completed`);
+    setKPI('kpiBookings',   filtered.length, `${completed.length} completed · ${nonCancelled.length - completed.length} open`);
+}
+
+function setKPI(id, value, sub) {
+    const el = document.getElementById(id);
+    const subEl = document.getElementById(id + 'Sub');
+    // re-inject currency span if needed
+    if (id !== 'kpiBookings') {
+        el.innerHTML = `${value}<span class="currency">XCG</span>`;
+    } else {
+        el.textContent = value;
+    }
+    if (subEl) subEl.textContent = sub;
+}
+
+// ── TREND CHART ────────────────────────────────────────────────
+function renderTrendChart() {
+    // Build monthly buckets from filtered data
+    const monthlyData = {};
+    filtered.filter(b => b.status !== 'cancelled').forEach(b => {
+        const d = b.bookingDate || '';
+        const [y, m] = d.split('-');
+        if (!y || !m) return;
+        const key = `${y}-${m.padStart(2,'0')}`;
+        if (!monthlyData[key]) monthlyData[key] = { sub: 0, grand: 0 };
+        const sub = parseFloat(b.totalCost) || 0;
+        monthlyData[key].sub   += sub;
+        monthlyData[key].grand += sub * 1.06;
+    });
+
+    const keys   = Object.keys(monthlyData).sort();
+    const labels = keys.map(k => { const [y,m] = k.split('-'); return `${MONTH_NAMES[parseInt(m,10)-1]} '${y.slice(2)}`; });
+    const subs   = keys.map(k => +monthlyData[k].sub.toFixed(2));
+    const grands = keys.map(k => +monthlyData[k].grand.toFixed(2));
+
+    document.getElementById('trendBadge').textContent = `${keys.length} month${keys.length !== 1 ? 's' : ''}`;
+
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Sub-Total',
+                    data: subs,
+                    backgroundColor: 'rgba(31,175,184,0.7)',
+                    borderRadius: 5,
+                    borderSkipped: false,
+                    order: 2,
+                },
+                {
+                    label: 'Grand Total',
+                    data: grands,
+                    type: 'line',
+                    borderColor: '#2D3E50',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#2D3E50',
+                    tension: 0.35,
+                    order: 1,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index' },
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 12 } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)} XCG`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+                y: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => fmt(v) }
+                }
+            }
+        }
+    });
+}
+
+// ── DONUT CHART ────────────────────────────────────────────────
+function renderDonutChart() {
+    const svcTotals = {};
+    filtered.filter(b => b.status !== 'cancelled').forEach(b => {
+        const key = (b.serviceType || 'custom').toLowerCase();
+        svcTotals[key] = (svcTotals[key] || 0) + (parseFloat(b.totalCost) || 0);
+    });
+
+    const keys   = Object.keys(svcTotals);
+    const values = keys.map(k => +svcTotals[k].toFixed(2));
+    const colors = keys.map(k => svcColor(k));
+    const labels = keys.map(k => svcLabel(k));
+
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    if (donutChart) donutChart.destroy();
+    donutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }] },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 12, padding: 12 } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} XCG`
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ── BREAKDOWN TABLE ────────────────────────────────────────────
+function renderBreakdownTable() {
+    const svcData = {};
+    const nonCancelled = filtered.filter(b => b.status !== 'cancelled');
+    nonCancelled.forEach(b => {
+        const key = (b.serviceType || 'custom').toLowerCase();
+        if (!svcData[key]) svcData[key] = { sub: 0, count: 0 };
+        svcData[key].sub   += parseFloat(b.totalCost) || 0;
+        svcData[key].count += 1;
+    });
+
+    const totalSub = Object.values(svcData).reduce((s,v) => s + v.sub, 0);
+    const keys     = Object.keys(svcData).sort((a,b) => svcData[b].sub - svcData[a].sub);
+
+    const tbody = document.getElementById('breakdownBody');
+    if (!keys.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="state-msg">No data for selected filters.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = keys.map(k => {
+        const sub   = svcData[k].sub;
+        const ob    = sub * 0.06;
+        const grand = sub + ob;
+        const share = totalSub ? ((sub / totalSub) * 100).toFixed(1) : 0;
+        const color = svcColor(k);
+        return `<tr>
+            <td><span class="svc-dot" style="background:${color}"></span><span class="svc-name">${svcLabel(k)}</span></td>
+            <td><span class="svc-count">${svcData[k].count}</span></td>
+            <td class="svc-revenue">${fmt(sub)} XCG</td>
+            <td class="svc-ob">${fmt(ob)} XCG</td>
+            <td class="svc-total">${fmt(grand)} XCG</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="flex:1;height:6px;background:#f1f5f9;border-radius:3px;min-width:60px;">
+                        <div style="width:${share}%;height:6px;background:${color};border-radius:3px;"></div>
+                    </div>
+                    <span style="font-size:0.78rem;color:var(--muted);white-space:nowrap;">${share}%</span>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ── BOOKINGS TABLE ─────────────────────────────────────────────
+function renderBookingsTable() {
+    const tbody = document.getElementById('bookingsBody');
+    document.getElementById('bookingCountBadge').textContent = `${filtered.length} booking${filtered.length !== 1 ? 's' : ''}`;
+
+    if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="state-msg">No bookings match the selected filters.</td></tr>';
+        return;
+    }
+
+    const sorted = [...filtered].sort((a,b) => (b.bookingDate||'').localeCompare(a.bookingDate||''));
+    tbody.innerHTML = sorted.map(b => {
+        const sub   = parseFloat(b.totalCost) || 0;
+        const ob    = sub * 0.06;
+        const grand = sub + ob;
+        return `<tr>
+            <td><strong>#${b.id}</strong></td>
+            <td>${fmtDate(b.bookingDate)}</td>
+            <td>${b.customerName || '—'}</td>
+            <td>${svcLabel(b.serviceType)}</td>
+            <td><span class="status-pill ${b.status}">${b.status}</span></td>
+            <td class="num">${fmt(sub)} XCG</td>
+            <td class="num" style="color:var(--amber);">${fmt(ob)} XCG</td>
+            <td class="num" style="font-weight:600;">${fmt(grand)} XCG</td>
+        </tr>`;
+    }).join('');
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+async function init() {
+    populateYears();
+    const token = getToken();
+    if (!token) return;
+
+    try {
+        allBookings = await fetchBookings();
+        applyFilters();
+    } catch (e) {
+        console.error(e);
+        document.getElementById('filterInfo').textContent = 'Error loading data';
+    }
+}
+
+init();
+</script>
+</body>
+</html>
