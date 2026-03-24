@@ -263,7 +263,18 @@ def run_migrations():
             cursor.execute('ALTER TABLE resources ADD COLUMN phone TEXT')
             conn.commit()
             logger.info("Migration complete: phone column added")
-        
+
+        # Ensure Glass Wall Cleaning exists in service_pricing
+        cursor.execute("SELECT COUNT(*) as count FROM service_pricing WHERE service_name = 'Glass Wall Cleaning'")
+        if cursor.fetchone()['count'] == 0:
+            logger.info("Adding Glass Wall Cleaning to service_pricing...")
+            cursor.execute('''
+                INSERT INTO service_pricing (service_name, base_price, unit, description, is_active, category, display_order)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', ('Glass Wall Cleaning', 0.00, 'T&M', 'Priced on a time & material basis. ICS will contact the client after booking to assess scope and confirm pricing.', 1, 'add-on', 16))
+            conn.commit()
+            logger.info("Migration complete: Glass Wall Cleaning added")
+
         conn.close()
     except Exception as e:
         logger.error(f"Migration error: {e}")

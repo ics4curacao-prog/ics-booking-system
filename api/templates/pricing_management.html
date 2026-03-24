@@ -972,7 +972,7 @@
                         <div class="service-name">${serviceName}</div>
                         ${serviceDesc && serviceDesc !== serviceName ? `<div class="service-description">${serviceDesc}</div>` : ''}
                     </td>
-                    <td class="price">${parseFloat(service.base_price).toFixed(2)} XCG</td>
+                    <td class="price">${service.unit === 'T&M' ? '<span style="font-style:italic;color:#1FAFB8;">T&amp;M</span>' : parseFloat(service.base_price).toFixed(2) + ' XCG'}</td>
                     <td>${service.unit}</td>
                     <td>
                         <span class="status-badge status-${status}">
@@ -1007,7 +1007,7 @@
                         </div>
                         <div class="mobile-card-row">
                             <span class="mobile-card-label">Price</span>
-                            <span class="mobile-card-value price">${parseFloat(service.base_price).toFixed(2)} XCG</span>
+                            <span class="mobile-card-value price">${service.unit === 'T&M' ? '<span style="font-style:italic;color:#1FAFB8;">T&amp;M</span>' : parseFloat(service.base_price).toFixed(2) + ' XCG'}</span>
                         </div>
                         <div class="mobile-card-row">
                             <span class="mobile-card-label">Unit</span>
