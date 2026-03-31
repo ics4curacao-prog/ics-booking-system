@@ -11,13 +11,13 @@ translations = {
     # =========================================================================
     "en": {
         # SEO Meta Tags
-        "meta_title":       "House & Vacation Rental Cleaning Curaçao | ICS",
-        "meta_desc":        "Professional house cleaning, office cleaning & Airbnb turnover services in Curaçao. Eco-friendly products, intelligent robots. Deep cleaning, mattress, sofa & pool cleaning. Book online at ics.cw!",
-        "meta_keywords":    "house cleaning Curaçao, vacation rental cleaning Curaçao, Airbnb cleaning Curaçao, home cleaning services Curaçao, office cleaning Willemstad, deep cleaning Curaçao, commercial cleaning services Curaçao, mattress cleaning, sofa cleaning, pool cleaning",
-        "og_title":         "House & Vacation Rental Cleaning Curaçao | ICS",
-        "og_desc":          "Professional house cleaning, Airbnb turnover & office cleaning in Curaçao. Eco-friendly products & intelligent robots. Book online at ics.cw!",
-        "twitter_title":    "House & Vacation Rental Cleaning Curaçao | ICS",
-        "twitter_desc":     "Professional house cleaning, Airbnb turnover & office cleaning in Curaçao. Eco-friendly products & intelligent robots. Book online!",
+        "meta_title":       "ICS Curaçao | Cleaning Services Willemstad – Intelligent Cleaning Services",
+        "meta_desc":        "Professional cleaning services in Willemstad, Curaçao. House cleaning, vacation rental turnover & office cleaning. Robotic technology, eco-friendly products. Deep cleaning, mattress, sofa & pool. Book online at ics.cw!",
+        "meta_keywords":    "cleaning services Curaçao, cleaning services Willemstad, house cleaning Curaçao, vacation rental cleaning Curaçao, Airbnb cleaning Curaçao, office cleaning Willemstad, deep cleaning Curaçao, commercial cleaning Curaçao, mattress cleaning, sofa cleaning, pool cleaning",
+        "og_title":         "ICS Curaçao | Cleaning Services Willemstad – Intelligent Cleaning Services",
+        "og_desc":          "Professional cleaning services in Willemstad, Curaçao. House, vacation rental & office cleaning with robotic technology. Book online at ics.cw!",
+        "twitter_title":    "ICS Curaçao | Cleaning Services Willemstad – Intelligent Cleaning Services",
+        "twitter_desc":     "Professional cleaning services in Willemstad, Curaçao. House, vacation rental & office cleaning with robotic technology. Book online!",
         "html_lang":        "en",
 
         # Navigation
@@ -252,13 +252,13 @@ translations = {
     # =========================================================================
     "es": {
         # SEO Meta Tags
-        "meta_title":       "Limpieza de Casas y Alquileres Vacacionales en Curazao | ICS",
-        "meta_desc":        "Servicios profesionales de limpieza de hogares, oficinas y Airbnb en Curazao. Productos ecológicos, robots inteligentes. Limpieza profunda, colchones, sofás y piscinas. ¡Reserve en ics.cw!",
-        "meta_keywords":    "limpieza de casas Curazao, limpieza alquiler vacacional Curazao, limpieza Airbnb Curazao, servicios de limpieza del hogar, limpieza de oficinas Willemstad, limpieza profunda Curazao, limpieza comercial Curazao, limpieza de colchones, limpieza de sofás, limpieza de piscinas",
-        "og_title":         "Limpieza de Casas y Alquileres Vacacionales en Curazao | ICS",
-        "og_desc":          "Limpieza profesional de hogares, Airbnb y oficinas en Curazao. Productos ecológicos y robots inteligentes. ¡Reserve en ics.cw!",
-        "twitter_title":    "Limpieza de Casas y Alquileres Vacacionales en Curazao | ICS",
-        "twitter_desc":     "Limpieza profesional de hogares, Airbnb y oficinas en Curazao. Productos ecológicos y robots inteligentes. ¡Reserve hoy!",
+        "meta_title":       "ICS Curazao | Empresa de Limpieza Willemstad – Intelligent Cleaning Services",
+        "meta_desc":        "Empresa de limpieza profesional en Willemstad, Curazao. Limpieza de hogares, alquileres vacacionales y oficinas. Robots inteligentes y productos ecológicos. Limpieza profunda, colchones, sofás y piscinas. ¡Reserve en ics.cw!",
+        "meta_keywords":    "empresa de limpieza Curazao, limpieza Willemstad, limpieza de casas Curazao, limpieza alquiler vacacional Curazao, limpieza Airbnb Curazao, limpieza de oficinas Willemstad, limpieza profunda Curazao, limpieza comercial Curazao, limpieza de colchones, limpieza de sofás, limpieza de piscinas",
+        "og_title":         "ICS Curazao | Empresa de Limpieza Willemstad – Intelligent Cleaning Services",
+        "og_desc":          "Empresa de limpieza profesional en Willemstad, Curazao. Hogares, alquileres vacacionales y oficinas con robots inteligentes. ¡Reserve en ics.cw!",
+        "twitter_title":    "ICS Curazao | Empresa de Limpieza Willemstad – Intelligent Cleaning Services",
+        "twitter_desc":     "Empresa de limpieza profesional en Willemstad, Curazao. Hogares, alquileres vacacionales y oficinas con robots inteligentes. ¡Reserve hoy!",
         "html_lang":        "es",
 
         # Navigation
@@ -493,13 +493,13 @@ translations = {
     # =========================================================================
     "nl": {
         # SEO Meta Tags
-        "meta_title":       "Huis- & Vakantiewoning Schoonmaak Curaçao | ICS",
-        "meta_desc":        "Professionele huisreiniging, kantoorschoonmaak & Airbnb-service op Curaçao. Milieuvriendelijke producten, intelligente robots. Grondige reiniging, matras, bank & zwembad. Boek online op ics.cw!",
-        "meta_keywords":    "huisreiniging Curaçao, vakantiewoning schoonmaak Curaçao, Airbnb schoonmaak Curaçao, schoonmaakdiensten Curaçao, kantoorschoonmaak Willemstad, grondige reiniging Curaçao, commerciële schoonmaak Curaçao, matrasreiniging, bankreiniging, zwembadreiniging",
-        "og_title":         "Huis- & Vakantiewoning Schoonmaak Curaçao | ICS",
-        "og_desc":          "Professionele huisreiniging, Airbnb-service & kantoorschoonmaak op Curaçao. Milieuvriendelijke producten & intelligente robots. Boek online op ics.cw!",
-        "twitter_title":    "Huis- & Vakantiewoning Schoonmaak Curaçao | ICS",
-        "twitter_desc":     "Professionele huisreiniging, Airbnb & kantoorschoonmaak op Curaçao. Milieuvriendelijk & intelligent. Boek vandaag!",
+        "meta_title":       "ICS Curaçao | Schoonmaakbedrijf Willemstad – Intelligent Cleaning Services",
+        "meta_desc":        "Professioneel schoonmaakbedrijf in Willemstad, Curaçao. Huisreiniging, vakantiewoning & kantoorschoonmaak. Robotreiniging & milieuvriendelijke producten. Grondige reiniging, matras, bank & zwembad. Boek online op ics.cw!",
+        "meta_keywords":    "schoonmaakbedrijf Curaçao, schoonmaakbedrijf Willemstad, huisreiniging Curaçao, vakantiewoning schoonmaak Curaçao, Airbnb schoonmaak Curaçao, schoonmaakdiensten Curaçao, kantoorschoonmaak Willemstad, grondige reiniging Curaçao, matrasreiniging, bankreiniging, zwembadreiniging",
+        "og_title":         "ICS Curaçao | Schoonmaakbedrijf Willemstad – Intelligent Cleaning Services",
+        "og_desc":          "Professioneel schoonmaakbedrijf in Willemstad, Curaçao. Huisreiniging, vakantieverhuur & kantoorschoonmaak met robotreiniging. Boek online op ics.cw!",
+        "twitter_title":    "ICS Curaçao | Schoonmaakbedrijf Willemstad – Intelligent Cleaning Services",
+        "twitter_desc":     "Professioneel schoonmaakbedrijf in Willemstad, Curaçao. Huisreiniging, vakantieverhuur & kantoorschoonmaak met robotreiniging. Boek vandaag!",
         "html_lang":        "nl",
 
         # Navigation
