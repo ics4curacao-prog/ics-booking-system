@@ -2685,7 +2685,8 @@
                             <label>Service Category <span class="required">*</span></label>
                             <select id="cb_service_type" onchange="updateServiceOptions()">
                                 <option value="">— Select Category —</option>
-                                <option value="basic">🏠 Basic Cleaning</option>
+                                <option value="midstay">🏠 Midstay Cleaning</option>
+                                <option value="turnover">🔄 Turnover Cleaning</option>
                                 <option value="deep">🧹 Deep Cleaning</option>
                                 <option value="add-on">✨ Add-on Services Only</option>
                                 <option value="glass">🪟 Glass Wall Cleaning</option>
@@ -3209,12 +3210,14 @@
         // Human-readable label for service_type DB values
         function formatServiceType(raw) {
             const map = {
-                'basic':       '🏠 Basic Cleaning',
+                'midstay':     '🏠 Midstay Cleaning',
+                'turnover':    '🔄 Turnover Cleaning',
                 'deep':        '🧹 Deep Cleaning',
                 'add-on':      '✨ Add-on Services',
                 'glass':       '🪟 Glass Wall Cleaning',
                 'office':      '🏢 Office Cleaning',
                 'residential': '🏠 Residential Cleaning',
+                'basic':       '🏠 Basic Cleaning',
             };
             if (!raw) return 'Cleaning';
             return map[raw.toLowerCase()] || (raw.charAt(0).toUpperCase() + raw.slice(1));
@@ -3923,12 +3926,27 @@
                 return;
             }
 
-            if (category === 'basic') {
-                const base = cbPrice('Basic Cleaning', 125);
+            if (category === 'midstay') {
+                const base = cbPrice('Midstay Cleaning', 100);
                 panel.innerHTML = `
                     <div class="cb-svc-main">
                         <div class="cb-svc-main-header">
-                            <span class="cb-svc-main-title">🏠 Basic Cleaning</span>
+                            <span class="cb-svc-main-title">🏠 Midstay Cleaning</span>
+                            <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
+                        </div>
+                        <p style="font-size:0.78rem;color:#6b7a8d;margin:6px 0 0;font-style:italic;">Flat rate — standard property: 135 m², 3 bedrooms, 2 bathrooms.</p>
+                        <input type="hidden" id="cb_base_price" value="${base}">
+                    </div>
+                    ${renderResidentialAddons()}`;
+                addAddonListeners();
+                updateMainPrice();
+
+            } else if (category === 'turnover') {
+                const base = cbPrice('Turnover Cleaning', 175);
+                panel.innerHTML = `
+                    <div class="cb-svc-main">
+                        <div class="cb-svc-main-header">
+                            <span class="cb-svc-main-title">🔄 Turnover Cleaning</span>
                             <span class="cb-svc-main-price" id="cb_main_price">${base.toFixed(2)} XCG</span>
                         </div>
                         <p style="font-size:0.78rem;color:#6b7a8d;margin:6px 0 0;font-style:italic;">Flat rate — standard property: 135 m², 3 bedrooms, 2 bathrooms.</p>
@@ -3939,7 +3957,7 @@
                 updateMainPrice();
 
             } else if (category === 'deep') {
-                const base = cbPrice('Deep Cleaning', 200);
+                const base = cbPrice('Deep Cleaning', 225);
                 panel.innerHTML = `
                     <div class="cb-svc-main">
                         <div class="cb-svc-main-header">
@@ -4189,7 +4207,7 @@
                 const sqmEl = document.getElementById('cb_office_sqm');
                 if (sqmEl) extra = (parseFloat(sqmEl.value) || 0) * (parseFloat(sqmEl.dataset.price) || 0);
             }
-            // basic/deep are flat rates — no extra calculation needed
+            // midstay/turnover/deep are flat rates — no extra calculation needed
 
             priceEl.textContent = (base + extra).toFixed(2) + ' XCG';
             updatePriceSummary();
@@ -4203,9 +4221,9 @@
             const rows = [];
             if (!category) return rows;
 
-            if (category === 'basic' || category === 'deep') {
+            if (category === 'midstay' || category === 'turnover' || category === 'deep') {
                 const base  = parseFloat(document.getElementById('cb_base_price')?.value) || 0;
-                const label = category === 'basic' ? 'Basic Cleaning' : 'Deep Cleaning';
+                const label = category === 'midstay' ? 'Midstay Cleaning' : category === 'turnover' ? 'Turnover Cleaning' : 'Deep Cleaning';
                 rows.push({ name: label, price: base });
                 // Residential add-ons
                 ['sofa','mattress','electro','pool'].forEach(key => {
@@ -4623,7 +4641,7 @@
                 return;
             }
 
-            if (category === 'basic' || category === 'deep') {
+            if (category === 'midstay' || category === 'turnover' || category === 'basic' || category === 'deep') {
                 // Flat rate — no bedroom/bathroom fields to restore
                 updateMainPrice();
             }
