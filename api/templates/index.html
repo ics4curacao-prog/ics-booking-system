@@ -1189,6 +1189,78 @@
         }
 
         /* Contact Section */
+        /* FAQ Section */
+        .faq-section {
+            padding: 80px 40px;
+            background: #f8f9fa;
+        }
+        .faq-container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+        .faq-category {
+            margin-bottom: 48px;
+        }
+        .faq-category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            color: #1FAFB8;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #1FAFB8;
+        }
+        .faq-item {
+            border-bottom: 1px solid #dde3e9;
+        }
+        .faq-question {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 18px 0;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2D3E50;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transition: color 0.2s;
+        }
+        .faq-question:hover {
+            color: #1FAFB8;
+        }
+        .faq-icon {
+            font-size: 1.4rem;
+            font-weight: 300;
+            color: #1FAFB8;
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+        .faq-item.open .faq-icon {
+            transform: rotate(45deg);
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.25s ease;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 600px;
+            padding-bottom: 16px;
+        }
+        .faq-answer p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.7;
+            margin: 0;
+        }
+
         .contact-section {
             padding: 7rem 4rem;
             background: var(--white);
@@ -1558,6 +1630,7 @@
             .about-section,
             .services-section,
             .news-section,
+            .faq-section,
             .contact-section,
             .booking-section {
                 padding: 5rem 2rem;
@@ -1714,6 +1787,7 @@
             .about-section,
             .services-section,
             .news-section,
+            .faq-section,
             .contact-section,
             .booking-section {
                 padding: 3rem 1rem;
@@ -3515,7 +3589,104 @@
     </section>
 
     <!-- Contact Section -->
-    <section class="contact-section" id="contact">
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+        <div class="section-header">
+            <h2>{{ t.faq_title }}</h2>
+            <p>{{ t.faq_subtitle }}</p>
+        </div>
+        <div class="faq-container">
+
+            <div class="faq-category">
+                <h3 class="faq-category-title">{{ t.faq_cat1 }}</h3>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q1 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a1 }}</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q2 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a2 }}</p></div>
+                </div>
+            </div>
+
+            <div class="faq-category">
+                <h3 class="faq-category-title">{{ t.faq_cat2 }}</h3>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q3 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a3 }}</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q4 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a4 }}</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q5 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a5 }}</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q6 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a6 }}</p></div>
+                </div>
+            </div>
+
+            <div class="faq-category">
+                <h3 class="faq-category-title">{{ t.faq_cat3 }}</h3>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q7 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a7 }}</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q8 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a8 }}</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q9 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a9 }}</p></div>
+                </div>
+            </div>
+
+            <div class="faq-category">
+                <h3 class="faq-category-title">{{ t.faq_cat4 }}</h3>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        {{ t.faq_q10 }}
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer"><p>{{ t.faq_a10 }}</p></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Contact Section -->
         <div class="contact-container">
             <div class="contact-info">
                 <h2>{{ t.contact_title }}</h2>
@@ -3783,6 +3954,14 @@
         // CONTACT FORM SUBMISSION
         // ==========================================
         
+        function toggleFaq(btn) {
+            const item = btn.closest('.faq-item');
+            const isOpen = item.classList.contains('open');
+            // Close all open items
+            document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        }
+
         async function submitContactForm(event) {
             event.preventDefault();
             
