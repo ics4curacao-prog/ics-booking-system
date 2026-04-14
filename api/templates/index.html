@@ -3222,25 +3222,25 @@
                             <div class="service-type-selector">
                                 <div class="service-type-btn" data-type="residential">
                                     <div class="type-icon">🏡</div>
-                                    <div class="type-name">Residential</div>
+                                    <div class="type-name">{{ t.form_residential }}</div>
                                 </div>
                                 <div class="service-type-btn" data-type="office">
                                     <div class="type-icon">🏢</div>
-                                    <div class="type-name">Office</div>
+                                    <div class="type-name">{{ t.form_office }}</div>
                                 </div>
                             </div>
                             <input type="hidden" id="selected-service-type" required>
 
                             <!-- Residential Services -->
                             <div class="service-details" id="residential-services">
-                                <h5 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1.5rem; font-weight: 600;">Residential Cleaning Options</h5>
+                                <h5 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1.5rem; font-weight: 600;">{{ t.form_residential_options }}</h5>
                                 
                                 <!-- Midstay Cleaning -->
                                 <div class="service-option">
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
                                             <input type="checkbox" name="cleaning-tier" id="midstay-cleaning" data-price="100">
-                                            <span class="service-option-name">Midstay Cleaning</span>
+                                            <span class="service-option-name">{{ t.form_midstay_cleaning }}</span>
                                         </label>
                                         <span class="service-option-price">100 XCG</span>
                                     </div>
@@ -3251,7 +3251,7 @@
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
                                             <input type="checkbox" name="cleaning-tier" id="turnover-cleaning" data-price="175">
-                                            <span class="service-option-name">Turnover Cleaning</span>
+                                            <span class="service-option-name">{{ t.form_turnover_cleaning }}</span>
                                         </label>
                                         <span class="service-option-price">175 XCG</span>
                                     </div>
@@ -3262,7 +3262,7 @@
                                     <div class="service-option-header">
                                         <label class="option-checkbox">
                                             <input type="checkbox" name="cleaning-tier" id="deep-cleaning" data-price="225">
-                                            <span class="service-option-name">Deep Cleaning</span>
+                                            <span class="service-option-name">{{ t.form_deep_cleaning }}</span>
                                         </label>
                                         <span class="service-option-price">225 XCG</span>
                                     </div>
@@ -3275,20 +3275,20 @@
 
                                 <!-- Residential Extra Services -->
                                 <div class="extra-services-section">
-                                    <h5 class="extra-services-title">Additional Services</h5>
+                                    <h5 class="extra-services-title">{{ t.form_additional_services }}</h5>
                                     
                                     <!-- Sofa/Couch Cleaning -->
                                     <div class="service-option">
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
                                                 <input type="checkbox" id="res-sofa-cleaning" data-price="75">
-                                                <span class="service-option-name">Sofa/Couch Cleaning</span>
+                                                <span class="service-option-name">{{ t.form_sofa_cleaning }}</span>
                                             </label>
                                             <span class="service-option-price">40 XCG each</span>
                                         </div>
                                         <div class="quantity-selector" id="res-sofa-cleaning-qty">
                                             <div>
-                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Sofas/Couches</label>
+                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_num_sofas }}</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('res-sofas')">-</button>
                                                     <input type="number" id="res-sofas" class="quantity-input" min="1" value="1" data-price="75" readonly>
@@ -3303,13 +3303,13 @@
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
                                                 <input type="checkbox" id="mattress-cleaning" data-price="75">
-                                                <span class="service-option-name">Mattress Cleaning</span>
+                                                <span class="service-option-name">{{ t.form_mattress_cleaning }}</span>
                                             </label>
                                             <span class="service-option-price">75 XCG each</span>
                                         </div>
                                         <div class="quantity-selector" id="mattress-cleaning-qty">
                                             <div>
-                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Mattresses</label>
+                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_num_mattresses }}</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('mattresses')">-</button>
                                                     <input type="number" id="mattresses" class="quantity-input" min="1" value="1" data-price="75" readonly>
@@ -3324,13 +3324,13 @@
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
                                                 <input type="checkbox" id="res-electrostatic" data-price="30">
-                                                <span class="service-option-name">Electrostatic Cleaning</span>
+                                                <span class="service-option-name">{{ t.form_electrostatic_cleaning }}</span>
                                             </label>
                                             <span class="service-option-price">30 XCG per room</span>
                                         </div>
                                         <div class="quantity-selector" id="res-electrostatic-qty">
                                             <div>
-                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Rooms</label>
+                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_num_rooms }}</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('res-rooms')">-</button>
                                                     <input type="number" id="res-rooms" class="quantity-input" min="1" value="1" data-price="30" readonly>
@@ -3345,13 +3345,13 @@
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
                                                 <input type="checkbox" id="pool-cleaning" data-price="50">
-                                                <span class="service-option-name">Pool Cleaning</span>
+                                                <span class="service-option-name">{{ t.form_pool_cleaning }}</span>
                                             </label>
                                             <span class="service-option-price">50 XCG each</span>
                                         </div>
                                         <div class="quantity-selector" id="pool-cleaning-qty">
                                             <div>
-                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Pools</label>
+                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_num_pools }}</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('pools')">-</button>
                                                     <input type="number" id="pools" class="quantity-input" min="1" value="1" data-price="50" readonly>
@@ -3379,7 +3379,7 @@
 
                             <!-- Office Services -->
                             <div class="service-details" id="office-services">
-                                <h5 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1.5rem; font-weight: 600;">Office Cleaning Options</h5>
+                                <h5 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1.5rem; font-weight: 600;">{{ t.form_office_options }}</h5>
                                 
                                 <!-- Office Cleaning -->
                                 <div class="service-option">
@@ -3404,20 +3404,20 @@
 
                                 <!-- Office Extra Services -->
                                 <div class="extra-services-section">
-                                    <h5 class="extra-services-title">Additional Services</h5>
+                                    <h5 class="extra-services-title">{{ t.form_additional_services }}</h5>
                                     
                                     <!-- Office Sofa Cleaning -->
                                     <div class="service-option">
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
                                                 <input type="checkbox" id="office-sofa-cleaning" data-price="40">
-                                                <span class="service-option-name">Sofa/Couch Cleaning</span>
+                                                <span class="service-option-name">{{ t.form_sofa_cleaning }}</span>
                                             </label>
                                             <span class="service-option-price">40 XCG each</span>
                                         </div>
                                         <div class="quantity-selector" id="office-sofa-cleaning-qty">
                                             <div>
-                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Sofas/Couches</label>
+                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_num_sofas }}</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('office-sofas')">-</button>
                                                     <input type="number" id="office-sofas" class="quantity-input" min="1" value="1" data-price="40" readonly>
@@ -3432,13 +3432,13 @@
                                         <div class="service-option-header">
                                             <label class="option-checkbox">
                                                 <input type="checkbox" id="office-electrostatic" data-price="30">
-                                                <span class="service-option-name">Electrostatic Cleaning</span>
+                                                <span class="service-option-name">{{ t.form_electrostatic_cleaning }}</span>
                                             </label>
                                             <span class="service-option-price">30 XCG per room</span>
                                         </div>
                                         <div class="quantity-selector" id="office-electrostatic-qty">
                                             <div>
-                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Number of Rooms</label>
+                                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ t.form_num_rooms }}</label>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="quantity-btn" onclick="decrementQty('office-rooms')">-</button>
                                                     <input type="number" id="office-rooms" class="quantity-input" min="1" value="1" data-price="30" readonly>
