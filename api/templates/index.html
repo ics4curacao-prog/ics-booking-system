@@ -3540,14 +3540,16 @@
             <h2>{{ t.news_title }}</h2>
             <p>{{ t.news_subtitle }}</p>
         </div>
-        <div class="news-announcement">
-            <div class="news-announcement-image" style="background-image: url('/images/news_4.jpg');"></div>
-            <div class="news-announcement-content">
+        <div class="news-announcement" style="display: flex; flex-wrap: wrap; align-items: stretch;">
+            <div style="flex: 1 1 280px; background: #f7f9fa; display: flex; align-items: center; justify-content: center; padding: 1.5rem; min-height: 300px;">
+                <img src="/images/news_4.jpg" alt="ICS uniforms have arrived" style="width: 100%; height: auto; max-height: 520px; object-fit: contain; display: block;">
+            </div>
+            <div class="news-announcement-content" style="flex: 1.3 1 320px; text-align: left; padding: 2.5rem 2.75rem;">
                 <div class="news-announcement-badge">{{ t.news4_badge }}</div>
                 <h3>{{ t.news4_headline }}</h3>
-                <div class="news-announcement-divider"></div>
-                <p class="news-announcement-text">{{ t.news4_text | safe }}</p>
-                <p class="news-announcement-cta">{{ t.news4_cta }}</p>
+                <div class="news-announcement-divider" style="margin-left: 0; margin-right: 0;"></div>
+                <p class="news-announcement-text" style="max-width: none; margin-left: 0; margin-right: 0; text-align: left;">{{ t.news4_text | safe }}</p>
+                <p class="news-announcement-cta" style="margin-bottom: 0; text-align: left;">{{ t.news4_cta }}</p>
             </div>
         </div>
         <div class="news-announcement">
