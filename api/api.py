@@ -888,7 +888,7 @@ def generate_invoice_pdf(booking):
     elements.append(Paragraph("Vredenberg Resort Kavel 4 z/n, Willemstad Curaçao", footer_style))
     elements.append(Paragraph("Phone: +599 968 402 98 | Email: info@ics.cw | Web: ics.cw", footer_style))
     elements.append(Spacer(1, 4))
-    elements.append(Paragraph("Chamber of Commerce: 173068 | MCB Account: 34.298.801", footer_small))
+    elements.append(Paragraph("Chamber of Commerce: 173068 | Crib Number: 102767051 | MCB Account: 36.879.307", footer_small))
     elements.append(Spacer(1, 6))
     elements.append(Paragraph("Thank you for choosing ICS!", footer_style))
 
@@ -1143,7 +1143,7 @@ def generate_invoice_html_for_email(booking):
                 <p style="margin: 3px 0;"><strong>Intelligent Cleaning Services</strong></p>
                 <p style="margin: 3px 0;">Vredenberg Resort Kavel 4 z/n, Willemstad Curaçao</p>
                 <p style="margin: 3px 0;">Phone: +599 968 402 98 | Email: info@ics.cw | Web: ics.cw</p>
-                <p style="margin: 8px 0 3px 0; font-size: 8pt;">Chamber of Commerce: 173068 | MCB Account: 34.298.801</p>
+                <p style="margin: 8px 0 3px 0; font-size: 8pt;">Chamber of Commerce: 173068 | Crib Number: 102767051 | MCB Account: 36.879.307</p>
                 <p style="margin: 8px 0 3px 0;">Thank you for choosing ICS!</p>
             </div>
             
@@ -1223,7 +1223,7 @@ Total: {grand_total:.2f} XCG
 Intelligent Cleaning Services
 Vredenberg Resort Kavel 4 z/n, Willemstad Curaçao
 Phone: +599 968 402 98 | Email: info@ics.cw | Web: ics.cw
-Chamber of Commerce: 173068 | MCB Account: 34.298.801
+Chamber of Commerce: 173068 | Crib Number: 102767051 | MCB Account: 36.879.307
 
 Thank you for choosing ICS!
 
