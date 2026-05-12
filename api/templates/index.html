@@ -918,11 +918,17 @@
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 5rem;
+            grid-template-areas:
+                "image content"
+                "image cta";
+            grid-template-rows: 1fr auto;
+            column-gap: 5rem;
+            row-gap: 1.5rem;
             align-items: center;
         }
 
         .about-image {
+            grid-area: image;
             position: relative;
             height: 550px;
             border-radius: 30px;
@@ -970,6 +976,17 @@
             line-height: 1.9;
             font-size: 1.1rem;
             margin-bottom: 1.5rem;
+        }
+
+        .about-content {
+            grid-area: content;
+            align-self: end;
+        }
+
+        .about-cta {
+            grid-area: cta;
+            justify-self: start;
+            align-self: start;
         }
 
         /* Services Section */
@@ -1748,11 +1765,20 @@
             /* About Section */
             .about-container {
                 grid-template-columns: 1fr;
+                grid-template-areas:
+                    "content"
+                    "image"
+                    "cta";
                 gap: 2rem;
             }
 
             .about-image {
-                height: 350px;
+                height: auto;
+            }
+
+            .about-image img {
+                height: auto;
+                display: block;
             }
 
             .about-image::before {
@@ -1761,6 +1787,11 @@
 
             .about-content h2 {
                 font-size: 2.2rem;
+            }
+
+            .about-cta {
+                justify-self: stretch;
+                text-align: center;
             }
 
             /* Contact Section */
@@ -3545,8 +3576,8 @@
                 <p>{{ t.about_p2 }}</p>
                 <p>{{ t.about_p3 }}</p>
                 <p>{{ t.about_p4 }}</p>
-                <a href="https://wa.me/59996840298" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-top: 1rem;">{{ t.about_btn }}</a>
             </div>
+            <a href="https://wa.me/59996840298" target="_blank" rel="noopener noreferrer" class="btn btn-primary about-cta">{{ t.about_btn }}</a>
         </div>
     </section>
 
