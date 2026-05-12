@@ -56,16 +56,22 @@
     <meta name="theme-color" content="#2D4A52">
     <meta name="format-detection" content="telephone=yes">
     
-    <!-- Structured Data - Local Business Schema -->
+    <!-- Structured Data: LocalBusiness / CleaningService -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "Intelligent Cleaning Services (ICS)",
-        "description": "Professional cleaning services in Curaçao for vacation rentals, homes and offices. Eco-friendly products and intelligent cleaning robots.",
+        "@type": ["LocalBusiness", "CleaningService"],
+        "@id": "https://ics.cw/#organization",
+        "name": "Intelligent Cleaning Services",
+        "alternateName": "ICS Curaçao",
+        "legalName": "Intelligent Cleaning Services",
+        "description": "Cleaning services Curaçao — professional cleaning for vacation rentals, homes and offices. The only cleaning company in Curaçao combining trained staff with intelligent cleaning robots. Trilingual service in English, Dutch and Spanish.",
         "url": "https://ics.cw",
-        "telephone": "+599-968-402-98",
+        "logo": "https://ics.cw/images/ics-logo.png",
+        "image": "https://ics.cw/images/ics-og-image.jpg",
+        "telephone": "+59996840298",
         "email": "info@ics.cw",
+        "slogan": "Smart cleaning. Sparkling results.",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "Vredenberg Resort Kavel 4 z/n",
@@ -77,48 +83,115 @@
             "latitude": 12.1696,
             "longitude": -68.9900
         },
-        "openingHoursSpecification": [
-            {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                "opens": "08:00",
-                "closes": "18:00"
-            }
-        ],
+        "openingHoursSpecification": [{
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "08:00",
+            "closes": "18:00"
+        }],
         "priceRange": "$$",
-        "image": "https://ics.cw/images/ics-logo.png",
-        "areaServed": {
-            "@type": "Place",
-            "name": "Curaçao"
+        "currenciesAccepted": "XCG",
+        "paymentAccepted": ["Cash", "Bank Transfer"],
+        "knowsLanguage": ["en", "nl", "es", "pap"],
+        "identifier": [
+            {"@type": "PropertyValue", "propertyID": "KvK", "value": "173068"},
+            {"@type": "PropertyValue", "propertyID": "Crib", "value": "102767051"}
+        ],
+        "sameAs": [
+            "https://www.facebook.com/IntelligentCleaningServices/",
+            "https://www.instagram.com/ics.curacao"
+        ],
+        "areaServed": [
+            {"@type": "AdministrativeArea", "name": "Curaçao"},
+            {"@type": "City", "name": "Willemstad"},
+            {"@type": "Place", "name": "Jan Thiel"},
+            {"@type": "Place", "name": "Pietermaai"},
+            {"@type": "Place", "name": "Punda"},
+            {"@type": "Place", "name": "Otrobanda"},
+            {"@type": "Place", "name": "Piscadera"},
+            {"@type": "Place", "name": "Westpunt"},
+            {"@type": "Place", "name": "Santa Rosa"}
+        ],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "ICS Cleaning Services Curaçao",
+            "itemListElement": [
+                {"@type": "Offer", "priceCurrency": "XCG", "price": "100", "itemOffered": {"@type": "Service", "name": "Midstay Cleaning"}},
+                {"@type": "Offer", "priceCurrency": "XCG", "price": "175", "itemOffered": {"@type": "Service", "name": "Turnover Cleaning"}},
+                {"@type": "Offer", "priceCurrency": "XCG", "price": "245", "itemOffered": {"@type": "Service", "name": "Deep Cleaning"}},
+                {"@type": "Offer", "priceCurrency": "XCG", "price": "75", "itemOffered": {"@type": "Service", "name": "Sofa & Couch Cleaning"}},
+                {"@type": "Offer", "priceCurrency": "XCG", "price": "75", "itemOffered": {"@type": "Service", "name": "Mattress Cleaning"}},
+                {"@type": "Offer", "priceCurrency": "XCG", "price": "1.75", "itemOffered": {"@type": "Service", "name": "Office Cleaning (per m²)"}}
+            ]
         },
         "serviceType": [
-            "Midstay Cleaning",
+            "Vacation Rental Cleaning",
             "Turnover Cleaning",
-            "Office Cleaning",
+            "Midstay Cleaning",
             "Deep Cleaning",
+            "Office Cleaning",
             "Pool Cleaning",
             "Mattress Cleaning",
             "Sofa Cleaning",
-            "Electrostatic Cleaning"
+            "Electrostatic Cleaning",
+            "Glass Wall Cleaning",
+            "Robotic Floor Cleaning",
+            "Robotic Window Cleaning"
         ]
     }
     </script>
-    
-    <!-- Service Schema Markup -->
+
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://ics.cw/#website",
+        "url": "https://ics.cw",
+        "name": "ICS - Intelligent Cleaning Services",
+        "description": "Cleaning services Curaçao — professional cleaning for vacation rentals, homes and offices.",
+        "inLanguage": ["en", "nl", "es"],
+        "publisher": {"@id": "https://ics.cw/#organization"}
+    }
+    </script>
+
+    <!-- Structured Data: ItemList of Services -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "ItemList",
         "name": "ICS Cleaning Services Curaçao",
         "itemListElement": [
-            {"@type": "Service", "position": 1, "name": "Midstay Cleaning Curaçao", "description": "Mid-stay refresh cleaning for vacation rentals in Curaçao. Linen change, bathroom & kitchen reset.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 2, "name": "Turnover Cleaning Curaçao", "description": "Fast, reliable vacation rental turnover cleaning in Curaçao. Full reset for the next guest.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 3, "name": "Deep Cleaning Curaçao", "description": "Thorough deep cleaning restoring property to like-new condition in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 4, "name": "Office Cleaning Curaçao", "description": "Commercial and office cleaning services in Willemstad, Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 5, "name": "Mattress Cleaning Curaçao", "description": "Professional mattress cleaning and sanitization in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 6, "name": "Sofa & Couch Cleaning Curaçao", "description": "Expert sofa and couch cleaning in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 7, "name": "Pool Cleaning Curaçao", "description": "Professional pool cleaning and maintenance in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"},
-            {"@type": "Service", "position": 8, "name": "Electrostatic Cleaning Curaçao", "description": "Advanced electrostatic disinfection services in Curaçao.", "areaServed": "Curaçao", "url": "https://ics.cw/#services"}
+            {"@type": "Service", "position": 1, "name": "Midstay Cleaning Curaçao", "description": "Mid-stay refresh cleaning for vacation rentals in Curaçao. Linen change, bathroom & kitchen reset.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services", "offers": {"@type": "Offer", "priceCurrency": "XCG", "price": "100"}},
+            {"@type": "Service", "position": 2, "name": "Turnover Cleaning Curaçao", "description": "Fast, reliable vacation rental turnover cleaning in Curaçao. Full reset for the next guest.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services", "offers": {"@type": "Offer", "priceCurrency": "XCG", "price": "175"}},
+            {"@type": "Service", "position": 3, "name": "Deep Cleaning Curaçao", "description": "Thorough deep cleaning restoring property to like-new condition in Curaçao.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services", "offers": {"@type": "Offer", "priceCurrency": "XCG", "price": "245"}},
+            {"@type": "Service", "position": 4, "name": "Office Cleaning Curaçao", "description": "Commercial and office cleaning services in Willemstad, Curaçao. Priced per m².", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services", "offers": {"@type": "Offer", "priceCurrency": "XCG", "price": "1.75"}},
+            {"@type": "Service", "position": 5, "name": "Mattress Cleaning Curaçao", "description": "Professional mattress cleaning and sanitization in Curaçao.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services", "offers": {"@type": "Offer", "priceCurrency": "XCG", "price": "75"}},
+            {"@type": "Service", "position": 6, "name": "Sofa & Couch Cleaning Curaçao", "description": "Expert sofa and couch cleaning in Curaçao.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services", "offers": {"@type": "Offer", "priceCurrency": "XCG", "price": "75"}},
+            {"@type": "Service", "position": 7, "name": "Pool Cleaning Curaçao", "description": "Professional pool cleaning and maintenance in Curaçao.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services"},
+            {"@type": "Service", "position": 8, "name": "Electrostatic Cleaning Curaçao", "description": "Advanced electrostatic disinfection services in Curaçao.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services"},
+            {"@type": "Service", "position": 9, "name": "Glass Wall Cleaning Curaçao", "description": "Professional glass wall and facade cleaning in Curaçao.", "areaServed": "Curaçao", "provider": {"@id": "https://ics.cw/#organization"}, "url": "https://ics.cw/#services"}
+        ]
+    }
+    </script>
+
+    <!-- Structured Data: FAQPage (eligible for Google rich results) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "inLanguage": "{{ lang }}",
+        "mainEntity": [
+            {"@type": "Question", "name": {{ t.faq_q1|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a1|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q2|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a2|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q3|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a3|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q4|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a4|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q5|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a5|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q6|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a6|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q7|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a7|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q8|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a8|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q9|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a9|tojson }}}},
+            {"@type": "Question", "name": {{ t.faq_q10|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ t.faq_a10|tojson }}}}
         ]
     }
     </script>
@@ -2858,7 +2931,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">
-            <img loading="lazy" src="/images/image_1.jpg" alt="Intelligent Cleaning Services">
+            <img loading="lazy" src="/images/image_1.jpg" alt="Intelligent Cleaning Services Curaçao logo">
         </div>
         <ul class="nav-links">
             <li><a href="#home">{{ t.nav_home }}</a></li>
@@ -2964,7 +3037,7 @@
                 </div>
             </div>
             <div class="hero-image">
-                <img loading="lazy" src="/images/image_0.jpg" alt="Professional Cleaning Team">
+                <img loading="lazy" src="/images/image_0.jpg" alt="Professional cleaning team servicing a vacation rental in Willemstad, Curaçao">
             </div>
         </div>
     </section>
@@ -3567,7 +3640,7 @@
     <section class="about-section" id="about">
         <div class="about-container">
             <div class="about-image">
-                <img loading="lazy" src="/images/about_image.jpg" alt="About Us">
+                <img loading="lazy" src="/images/about_image.jpg" alt="ICS cleaning team with robotic equipment in Curaçao">
             </div>
             <div class="about-content">
                 <div class="subtitle">{{ t.about_subtitle }}</div>
