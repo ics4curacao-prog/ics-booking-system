@@ -19,15 +19,22 @@ the register() entry point — it does NOT duplicate auth or DB helpers.
 import os
 import uuid
 from functools import wraps
+from io import BytesIO
 
 from flask import request, jsonify, send_from_directory
+from PIL import Image, ImageOps
 
 
 # ============================================================
 # Configuration
 # ============================================================
-ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
-MAX_IMAGE_SIZE     = 5 * 1024 * 1024   # 5 MB
+ALLOWED_EXTENSIONS  = {"jpg", "jpeg", "png", "webp"}
+MAX_IMAGE_SIZE      = 5 * 1024 * 1024            # 5 MB upload cap
+MAX_DIMENSIONS = {
+    "properties": (1920, 1920),                  # property photos: high-res for portfolio use
+    "contacts":   (600, 600),                    # contact headshots: small
+}
+JPEG_QUALITY = 85
 
 # Injected by register()
 _get_db          = None
@@ -212,7 +219,19 @@ def _allowed(filename):
 
 
 def _save_image(file_storage, subfolder, owner_id):
-    """Save uploaded file; returns (relative_path, None) or (None, error)."""
+    """Save uploaded image to disk.
+
+    Pipeline:
+      1. Validate extension and file size.
+      2. Open with Pillow.
+      3. Apply EXIF orientation (so rotated phone photos display correctly).
+      4. Resize to MAX_DIMENSIONS[subfolder], preserving aspect ratio.
+      5. Convert to RGB if needed (drops alpha for JPEG output).
+      6. Save WITHOUT EXIF metadata (strips GPS, camera info, etc.).
+      7. Output format: JPEG always (smaller, universal), regardless of source.
+
+    Returns (relative_path, None) or (None, error_message).
+    """
     if not file_storage or not file_storage.filename:
         return None, "No file provided"
     if not _allowed(file_storage.filename):
@@ -224,12 +243,35 @@ def _save_image(file_storage, subfolder, owner_id):
     if size > MAX_IMAGE_SIZE:
         return None, f"File too large. Max size: {MAX_IMAGE_SIZE // (1024 * 1024)} MB"
 
-    ext = file_storage.filename.rsplit(".", 1)[1].lower()
-    unique_name = f"{uuid.uuid4().hex}.{ext}"
+    try:
+        img = Image.open(file_storage)
+        img.load()
+    except Exception:
+        return None, "Could not read image (file may be corrupt or not an image)"
+
+    try:
+        img = ImageOps.exif_transpose(img)
+    except Exception:
+        pass
+
+    max_dims = MAX_DIMENSIONS.get(subfolder, (1920, 1920))
+    img.thumbnail(max_dims, Image.Resampling.LANCZOS)
+
+    if img.mode in ("RGBA", "LA", "P"):
+        background = Image.new("RGB", img.size, (255, 255, 255))
+        if img.mode == "P":
+            img = img.convert("RGBA")
+        background.paste(img, mask=img.split()[-1] if img.mode in ("RGBA", "LA") else None)
+        img = background
+    elif img.mode != "RGB":
+        img = img.convert("RGB")
+
+    unique_name = f"{uuid.uuid4().hex}.jpg"
     target_dir  = os.path.join(_upload_folder, subfolder, str(owner_id))
     os.makedirs(target_dir, exist_ok=True)
     target_path = os.path.join(target_dir, unique_name)
-    file_storage.save(target_path)
+
+    img.save(target_path, format="JPEG", quality=JPEG_QUALITY, optimize=True)
 
     rel_path = os.path.relpath(target_path, _upload_folder)
     return rel_path.replace(os.sep, "/"), None
@@ -423,7 +465,9 @@ def register(app, get_db, token_required, admin_required,
                 (prop_id,),
             )
             imgs = [r["image_path"] for r in cursor.fetchall()]
-            cursor.execute("DELETE FROM properties WHERE id = ?", (prop_id,))  # cascades
+            cursor.execute("DELETE FROM property_pricing WHERE property_id = ?", (prop_id,))
+            cursor.execute("DELETE FROM property_images  WHERE property_id = ?", (prop_id,))
+            cursor.execute("DELETE FROM properties       WHERE id = ?", (prop_id,))
             conn.commit()
         finally:
             conn.close()
@@ -613,6 +657,221 @@ def register(app, get_db, token_required, admin_required,
         finally:
             conn.close()
         return jsonify({"success": True, "message": "Override removed"})
+
+    # ====================================================================
+    # CUSTOMERS  (admin-facing CRUD over users where role='customer')
+    # ====================================================================
+    def _customer_row_to_dict(row, property_count=0, pricing_overrides=0):
+        return {
+            "id":             row["id"],
+            "customer_name":  row["customer_name"] or f"{row['first_name'] or ''} {row['last_name'] or ''}".strip(),
+            "customer_type":  row["customer_type"] or "individual",
+            "first_name":     row["first_name"] or "",
+            "last_name":      row["last_name"] or "",
+            "email":          row["email"],
+            "phone":          row["phone"] or "",
+            "address":        row["address"] or "",
+            "photo_path":     row["photo_path"],
+            "created_at":     row["created_at"],
+            "property_count":    property_count,
+            "pricing_overrides": pricing_overrides,
+        }
+
+    @app.route("/api/customers", methods=["GET"])
+    @token_required
+    @admin_required
+    def list_customers(current_user):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.address,
+                       u.customer_name, u.customer_type, u.photo_path, u.created_at,
+                       (SELECT COUNT(*) FROM properties p WHERE p.user_id = u.id) AS prop_count,
+                       (SELECT COUNT(*) FROM property_pricing pp
+                          JOIN properties p ON p.id = pp.property_id
+                          WHERE p.user_id = u.id) AS override_count
+                FROM users u
+                WHERE u.role = 'customer'
+                ORDER BY COALESCE(u.customer_name, u.last_name, u.email) COLLATE NOCASE
+            """)
+            rows = cursor.fetchall()
+            return jsonify([
+                _customer_row_to_dict(r, r["prop_count"], r["override_count"])
+                for r in rows
+            ])
+        finally:
+            conn.close()
+
+    @app.route("/api/customers/<int:cust_id>", methods=["GET"])
+    @token_required
+    @admin_required
+    def get_customer(current_user, cust_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, phone, address,
+                       customer_name, customer_type, photo_path, created_at, role
+                FROM users WHERE id = ?
+            """, (cust_id,))
+            row = cursor.fetchone()
+            if not row or row["role"] != "customer":
+                return jsonify({"success": False, "message": "Customer not found"}), 404
+            return jsonify(_customer_row_to_dict(row))
+        finally:
+            conn.close()
+
+    @app.route("/api/customers", methods=["POST"])
+    @token_required
+    @admin_required
+    def create_customer(current_user):
+        import bcrypt
+        data = request.json or {}
+
+        email      = (data.get("email") or "").strip().lower()
+        first_name = (data.get("first_name") or "").strip()
+        last_name  = (data.get("last_name") or "").strip()
+        if not email or not first_name or not last_name:
+            return jsonify({"success": False,
+                            "message": "email, first_name, last_name are required"}), 400
+
+        customer_type = data.get("customer_type", "individual")
+        if customer_type not in ("company", "individual"):
+            return jsonify({"success": False,
+                            "message": "customer_type must be 'company' or 'individual'"}), 400
+
+        password = data.get("password") or uuid.uuid4().hex[:16]
+        hashed   = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+            if cursor.fetchone():
+                return jsonify({"success": False, "message": "Email already in use"}), 409
+
+            cursor.execute("""
+                INSERT INTO users
+                    (first_name, last_name, email, phone, address, password, role,
+                     customer_name, customer_type)
+                VALUES (?, ?, ?, ?, ?, ?, 'customer', ?, ?)
+            """, (
+                first_name, last_name, email,
+                data.get("phone", ""), data.get("address", ""),
+                hashed,
+                data.get("customer_name") or f"{first_name} {last_name}".strip(),
+                customer_type,
+            ))
+            new_id = cursor.lastrowid
+            conn.commit()
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, phone, address,
+                       customer_name, customer_type, photo_path, created_at
+                FROM users WHERE id = ?
+            """, (new_id,))
+            row = cursor.fetchone()
+        finally:
+            conn.close()
+
+        _logger.info(f"Customer #{new_id} created by admin user {_uid(current_user)}")
+        return jsonify(_customer_row_to_dict(row)), 201
+
+    @app.route("/api/customers/<int:cust_id>", methods=["PUT"])
+    @token_required
+    @admin_required
+    def update_customer(current_user, cust_id):
+        data = request.json or {}
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT id, role FROM users WHERE id = ?", (cust_id,))
+            row = cursor.fetchone()
+            if not row or row["role"] != "customer":
+                return jsonify({"success": False, "message": "Customer not found"}), 404
+
+            if "customer_type" in data and data["customer_type"] not in ("company", "individual"):
+                return jsonify({"success": False,
+                                "message": "customer_type must be 'company' or 'individual'"}), 400
+
+            cursor.execute("""
+                UPDATE users SET
+                    first_name    = COALESCE(?, first_name),
+                    last_name     = COALESCE(?, last_name),
+                    email         = COALESCE(?, email),
+                    phone         = COALESCE(?, phone),
+                    address       = COALESCE(?, address),
+                    customer_name = COALESCE(?, customer_name),
+                    customer_type = COALESCE(?, customer_type)
+                WHERE id = ?
+            """, (
+                data.get("first_name"),
+                data.get("last_name"),
+                (data.get("email") or "").strip().lower() or None,
+                data.get("phone"),
+                data.get("address"),
+                data.get("customer_name"),
+                data.get("customer_type"),
+                cust_id,
+            ))
+
+            new_password = data.get("password")
+            if new_password and len(new_password) >= 6:
+                import bcrypt
+                hashed = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+                cursor.execute("UPDATE users SET password = ? WHERE id = ?", (hashed, cust_id))
+
+            conn.commit()
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, phone, address,
+                       customer_name, customer_type, photo_path, created_at
+                FROM users WHERE id = ?
+            """, (cust_id,))
+            updated = cursor.fetchone()
+        finally:
+            conn.close()
+        return jsonify(_customer_row_to_dict(updated))
+
+    @app.route("/api/customers/<int:cust_id>", methods=["DELETE"])
+    @token_required
+    @admin_required
+    def delete_customer(current_user, cust_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT id, role, photo_path FROM users WHERE id = ?", (cust_id,))
+            row = cursor.fetchone()
+            if not row or row["role"] != "customer":
+                return jsonify({"success": False, "message": "Customer not found"}), 404
+
+            cursor.execute("""
+                SELECT image_path FROM property_images
+                WHERE property_id IN (SELECT id FROM properties WHERE user_id = ?)
+            """, (cust_id,))
+            image_paths = [r["image_path"] for r in cursor.fetchall()]
+            photo_path  = row["photo_path"]
+
+            cursor.execute("""
+                DELETE FROM property_pricing
+                WHERE property_id IN (SELECT id FROM properties WHERE user_id = ?)
+            """, (cust_id,))
+            cursor.execute("""
+                DELETE FROM property_images
+                WHERE property_id IN (SELECT id FROM properties WHERE user_id = ?)
+            """, (cust_id,))
+            cursor.execute("DELETE FROM properties WHERE user_id = ?", (cust_id,))
+            cursor.execute("DELETE FROM users WHERE id = ?", (cust_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
+        for p in image_paths:
+            _delete_file(p)
+        if photo_path:
+            _delete_file(photo_path)
+
+        _logger.info(f"Customer #{cust_id} deleted by admin user {_uid(current_user)}")
+        return jsonify({"success": True, "message": "Customer deleted"})
 
     # ====================================================================
     # STATIC FILE SERVING

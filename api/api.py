@@ -3121,6 +3121,11 @@ def serve_user_management_page():
     """Serve user management page"""
     return render_template('user_management.html')
 
+@app.route('/customers.html')
+def serve_customers_page():
+    """Serve customers admin page"""
+    return render_template('customers.html')
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files"""

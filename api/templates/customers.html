@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - ICS</title>
+    <script src="admin_config.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header h1 {
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+        }
+        .header-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: #1FAFB8; color: white; }
+        .btn-primary:hover { background: #188a92; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
+        .btn-ghost {
+            background: transparent;
+            color: #1FAFB8;
+            border: 1px solid #1FAFB8;
+        }
+        .btn-ghost:hover { background: #1FAFB8; color: white; }
+
+        .toolbar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .search-input:focus { outline: none; border-color: #1FAFB8; }
+        .stats {
+            display: flex;
+            gap: 20px;
+            color: #555;
+            font-size: 14px;
+        }
+        .stats strong { color: #1FAFB8; font-size: 16px; }
+
+        .customer-list { display: flex; flex-direction: column; gap: 12px; }
+        .customer-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .customer-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .customer-header:hover { background: #f8f9fa; }
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e3f2f4;
+            color: #188a92;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 14px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .customer-info { flex: 1; min-width: 0; }
+        .customer-name {
+            font-weight: 500;
+            font-size: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: #e3f2f4;
+            color: #0f6e72;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .badge-individual { background: #f0f0f0; color: #555; }
+        .badge-overrides { background: #fff3cd; color: #856404; }
+        .customer-meta {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        .chevron {
+            color: #999;
+            transition: transform 0.2s;
+            font-size: 20px;
+            user-select: none;
+        }
+        .customer-card.expanded .chevron { transform: rotate(180deg); }
+
+        .customer-body {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px solid #eee;
+        }
+        .customer-card.expanded .customer-body { display: block; }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            padding: 16px 0;
+        }
+        .detail-item .label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        .detail-item .value {
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+        .section-header h3 {
+            font-size: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .property-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        .property-card:hover { border-color: #1FAFB8; }
+        .property-card.selected {
+            border-color: #1FAFB8;
+            background: #f0fafa;
+            box-shadow: 0 0 0 1px #1FAFB8;
+        }
+        .property-thumb {
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 28px;
+            background-size: cover;
+            background-position: center;
+        }
+        .property-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .property-meta {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pricing-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .pricing-panel h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .pricing-table th {
+            text-align: left;
+            padding: 6px 8px;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .pricing-table th.num,
+        .pricing-table td.num { text-align: right; }
+        .pricing-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .price-input {
+            width: 80px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 13px;
+        }
+        .price-input.overridden {
+            border-color: #1FAFB8;
+            background: #f0fafa;
+        }
+        .price-input:focus { outline: none; border-color: #1FAFB8; }
+        .pricing-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .property-detail-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        .property-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .image-tile {
+            position: relative;
+            height: 90px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            background-color: #eee;
+        }
+        .image-tile .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-tile {
+            height: 90px;
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #999;
+            font-size: 24px;
+            transition: all 0.2s;
+        }
+        .upload-tile:hover {
+            border-color: #1FAFB8;
+            color: #1FAFB8;
+            background: #f0fafa;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+        }
+        .error {
+            background: #fee;
+            color: #c0392b;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal h2 {
+            font-size: 18px;
+            margin-bottom: 18px;
+            color: #333;
+        }
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1FAFB8;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+        .toast.show { opacity: 1; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #e74c3c; }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .header { padding: 15px; }
+            .header h1 { font-size: 18px; }
+            .header-buttons .btn { padding: 8px 12px; font-size: 12px; }
+            .form-row { grid-template-columns: 1fr; }
+            .modal { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👥 Customers</h1>
+        <div class="header-buttons">
+            <button class="btn btn-primary" onclick="openCustomerModal()">+ Add Customer</button>
+            <button class="btn btn-secondary" onclick="location.href='admin_bookings.html'">📅 Bookings</button>
+            <button class="btn btn-secondary" onclick="location.href='user_management.html'">⚙️ Admins</button>
+            <button class="btn btn-secondary" onclick="location.href='pricing_management.html'">💰 Pricing</button>
+            <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <input type="text" id="searchInput" class="search-input"
+               placeholder="Search by name, email, or address…"
+               oninput="filterCustomers()">
+        <div class="stats">
+            <span><strong id="custCount">0</strong> customers</span>
+            <span><strong id="propCount">0</strong> properties</span>
+            <span><strong id="overrideCount">0</strong> agreed rates</span>
+        </div>
+    </div>
+
+    <div id="customerList" class="customer-list">
+        <div class="loading">Loading customers…</div>
+    </div>
+
+    <div id="customerModal" class="modal-overlay" onclick="if(event.target===this)closeCustomerModal()">
+        <div class="modal">
+            <h2 id="customerModalTitle">Add Customer</h2>
+            <div id="customerModalError"></div>
+            <form id="customerForm" onsubmit="event.preventDefault();saveCustomer()">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="custType" required>
+                        <option value="company">Company</option>
+                        <option value="individual">Individual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Customer name <span style="color:#999;font-weight:400">(company name or individual full name)</span></label>
+                    <input type="text" id="custName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contact first name</label>
+                        <input type="text" id="custFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact last name</label>
+                        <input type="text" id="custLastName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="custEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" id="custPhone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Address <span style="color:#999;font-weight:400">(contact/office)</span></label>
+                    <input type="text" id="custAddress">
+                </div>
+                <div class="form-group">
+                    <label id="custPasswordLabel">Initial password <span style="color:#999;font-weight:400">(min 6 chars; leave blank to auto-generate)</span></label>
+                    <input type="text" id="custPassword">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCustomerModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="custSaveBtn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="propertyModal" class="modal-overlay" onclick="if(event.target===this)closePropertyModal()">
+        <div class="modal">
+            <h2 id="propertyModalTitle">Add Property</h2>
+            <div id="propertyModalError"></div>
+            <form id="propertyForm" onsubmit="event.preventDefault();saveProperty()">
+                <div class="form-group">
+                    <label>Label <span style="color:#999;font-weight:400">(nickname, e.g. "Beach Villa A")</span></label>
+                    <input type="text" id="propLabel">
+                </div>
+                <div class="form-group">
+                    <label>Street address</label>
+                    <input type="text" id="propStreet" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="propCity">
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" id="propCountry" value="Curaçao">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="propNotes" rows="2"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closePropertyModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="propDeleteBtn" onclick="deleteProperty()" style="display:none;margin-right:auto">Delete</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <input type="file" id="hiddenFileInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+
+    <script>
+        let customers = [];
+        let services = [];
+        let editingCustomerId = null;
+        let editingPropertyId = null;
+        let editingPropertyCustomerId = null;
+        let selectedPropertyByCustomer = {};
+        let pendingUploadContext = null;
+
+        function escape(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+
+        function checkAuth() {
+            const token = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            if (!token || !userData) {
+                window.location.href = 'admin_login.html';
+                return null;
+            }
+            try {
+                const user = JSON.parse(userData);
+                if (user.role !== 'admin') {
+                    window.location.href = 'admin_login.html';
+                    return null;
+                }
+                return token;
+            } catch (e) {
+                window.location.href = 'admin_login.html';
+                return null;
+            }
+        }
+
+        async function apiCall(path, options = {}) {
+            const token = checkAuth();
+            if (!token) throw new Error('Not authenticated');
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                ...(options.headers || {})
+            };
+            if (options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
+            }
+            const resp = await fetch(`${API_URL}${path}`, { ...options, headers });
+            if (resp.status === 401) {
+                logout();
+                throw new Error('Unauthorized');
+            }
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) {
+                const err = new Error(data.message || `Request failed (${resp.status})`);
+                err.status = resp.status;
+                throw err;
+            }
+            return data;
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'admin_login.html';
+        }
+
+        function toast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast show ${type}`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function loadAll() {
+            try {
+                [customers, services] = await Promise.all([
+                    apiCall('/api/customers'),
+                    apiCall('/api/pricing/public'),
+                ]);
+                renderCustomers();
+            } catch (e) {
+                document.getElementById('customerList').innerHTML =
+                    `<div class="error">Could not load customers: ${escape(e.message)}</div>`;
+            }
+        }
+
+        function renderCustomers() {
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = customers.filter(c => {
+                if (!q) return true;
+                return (c.customer_name + ' ' + c.first_name + ' ' + c.last_name + ' ' +
+                        c.email + ' ' + c.address).toLowerCase().includes(q);
+            });
+
+            document.getElementById('custCount').textContent = customers.length;
+            document.getElementById('propCount').textContent =
+                customers.reduce((s, c) => s + c.property_count, 0);
+            document.getElementById('overrideCount').textContent =
+                customers.reduce((s, c) => s + c.pricing_overrides, 0);
+
+            const list = document.getElementById('customerList');
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty">No customers yet. Click "Add Customer" to get started.</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(c => renderCustomerCard(c)).join('');
+        }
+
+        function renderCustomerCard(c) {
+            const initials = (c.first_name[0] || c.customer_name[0] || '?').toUpperCase() +
+                             (c.last_name[0] || '').toUpperCase();
+            const avatar = c.photo_path
+                ? `<img src="${API_URL}/uploads/${escape(c.photo_path)}" alt="">`
+                : escape(initials);
+            const typeBadge = c.customer_type === 'company'
+                ? '<span class="badge">company</span>'
+                : '<span class="badge badge-individual">individual</span>';
+            const overrideBadge = c.pricing_overrides > 0
+                ? `<span class="badge badge-overrides">${c.pricing_overrides} agreed rates</span>`
+                : '';
+            const propText = c.property_count === 1 ? '1 property' : `${c.property_count} properties`;
+            const contactName = `${c.first_name} ${c.last_name}`.trim() || c.email;
+
+            return `
+                <div class="customer-card" data-id="${c.id}">
+                    <div class="customer-header" onclick="toggleCustomer(${c.id})">
+                        <div class="avatar">${avatar}</div>
+                        <div class="customer-info">
+                            <div class="customer-name">${escape(c.customer_name)} ${typeBadge} ${overrideBadge}</div>
+                            <div class="customer-meta">${escape(contactName)} · ${escape(c.email)} · ${propText}</div>
+                        </div>
+                        <span class="chevron">⌄</span>
+                    </div>
+                    <div class="customer-body" id="custBody-${c.id}"></div>
+                </div>
+            `;
+        }
+
+        function toggleCustomer(id) {
+            const card = document.querySelector(`.customer-card[data-id="${id}"]`);
+            const wasExpanded = card.classList.contains('expanded');
+            card.classList.toggle('expanded');
+            if (!wasExpanded) loadCustomerDetails(id);
+        }
+
+        async function loadCustomerDetails(id) {
+            const body = document.getElementById(`custBody-${id}`);
+            body.innerHTML = '<div class="loading">Loading…</div>';
+            try {
+                const props = await apiCall(`/api/properties?user_id=${id}`);
+                renderCustomerBody(id, props);
+            } catch (e) {
+                body.innerHTML = `<div class="error">Could not load: ${escape(e.message)}</div>`;
+            }
+        }
+
+        function renderCustomerBody(id, properties) {
+            const c = customers.find(x => x.id === id);
+            const body = document.getElementById(`custBody-${id}`);
+            const selectedPropId = selectedPropertyByCustomer[id] || (properties[0] && properties[0].id);
+
+            body.innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Contact</div>
+                        <div class="value">${escape(c.first_name)} ${escape(c.last_name)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Email</div>
+                        <div class="value">${escape(c.email)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Phone</div>
+                        <div class="value">${escape(c.phone) || '—'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Address</div>
+                        <div class="value">${escape(c.address) || '—'}</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+                    <button class="btn btn-ghost btn-sm" onclick="openCustomerModal(${id})">Edit details</button>
+                    <button class="btn btn-ghost btn-sm" onclick="uploadContactPhoto(${id})">
+                        ${c.photo_path ? 'Replace' : 'Add'} photo
+                    </button>
+                    <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="deleteCustomer(${id})">
+                        Delete customer
+                    </button>
+                </div>
+
+                <div class="section-header">
+                    <h3>Properties (${properties.length})</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openPropertyModal(${id})">+ Add property</button>
+                </div>
+
+                ${properties.length === 0
+                    ? '<div class="empty" style="padding:20px">No properties yet.</div>'
+                    : `<div class="properties-grid">
+                        ${properties.map(p => renderPropertyCard(p, p.id === selectedPropId)).join('')}
+                      </div>`
+                }
+
+                ${selectedPropId
+                    ? renderPropertyDetailPanel(properties.find(p => p.id === selectedPropId), id)
+                    : ''
+                }
+            `;
+        }
+
+        function renderPropertyCard(p, isSelected) {
+            const thumb = (p.images && p.images.length)
+                ? `style="background-image:url('${API_URL}/uploads/${escape(p.images[0].image_path)}')"`
+                : '';
+            const thumbContent = (p.images && p.images.length) ? '' : '🏠';
+            const cityLine = [p.city, p.country].filter(Boolean).join(', ') || p.street_address;
+
+            return `
+                <div class="property-card ${isSelected ? 'selected' : ''}"
+                     onclick="selectProperty(${p.user_id}, ${p.id})">
+                    <div class="property-thumb" ${thumb}>${thumbContent}</div>
+                    <div class="property-label">${escape(p.label || p.street_address)}</div>
+                    <div class="property-meta">${escape(cityLine)}</div>
+                </div>
+            `;
+        }
+
+        function renderPropertyDetailPanel(p, customerId) {
+            return `
+                <div class="property-detail-panel">
+                    <div class="property-detail-header">
+                        <div>
+                            <div style="font-size:15px;font-weight:500">${escape(p.label || 'Property')}</div>
+                            <div style="font-size:13px;color:#6c757d">${escape(p.street_address)}${p.city ? ', ' + escape(p.city) : ''}</div>
+                            ${p.notes ? `<div style="font-size:12px;color:#888;margin-top:4px">${escape(p.notes)}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn btn-ghost btn-sm" onclick="openPropertyModal(${customerId}, ${p.id})">Edit</button>
+                        </div>
+                    </div>
+
+                    <div style="font-size:13px;color:#555;margin-top:8px;font-weight:500">Photos</div>
+                    <div class="image-gallery">
+                        ${(p.images || []).map(img => `
+                            <div class="image-tile" style="background-image:url('${API_URL}/uploads/${escape(img.image_path)}')">
+                                <button class="delete-btn" onclick="deletePropertyImage(${img.id}, ${customerId})" title="Delete">×</button>
+                            </div>
+                        `).join('')}
+                        <div class="upload-tile" onclick="uploadPropertyImage(${p.id}, ${customerId})">+</div>
+                    </div>
+
+                    <div class="pricing-panel" id="pricingPanel-${p.id}">
+                        <div class="loading">Loading pricing…</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function selectProperty(customerId, propertyId) {
+            selectedPropertyByCustomer[customerId] = propertyId;
+            const body = document.getElementById(`custBody-${customerId}`);
+            const props = await apiCall(`/api/properties?user_id=${customerId}`);
+            renderCustomerBody(customerId, props);
+            loadPricingForProperty(propertyId);
+        }
+
+        async function loadPricingForProperty(propertyId) {
+            try {
+                const prices = await apiCall(`/api/properties/${propertyId}/prices`);
+                renderPricingPanel(propertyId, prices);
+            } catch (e) {
+                const panel = document.getElementById(`pricingPanel-${propertyId}`);
+                if (panel) panel.innerHTML = `<div class="error">Could not load pricing: ${escape(e.message)}</div>`;
+            }
+        }
+
+        function renderPricingPanel(propertyId, prices) {
+            const panel = document.getElementById(`pricingPanel-${propertyId}`);
+            if (!panel) return;
+            panel.innerHTML = `
+                <h4>Agreed pricing for this property</h4>
+                <div style="font-size:12px;color:#6c757d;margin-bottom:10px">
+                    Leave a field blank to use the standard price. Filled fields override the standard.
+                </div>
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th class="num">Standard</th>
+                            <th class="num" style="width:110px">Agreed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${prices.map(p => `
+                            <tr>
+                                <td>${escape(p.service_name)} <span style="color:#999;font-size:11px">${escape(p.unit)}</span></td>
+                                <td class="num" style="color:#888">${p.base_price.toFixed(2)}</td>
+                                <td class="num">
+                                    <input type="number" step="0.01" min="0"
+                                           class="price-input ${p.agreed_price !== null ? 'overridden' : ''}"
+                                           data-service-id="${p.id}"
+                                           value="${p.agreed_price !== null ? p.agreed_price.toFixed(2) : ''}"
+                                           placeholder="—">
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="pricing-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="loadPricingForProperty(${propertyId})">Reset</button>
+                    <button class="btn btn-primary btn-sm" onclick="savePricing(${propertyId})">Save pricing</button>
+                </div>
+            `;
+        }
+
+        async function savePricing(propertyId) {
+            const inputs = document.querySelectorAll(`#pricingPanel-${propertyId} .price-input`);
+            const prices = [];
+            inputs.forEach(inp => {
+                const sid = parseInt(inp.dataset.serviceId);
+                const val = inp.value.trim();
+                prices.push({
+                    service_id: sid,
+                    agreed_price: val === '' ? null : parseFloat(val)
+                });
+            });
+            try {
+                await apiCall(`/api/properties/${propertyId}/prices`, {
+                    method: 'PUT',
+                    body: { prices }
+                });
+                toast('Pricing saved');
+                loadPricingForProperty(propertyId);
+                customers = await apiCall('/api/customers');
+                const card = document.querySelector('.customer-card.expanded');
+                const expandedId = card ? parseInt(card.dataset.id) : null;
+                renderCustomers();
+                if (expandedId) {
+                    document.querySelector(`.customer-card[data-id="${expandedId}"]`)?.classList.add('expanded');
+                    loadCustomerDetails(expandedId);
+                }
+            } catch (e) {
+                toast('Could not save pricing: ' + e.message, 'error');
+            }
+        }
+
+        function openCustomerModal(customerId = null) {
+            editingCustomerId = customerId;
+            document.getElementById('customerModalError').innerHTML = '';
+            const form = document.getElementById('customerForm');
+            form.reset();
+            const passField = document.getElementById('custPassword');
+            const passLabel = document.getElementById('custPasswordLabel');
+
+            if (customerId) {
+                const c = customers.find(x => x.id === customerId);
+                document.getElementById('customerModalTitle').textContent = 'Edit Customer';
+                document.getElementById('custType').value = c.customer_type;
+                document.getElementById('custName').value = c.customer_name;
+                document.getElementById('custFirstName').value = c.first_name;
+                document.getElementById('custLastName').value = c.last_name;
+                document.getElementById('custEmail').value = c.email;
+                document.getElementById('custPhone').value = c.phone;
+                document.getElementById('custAddress').value = c.address;
+                passLabel.innerHTML = 'New password <span style="color:#999;font-weight:400">(leave blank to keep current)</span>';
+                passField.value = '';
+            } else {
+                document.getElementById('customerModalTitle').textContent = 'Add Customer';
+                document.getElementById('custType').value = 'company';
+                document.getElementById('propCountry').value = 'Curaçao';
+                passLabel.innerHTML = 'Initial password <span style="color:#999;font-weight:400">(min 6 chars; leave blank to auto-generate)</span>';
+            }
+            document.getElementById('customerModal').classList.add('active');
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customerModal').classList.remove('active');
+            editingCustomerId = null;
+        }
+
+        async function saveCustomer() {
+            const errEl = document.getElementById('customerModalError');
+            errEl.innerHTML = '';
+            const payload = {
+                customer_type: document.getElementById('custType').value,
+                customer_name: document.getElementById('custName').value.trim(),
+                first_name:    document.getElementById('custFirstName').value.trim(),
+                last_name:     document.getElementById('custLastName').value.trim(),
+                email:         document.getElementById('custEmail').value.trim(),
+                phone:         document.getElementById('custPhone').value.trim(),
+                address:       document.getElementById('custAddress').value.trim(),
+            };
+            const pwd = document.getElementById('custPassword').value.trim();
+            if (pwd) {
+                if (pwd.length < 6) {
+                    errEl.innerHTML = '<div class="error">Password must be at least 6 characters.</div>';
+                    return;
+                }
+                payload.password = pwd;
+            }
+
+            try {
+                if (editingCustomerId) {
+                    await apiCall(`/api/customers/${editingCustomerId}`, { method: 'PUT', body: payload });
+                    toast('Customer updated');
+                } else {
+                    await apiCall('/api/customers', { method: 'POST', body: payload });
+                    toast('Customer created');
+                }
+                closeCustomerModal();
+                await loadAll();
+            } catch (e) {
+                errEl.innerHTML = `<div class="error">${escape(e.message)}</div>`;
+            }
+        }
+
+        async function deleteCustomer(id) {
+            const c = customers.find(x => x.id === id);
+            const propText = c.property_count > 0
+                ? `\n\nThis will also delete ${c.property_count} ${c.property_count === 1 ? 'property' : 'properties'} and all associated images and pricing.`
+                : '';
+            if (!confirm(`Delete customer "${c.customer_name}"?${propText}\n\nThis cannot be undone.`)) return;
+            try {
+                await apiCall(`/api/customers/${id}`, { method: 'DELETE' });
+                toast('Customer deleted');
+                delete selectedPropertyByCustomer[id];
+                await loadAll();
+            } catch (e) {
+                toast('Could not delete: ' + e.message, 'error');
+            }
+        }
+
+        function openPropertyModal(customerId, propertyId = null) {
+            editingPropertyCustomerId = customerId;
+            editingPropertyId = propertyId;
+            document.getElementById('propertyModalError').innerHTML = '';
+            const form = document.getElementById('propertyForm');
+            form.reset();
+            document.getElementById('propCountry').value = 'Curaçao';
+            const deleteBtn = document.getElementById('propDeleteBtn');
+
+            if (propertyId) {
+                document.getElementById('propertyModalTitle').textContent = 'Edit Property';
+                deleteBtn.style.display = 'inline-block';
+                apiCall(`/api/properties/${propertyId}`).then(p => {
+                    document.getElementById('propLabel').value = p.label || '';
+                    document.getElementById('propStreet').value = p.street_address || '';
+                    document.getElementById('propCity').value = p.city || '';
+                    document.getElementById('propCountry').value = p.country || 'Curaçao';
+                    document.getElementById('propNotes').value = p.notes || '';
+                });
+            } else {
+                document.getElementById('propertyModalTitle').textContent = 'Add Property';
+                deleteBtn.style.display = 'none';
+            }
+            document.getElementById('propertyModal').classList.add('active');
+        }
+
+        function closePropertyModal() {
+            document.getElementById('propertyModal').classList.remove('active');
+            editingPropertyId = null;
+            editingPropertyCustomerId = null;
+        }
+
+        async function saveProperty() {
+            const errEl = document.getElementById('propertyModalError');
+            errEl.innerHTML = '';
+            const payload = {
+                user_id:        editingPropertyCustomerId,
+                label:          document.getElementById('propLabel').value.trim() || null,
+                street_address: document.getElementById('propStreet').value.trim(),
+                city:           document.getElementById('propCity').value.trim() || null,
+                country:        document.getElementById('propCountry').value.trim() || 'Curaçao',
+                notes:          document.getElementById('propNotes').value.trim() || null,
+            };
+            try {
+                let created;
+                if (editingPropertyId) {
+                    await apiCall(`/api/properties/${editingPropertyId}`, { method: 'PUT', body: payload });
+                    toast('Property updated');
+                } else {
+                    created = await apiCall('/api/properties', { method: 'POST', body: payload });
+                    selectedPropertyByCustomer[editingPropertyCustomerId] = created.id;
+                    toast('Property created');
+                }
+                const custId = editingPropertyCustomerId;
+                closePropertyModal();
+                customers = await apiCall('/api/customers');
+                renderCustomers();
+                document.querySelector(`.customer-card[data-id="${custId}"]`)?.classList.add('expanded');
+                await loadCustomerDetails(custId);
+                const pid = selectedPropertyByCustomer[custId];
+                if (pid) loadPricingForProperty(pid);
+            } catch (e) {
+                errEl.innerHTML = `<div class="error">${escape(e.message)}</div>`;
+            }
+        }
+
+        async function deleteProperty() {
+            if (!editingPropertyId) return;
+            if (!confirm('Delete this property and all its images and pricing? This cannot be undone.')) return;
+            try {
+                await apiCall(`/api/properties/${editingPropertyId}`, { method: 'DELETE' });
+                toast('Property deleted');
+                const custId = editingPropertyCustomerId;
+                if (selectedPropertyByCustomer[custId] === editingPropertyId) {
+                    delete selectedPropertyByCustomer[custId];
+                }
+                closePropertyModal();
+                customers = await apiCall('/api/customers');
+                renderCustomers();
+                document.querySelector(`.customer-card[data-id="${custId}"]`)?.classList.add('expanded');
+                await loadCustomerDetails(custId);
+            } catch (e) {
+                toast('Could not delete: ' + e.message, 'error');
+            }
+        }
+
+        function uploadPropertyImage(propertyId, customerId) {
+            pendingUploadContext = { kind: 'property', propertyId, customerId };
+            document.getElementById('hiddenFileInput').click();
+        }
+
+        function uploadContactPhoto(customerId) {
+            pendingUploadContext = { kind: 'contact', customerId };
+            document.getElementById('hiddenFileInput').click();
+        }
+
+        document.getElementById('hiddenFileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !pendingUploadContext) return;
+            const ctx = pendingUploadContext;
+            pendingUploadContext = null;
+            e.target.value = '';
+
+            const fd = new FormData();
+            fd.append('file', file);
+
+            try {
+                if (ctx.kind === 'property') {
+                    await apiCall(`/api/properties/${ctx.propertyId}/images`, { method: 'POST', body: fd });
+                    toast('Image uploaded');
+                } else {
+                    await apiCall(`/api/users/${ctx.customerId}/photo`, { method: 'POST', body: fd });
+                    toast('Photo uploaded');
+                }
+                customers = await apiCall('/api/customers');
+                renderCustomers();
+                document.querySelector(`.customer-card[data-id="${ctx.customerId}"]`)?.classList.add('expanded');
+                await loadCustomerDetails(ctx.customerId);
+                const pid = selectedPropertyByCustomer[ctx.customerId];
+                if (pid) loadPricingForProperty(pid);
+            } catch (err) {
+                toast('Upload failed: ' + err.message, 'error');
+            }
+        });
+
+        async function deletePropertyImage(imageId, customerId) {
+            if (!confirm('Delete this image?')) return;
+            try {
+                await apiCall(`/api/property-images/${imageId}`, { method: 'DELETE' });
+                toast('Image deleted');
+                await loadCustomerDetails(customerId);
+                const pid = selectedPropertyByCustomer[customerId];
+                if (pid) loadPricingForProperty(pid);
+            } catch (e) {
+                toast('Could not delete: ' + e.message, 'error');
+            }
+        }
+
+        function filterCustomers() { renderCustomers(); }
+
+        window.onload = () => {
+            checkAuth();
+            loadAll();
+        };
+    </script>
+</body>
+</html>
