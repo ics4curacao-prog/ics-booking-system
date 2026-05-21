@@ -21,6 +21,9 @@ load_dotenv()
 # Multilingual translations
 from translations import get_translations, SUPPORTED_LANGUAGES
 
+# Customer properties + per-property pricing module
+import customer_properties
+
 # PDF generation imports
 from reportlab.lib.pagesizes import letter, A4
 import base64
@@ -276,6 +279,9 @@ def run_migrations():
             logger.info("Migration complete: Glass Wall Cleaning added")
 
         conn.close()
+
+        # Customer properties + per-property pricing schema (idempotent)
+        customer_properties.run_migrations(get_db, logger=logger)
     except Exception as e:
         logger.error(f"Migration error: {e}")
 
@@ -448,6 +454,13 @@ init_database()
 
 # THEN run migrations to add any missing columns
 run_migrations()
+
+# Customer properties + per-property pricing routes
+customer_properties.register(
+    app, get_db, token_required, admin_required,
+    upload_folder=os.path.join(os.path.dirname(os.path.abspath(DATABASE)), 'uploads'),
+    logger=logger,
+)
 
 # ============================================================
 # POPULATE DEFAULT AVAILABILITY THROUGH DECEMBER 2026
