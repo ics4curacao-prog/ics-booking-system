@@ -27,7 +27,6 @@ translations = {
         "nav_contact":      "CONTACT",
         "nav_news":         "NEWS",
         "nav_book":         "BOOK ONLINE",
-        "customer_portal_link": "Customer Portal",
         "sign_out":         "Sign Out",
 
         # Hero Section
@@ -305,7 +304,6 @@ translations = {
         "nav_contact":      "CONTACTO",
         "nav_news":         "NOTICIAS",
         "nav_book":         "RESERVAR",
-        "customer_portal_link": "Portal del Cliente",
         "sign_out":         "Cerrar Sesión",
 
         # Hero Section
@@ -583,7 +581,6 @@ translations = {
         "nav_contact":      "CONTACT",
         "nav_news":         "NIEUWS",
         "nav_book":         "BOEKEN",
-        "customer_portal_link": "Klantenportaal",
         "sign_out":         "Uitloggen",
 
         # Hero Section
