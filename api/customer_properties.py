@@ -874,6 +874,205 @@ def register(app, get_db, token_required, admin_required,
         return jsonify({"success": True, "message": "Customer deleted"})
 
     # ====================================================================
+    # CUSTOMER PORTAL  (customer-facing endpoints — authenticated, role='customer')
+    # ====================================================================
+    def _require_customer(current_user):
+        """Verify caller is a customer (not admin). Returns user dict or None."""
+        if current_user.get("role") != "customer":
+            return None
+        return current_user
+
+    @app.route("/api/customer-portal/me", methods=["GET"])
+    @token_required
+    def portal_me(current_user):
+        """Return the logged-in customer's full profile.
+
+        Used by the portal to render the header and personalize the booking form.
+        """
+        if not _require_customer(current_user):
+            return jsonify({"success": False, "message": "Customer access only"}), 403
+
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, phone, address,
+                       customer_name, customer_type, photo_path, created_at, role
+                FROM users WHERE id = ?
+            """, (_uid(current_user),))
+            row = cursor.fetchone()
+            if not row or row["role"] != "customer":
+                return jsonify({"success": False, "message": "Customer not found"}), 404
+            return jsonify(_customer_row_to_dict(row))
+        finally:
+            conn.close()
+
+    @app.route("/api/customer-portal/bookings", methods=["GET"])
+    @token_required
+    def portal_list_bookings(current_user):
+        """Return this customer's bookings (view-only history)."""
+        if not _require_customer(current_user):
+            return jsonify({"success": False, "message": "Customer access only"}), 403
+
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT b.id, b.booking_date, b.time_slot, b.service_type, b.services,
+                       b.total_cost, b.status, b.notes, b.created_at,
+                       b.property_id, p.label AS property_label, p.street_address AS property_address
+                FROM bookings b
+                LEFT JOIN properties p ON p.id = b.property_id
+                WHERE b.user_id = ?
+                ORDER BY COALESCE(b.booking_date, b.created_at) DESC, b.id DESC
+            """, (_uid(current_user),))
+            rows = cursor.fetchall()
+            return jsonify([dict(r) for r in rows])
+        finally:
+            conn.close()
+
+    @app.route("/api/customer-portal/bookings", methods=["POST"])
+    @token_required
+    def portal_create_booking(current_user):
+        """Create a booking with server-side price calculation.
+
+        Body:
+            {
+              "property_id": int,
+              "booking_date": "YYYY-MM-DD",
+              "time_slot": "morning|afternoon|evening",
+              "services": [ { "service_id": int, "quantity": float, "details": {...} } ],
+              "notes": str (optional)
+            }
+
+        Server validates ownership, recomputes total from effective prices,
+        and rejects any total_cost the client tries to send.
+        """
+        if not _require_customer(current_user):
+            return jsonify({"success": False, "message": "Customer access only"}), 403
+
+        data = request.json or {}
+        property_id  = data.get("property_id")
+        booking_date = data.get("booking_date")
+        time_slot    = data.get("time_slot")
+        items        = data.get("services") or []
+        notes        = (data.get("notes") or "").strip()
+
+        if not property_id or not booking_date or not time_slot:
+            return jsonify({"success": False,
+                            "message": "property_id, booking_date, and time_slot are required"}), 400
+        if not isinstance(items, list) or len(items) == 0:
+            return jsonify({"success": False, "message": "At least one service is required"}), 400
+
+        user_id = _uid(current_user)
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT id, label, street_address, city
+                FROM properties WHERE id = ? AND user_id = ?
+            """, (property_id, user_id))
+            prop = cursor.fetchone()
+            if not prop:
+                return jsonify({"success": False,
+                                "message": "Property not found or not owned by you"}), 403
+
+            cursor.execute("""
+                SELECT first_name, last_name, email, phone, customer_name
+                FROM users WHERE id = ?
+            """, (user_id,))
+            user = cursor.fetchone()
+
+            cursor.execute("""
+                SELECT id, service_name, base_price, unit, category
+                FROM service_pricing WHERE is_active = 1
+            """)
+            svc_lookup = {r["id"]: dict(r) for r in cursor.fetchall()}
+
+            cursor.execute("""
+                SELECT service_id, agreed_price FROM property_pricing
+                WHERE property_id = ?
+            """, (property_id,))
+            overrides = {r["service_id"]: r["agreed_price"] for r in cursor.fetchall()}
+
+            services_summary = []
+            subtotal = 0.0
+            primary_category = None
+
+            for item in items:
+                sid = item.get("service_id")
+                qty = float(item.get("quantity") or 1)
+                if sid not in svc_lookup or qty <= 0:
+                    continue
+                svc = svc_lookup[sid]
+                if svc["unit"] == "T&M":
+                    unit_price = 0.0
+                else:
+                    unit_price = float(overrides.get(sid, svc["base_price"]))
+                line_total = round(unit_price * qty, 2)
+                subtotal  += line_total
+
+                if primary_category is None and svc["category"] in ("midstay", "turnover", "deep", "office"):
+                    primary_category = svc["category"]
+
+                entry = {
+                    "name":     svc["service_name"],
+                    "quantity": qty,
+                    "price":    line_total,
+                    "unit_price": unit_price,
+                    "unit":     svc["unit"],
+                }
+                details = item.get("details") or {}
+                for k in ("bedrooms", "bathrooms", "offices", "rooms"):
+                    if details.get(k):
+                        entry[k] = details[k]
+                services_summary.append(entry)
+
+            if not services_summary:
+                return jsonify({"success": False,
+                                "message": "No valid services in this booking"}), 400
+
+            subtotal = round(subtotal, 2)
+            service_type = primary_category or "custom"
+            street_address = prop["street_address"]
+            neighborhood   = prop["city"] or ""
+            customer_name  = user["customer_name"] or f"{user['first_name']} {user['last_name']}".strip()
+
+            cursor.execute("""
+                INSERT INTO bookings
+                    (user_id, property_id,
+                     customer_name, customer_phone, customer_email,
+                     street_address, neighborhood,
+                     service_type, services, booking_date, time_slot,
+                     total_cost, status, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+            """, (
+                user_id, property_id,
+                customer_name, user["phone"] or "", user["email"],
+                street_address, neighborhood,
+                service_type, str(services_summary), booking_date, time_slot,
+                subtotal, notes,
+            ))
+            booking_id = cursor.lastrowid
+            conn.commit()
+        finally:
+            conn.close()
+
+        _logger.info(f"Portal booking #{booking_id} created by customer #{user_id} "
+                     f"for property #{property_id}, subtotal {subtotal} XCG")
+        return jsonify({
+            "success": True,
+            "booking": {
+                "id":        booking_id,
+                "subtotal":  subtotal,
+                "ob_tax":    round(subtotal * 0.06, 2),
+                "total":     round(subtotal * 1.06, 2),
+                "status":    "pending",
+                "services":  services_summary,
+            }
+        }), 201
+
+    # ====================================================================
     # STATIC FILE SERVING
     # ====================================================================
     @app.route("/uploads/<path:filename>")

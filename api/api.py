@@ -3126,6 +3126,16 @@ def serve_customers_page():
     """Serve customers admin page"""
     return render_template('customers.html')
 
+@app.route('/customer_portal.html')
+def serve_customer_portal_page():
+    """Serve customer-facing portal page"""
+    return render_template('customer_portal.html')
+
+@app.route('/portal')
+def portal_redirect():
+    """Short URL for the customer portal"""
+    return redirect('/customer_portal.html')
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files"""

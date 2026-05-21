@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - ICS</title>
+    <script src="admin_config.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1FAFB8 0%, #2D3E50 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .login-screen {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            max-width: 420px;
+            margin: 80px auto 0;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .login-screen h1 {
+            text-align: center;
+            color: #2D3E50;
+            margin-bottom: 8px;
+            font-size: 26px;
+        }
+        .login-screen .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1FAFB8;
+            box-shadow: 0 0 0 3px rgba(31, 175, 184, 0.15);
+        }
+
+        .btn {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #1FAFB8; color: white; }
+        .btn-primary:hover { background: #188a92; }
+        .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-block { width: 100%; }
+
+        .header-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 16px 22px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .greeting .label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .greeting .name {
+            font-weight: 500;
+            font-size: 16px;
+            color: #2D3E50;
+        }
+
+        .tabs {
+            background: white;
+            border-radius: 10px 10px 0 0;
+            padding: 0 20px;
+            display: flex;
+            gap: 6px;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 14px 20px;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab.active {
+            color: #1FAFB8;
+            border-bottom-color: #1FAFB8;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 24px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .panel h2 {
+            font-size: 18px;
+            color: #2D3E50;
+            margin-bottom: 4px;
+        }
+        .panel .subtitle {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 10px;
+            margin-top: 18px;
+        }
+        .section-label:first-child { margin-top: 0; }
+
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .property-tile {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.15s;
+        }
+        .property-tile:hover { border-color: #1FAFB8; }
+        .property-tile.selected {
+            border: 2px solid #1FAFB8;
+            background: #f0fafa;
+            padding: 9px;
+        }
+        .property-thumb {
+            height: 80px;
+            border-radius: 5px;
+            background-size: cover;
+            background-position: center;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+        .property-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .property-meta {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .property-tile.selected .property-label { color: #188a92; }
+        .property-tile.selected .property-meta { color: #188a92; }
+
+        .service-list {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .service-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            gap: 12px;
+            transition: background 0.15s;
+        }
+        .service-row:last-child { border-bottom: none; }
+        .service-row:hover { background: #f8f9fa; }
+        .service-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .service-info { flex: 1; min-width: 0; }
+        .service-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2D3E50;
+        }
+        .service-desc {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        .service-quantity {
+            width: 70px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .service-quantity:disabled {
+            background: #f8f9fa;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .service-price {
+            text-align: right;
+            min-width: 110px;
+        }
+        .price-amount {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1FAFB8;
+        }
+        .price-note {
+            font-size: 11px;
+            color: #6c757d;
+        }
+        .badge-agreed {
+            background: #fff3cd;
+            color: #856404;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-right: 4px;
+        }
+        .price-standard-strike {
+            text-decoration: line-through;
+            color: #aaa;
+            font-size: 11px;
+        }
+        .price-tm {
+            font-style: italic;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .total-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-left .label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .total-left .ob {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        .total-right .amount {
+            font-size: 22px;
+            font-weight: 500;
+            color: #1FAFB8;
+        }
+        .total-right .gross {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .submit-row {
+            margin-top: 18px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            max-width: 90vw;
+        }
+        .toast.show { opacity: 1; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #e74c3c; }
+
+        .error {
+            background: #fee;
+            color: #c0392b;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+            font-size: 14px;
+        }
+        .empty strong { color: #2D3E50; }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .history-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #eee;
+        }
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        .status-pending   { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 700px) {
+            body { padding: 12px; }
+            .panel { padding: 16px; }
+            .form-row { grid-template-columns: 1fr; }
+            .service-row { flex-wrap: wrap; gap: 8px; }
+            .service-quantity { width: 60px; }
+            .service-price { min-width: 90px; }
+            .history-table th { display: none; }
+            .history-table td { display: block; padding: 6px 0; border: none; }
+            .history-table tr {
+                display: block;
+                padding: 12px;
+                border-bottom: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div id="loginView" class="login-screen">
+            <h1>Customer Portal</h1>
+            <p class="subtitle">Sign in to book a cleaning at your agreed rates.</p>
+            <div id="loginError"></div>
+            <form id="loginForm" onsubmit="event.preventDefault();doLogin()">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Sign in</button>
+            </form>
+            <p style="text-align:center;margin-top:20px;font-size:12px;color:#888">
+                Need access? Contact <a href="mailto:info@ics.cw" style="color:#1FAFB8">info@ics.cw</a>
+            </p>
+        </div>
+
+        <div id="portalView" style="display:none">
+            <div class="header-bar">
+                <div class="greeting">
+                    <div class="label">Signed in as</div>
+                    <div class="name" id="custName">—</div>
+                </div>
+                <button class="btn btn-danger" onclick="logout()">Sign out</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" id="tabBook" onclick="showTab('book')">Book a cleaning</button>
+                <button class="tab" id="tabHistory" onclick="showTab('history')">Booking history</button>
+            </div>
+
+            <div id="bookPanel" class="panel">
+                <h2>Book a cleaning</h2>
+                <p class="subtitle">Your agreed rates are applied automatically where they exist.</p>
+                <div id="bookError"></div>
+
+                <div class="section-label">Property</div>
+                <div id="propertyGrid" class="property-grid">
+                    <div class="empty">Loading properties…</div>
+                </div>
+
+                <div class="section-label">Services</div>
+                <div id="serviceList" class="service-list">
+                    <div class="empty" style="padding:20px">Select a property first.</div>
+                </div>
+
+                <div class="section-label">When</div>
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0">
+                        <input type="date" id="bookingDate" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <select id="timeSlot" required>
+                            <option value="morning">Morning (8AM – 12PM)</option>
+                            <option value="afternoon">Afternoon (12PM – 4PM)</option>
+                            <option value="evening">Evening (4PM – 8PM)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-label">Notes (optional)</div>
+                <div class="form-group" style="margin-bottom:0">
+                    <textarea id="bookingNotes" rows="2" placeholder="Gate code, parking instructions, special access notes…"></textarea>
+                </div>
+
+                <div class="total-box">
+                    <div class="total-left">
+                        <div class="label">Subtotal</div>
+                        <div class="ob"><span id="obAmount">0.00</span> XCG OB (6%)</div>
+                    </div>
+                    <div class="total-right">
+                        <div class="amount"><span id="subtotalAmount">0.00</span> XCG</div>
+                        <div class="gross"><span id="grossAmount">0.00</span> XCG total</div>
+                    </div>
+                </div>
+
+                <div class="submit-row">
+                    <button class="btn btn-primary btn-block" id="submitBtn" onclick="submitBooking()" disabled>
+                        Book cleaning
+                    </button>
+                </div>
+            </div>
+
+            <div id="historyPanel" class="panel" style="display:none">
+                <h2>Booking history</h2>
+                <p class="subtitle">All bookings you have made through this portal. Contact <a href="mailto:info@ics.cw" style="color:#1FAFB8">info@ics.cw</a> to make changes.</p>
+                <div id="historyContent">
+                    <div class="empty">Loading…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let me = null;
+        let properties = [];
+        let services = [];
+        let selectedPropertyId = null;
+        let serviceSelections = {};
+        let isSubmitting = false;
+
+        function escape(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+
+        function getToken() {
+            return localStorage.getItem('auth_token');
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_data');
+            window.location.reload();
+        }
+
+        function toast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast show ${type}`;
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        async function api(path, options = {}) {
+            const token = getToken();
+            const headers = {
+                ...(options.headers || {}),
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            };
+            if (options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
+            }
+            const resp = await fetch(`${API_URL}${path}`, { ...options, headers });
+            const data = await resp.json().catch(() => ({}));
+            if (resp.status === 401) {
+                logout();
+                throw new Error('Session expired');
+            }
+            if (!resp.ok) {
+                const err = new Error(data.message || `Request failed (${resp.status})`);
+                err.status = resp.status;
+                throw err;
+            }
+            return data;
+        }
+
+        async function doLogin() {
+            const errEl = document.getElementById('loginError');
+            const btn = document.getElementById('loginBtn');
+            errEl.innerHTML = '';
+            btn.disabled = true;
+            btn.textContent = 'Signing in…';
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const resp = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    throw new Error(data.message || 'Login failed');
+                }
+                if (data.user.role !== 'customer') {
+                    throw new Error('This portal is for customers. Admins, please use the admin login.');
+                }
+                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('user_data', JSON.stringify(data.user));
+                await loadPortal();
+            } catch (e) {
+                errEl.innerHTML = `<div class="error">${escape(e.message)}</div>`;
+                btn.disabled = false;
+                btn.textContent = 'Sign in';
+            }
+        }
+
+        async function loadPortal() {
+            try {
+                me = await api('/api/customer-portal/me');
+            } catch (e) {
+                if (e.status === 403) {
+                    document.getElementById('loginError').innerHTML =
+                        '<div class="error">This portal is for customers only.</div>';
+                    logout();
+                    return;
+                }
+                document.getElementById('loginError').innerHTML =
+                    `<div class="error">${escape(e.message)}</div>`;
+                return;
+            }
+
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('portalView').style.display = 'block';
+            document.getElementById('custName').textContent =
+                `${me.first_name} ${me.last_name} · ${me.customer_name}`;
+
+            const today = new Date();
+            today.setDate(today.getDate() + 1);
+            document.getElementById('bookingDate').value = today.toISOString().slice(0, 10);
+            document.getElementById('bookingDate').min = today.toISOString().slice(0, 10);
+
+            try {
+                properties = await api('/api/properties');
+                renderProperties();
+                if (properties.length === 1) {
+                    selectProperty(properties[0].id);
+                }
+            } catch (e) {
+                toast('Could not load properties: ' + e.message, 'error');
+            }
+        }
+
+        function renderProperties() {
+            const grid = document.getElementById('propertyGrid');
+            if (properties.length === 0) {
+                grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+                    <strong>No properties on file yet.</strong><br>
+                    Contact info@ics.cw to add a property to your account.
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = properties.map(p => {
+                const thumb = (p.images && p.images.length)
+                    ? `style="background-image:url('${API_URL}/uploads/${escape(p.images[0].image_path)}')"`
+                    : '';
+                const thumbContent = (p.images && p.images.length) ? '' : '🏠';
+                const cityLine = [p.city, p.country].filter(Boolean).join(', ') || p.street_address;
+                const selected = p.id === selectedPropertyId ? 'selected' : '';
+                return `
+                    <div class="property-tile ${selected}" onclick="selectProperty(${p.id})">
+                        <div class="property-thumb" ${thumb}>${thumbContent}</div>
+                        <div class="property-label">${escape(p.label || p.street_address)}</div>
+                        <div class="property-meta">${escape(cityLine)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function selectProperty(propertyId) {
+            selectedPropertyId = propertyId;
+            serviceSelections = {};
+            renderProperties();
+            document.getElementById('serviceList').innerHTML =
+                '<div class="empty" style="padding:20px">Loading services…</div>';
+            try {
+                services = await api(`/api/properties/${propertyId}/prices`);
+                renderServices();
+                updateTotal();
+            } catch (e) {
+                document.getElementById('serviceList').innerHTML =
+                    `<div class="error">Could not load services: ${escape(e.message)}</div>`;
+            }
+        }
+
+        function renderServices() {
+            const list = document.getElementById('serviceList');
+            if (services.length === 0) {
+                list.innerHTML = '<div class="empty" style="padding:20px">No services available.</div>';
+                return;
+            }
+
+            list.innerHTML = services.map(s => {
+                const isTM = s.unit === 'T&M';
+                const isOverridden = s.agreed_price !== null && s.agreed_price !== undefined;
+                const showPrice = isTM
+                    ? '<span class="price-tm">Time &amp; materials</span>'
+                    : isOverridden
+                        ? `<div class="price-amount">${s.effective_price.toFixed(2)} XCG</div>
+                           <div class="price-note">
+                             <span class="badge-agreed">agreed</span>
+                             <span class="price-standard-strike">${s.base_price.toFixed(2)}</span>
+                           </div>`
+                        : `<div class="price-amount">${s.effective_price.toFixed(2)} XCG</div>
+                           <div class="price-note">${escape(s.unit)}</div>`;
+
+                const sel = serviceSelections[s.id];
+                const checked = sel ? 'checked' : '';
+                const qty = sel ? sel.quantity : 1;
+                const qtyDisabled = (!sel || isTM) ? 'disabled' : '';
+                const isPerUnit = s.unit === 'per room' || s.unit === 'per m²';
+                const qtyMin = isPerUnit ? 1 : 1;
+                const qtyStep = s.unit === 'per m²' ? 1 : 1;
+
+                return `
+                    <label class="service-row">
+                        <input type="checkbox" ${checked}
+                               onchange="toggleService(${s.id}, this.checked)">
+                        <div class="service-info">
+                            <div class="service-name">${escape(s.service_name)}</div>
+                            <div class="service-desc">${escape(s.unit)}</div>
+                        </div>
+                        <input type="number" class="service-quantity"
+                               min="${qtyMin}" step="${qtyStep}" value="${qty}"
+                               ${qtyDisabled}
+                               onclick="event.stopPropagation()"
+                               onchange="setQuantity(${s.id}, this.value)">
+                        <div class="service-price">${showPrice}</div>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleService(serviceId, checked) {
+            const s = services.find(x => x.id === serviceId);
+            if (!s) return;
+            if (checked) {
+                serviceSelections[serviceId] = { quantity: 1 };
+            } else {
+                delete serviceSelections[serviceId];
+            }
+            renderServices();
+            updateTotal();
+        }
+
+        function setQuantity(serviceId, value) {
+            const qty = Math.max(1, parseFloat(value) || 1);
+            if (serviceSelections[serviceId]) {
+                serviceSelections[serviceId].quantity = qty;
+                updateTotal();
+            }
+        }
+
+        function updateTotal() {
+            let subtotal = 0;
+            for (const sid in serviceSelections) {
+                const s = services.find(x => x.id === parseInt(sid));
+                if (!s || s.unit === 'T&M') continue;
+                subtotal += s.effective_price * serviceSelections[sid].quantity;
+            }
+            subtotal = Math.round(subtotal * 100) / 100;
+            const ob = Math.round(subtotal * 0.06 * 100) / 100;
+            const gross = Math.round((subtotal + ob) * 100) / 100;
+
+            document.getElementById('subtotalAmount').textContent = subtotal.toFixed(2);
+            document.getElementById('obAmount').textContent = ob.toFixed(2);
+            document.getElementById('grossAmount').textContent = gross.toFixed(2);
+
+            const hasSelection = Object.keys(serviceSelections).length > 0;
+            const hasProp = selectedPropertyId !== null;
+            document.getElementById('submitBtn').disabled =
+                isSubmitting || !hasProp || !hasSelection;
+        }
+
+        async function submitBooking() {
+            if (isSubmitting) return;
+            const errEl = document.getElementById('bookError');
+            errEl.innerHTML = '';
+
+            const date = document.getElementById('bookingDate').value;
+            const slot = document.getElementById('timeSlot').value;
+            const notes = document.getElementById('bookingNotes').value.trim();
+
+            if (!date) {
+                errEl.innerHTML = '<div class="error">Please pick a date.</div>';
+                return;
+            }
+            const items = Object.entries(serviceSelections).map(([sid, sel]) => ({
+                service_id: parseInt(sid),
+                quantity: sel.quantity,
+            }));
+            if (items.length === 0) {
+                errEl.innerHTML = '<div class="error">Select at least one service.</div>';
+                return;
+            }
+
+            isSubmitting = true;
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting…';
+
+            try {
+                const resp = await api('/api/customer-portal/bookings', {
+                    method: 'POST',
+                    body: {
+                        property_id: selectedPropertyId,
+                        booking_date: date,
+                        time_slot: slot,
+                        services: items,
+                        notes
+                    }
+                });
+                toast(`Booking #${resp.booking.id} submitted — ${resp.booking.total.toFixed(2)} XCG total`);
+                serviceSelections = {};
+                document.getElementById('bookingNotes').value = '';
+                renderServices();
+                updateTotal();
+            } catch (e) {
+                errEl.innerHTML = `<div class="error">${escape(e.message)}</div>`;
+            } finally {
+                isSubmitting = false;
+                btn.textContent = 'Book cleaning';
+                updateTotal();
+            }
+        }
+
+        async function showTab(name) {
+            document.getElementById('tabBook').classList.toggle('active', name === 'book');
+            document.getElementById('tabHistory').classList.toggle('active', name === 'history');
+            document.getElementById('bookPanel').style.display = name === 'book' ? 'block' : 'none';
+            document.getElementById('historyPanel').style.display = name === 'history' ? 'block' : 'none';
+            if (name === 'history') await loadHistory();
+        }
+
+        async function loadHistory() {
+            const content = document.getElementById('historyContent');
+            content.innerHTML = '<div class="empty">Loading…</div>';
+            try {
+                const bookings = await api('/api/customer-portal/bookings');
+                renderHistory(bookings);
+            } catch (e) {
+                content.innerHTML = `<div class="error">Could not load: ${escape(e.message)}</div>`;
+            }
+        }
+
+        function renderHistory(bookings) {
+            const content = document.getElementById('historyContent');
+            if (bookings.length === 0) {
+                content.innerHTML = `<div class="empty">
+                    <strong>No bookings yet.</strong><br>
+                    Your bookings will appear here once you place them.
+                </div>`;
+                return;
+            }
+            content.innerHTML = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Property</th>
+                            <th>Services</th>
+                            <th style="text-align:right">Subtotal</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${bookings.map(b => {
+                            let svcText = '';
+                            try {
+                                const parsed = JSON.parse(b.services.replace(/'/g, '"'));
+                                svcText = parsed.map(s =>
+                                    `${s.quantity > 1 ? s.quantity + 'x ' : ''}${escape(s.name)}`
+                                ).join(', ');
+                            } catch {
+                                svcText = escape(b.services || '');
+                            }
+                            const status = (b.status || 'pending').toLowerCase();
+                            return `
+                                <tr>
+                                    <td><strong>${escape(b.booking_date) || '—'}</strong></td>
+                                    <td>${escape(b.time_slot) || '—'}</td>
+                                    <td>${escape(b.property_label || b.property_address || '—')}</td>
+                                    <td>${svcText || '—'}</td>
+                                    <td style="text-align:right">${(b.total_cost || 0).toFixed(2)} XCG</td>
+                                    <td><span class="status-pill status-${status}">${status}</span></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        window.onload = () => {
+            const token = getToken();
+            const userData = localStorage.getItem('user_data');
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    if (user.role === 'customer') {
+                        loadPortal();
+                        return;
+                    }
+                } catch {}
+            }
+        };
+    </script>
+</body>
+</html>
