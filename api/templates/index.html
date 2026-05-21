@@ -307,6 +307,23 @@
             color: var(--primary);
         }
 
+        /* Portal link — subtle, marks it as a secondary action vs. main nav */
+        .nav-links a.portal-link {
+            text-transform: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--primary);
+            opacity: 0.8;
+            letter-spacing: 0;
+        }
+        .nav-links a.portal-link:hover {
+            opacity: 1;
+        }
+        .mobile-nav-link.portal-link {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
         /* Language Dropdown */
         .language-dropdown {
             position: relative;
@@ -2940,6 +2957,7 @@
             <li><a href="#about">{{ t.nav_about }}</a></li>
             <li><a href="#news">{{ t.nav_news }}</a></li>
             <li><a href="#contact">{{ t.nav_contact }}</a></li>
+            <li><a href="/customer_portal.html" class="portal-link">{{ t.customer_portal_link }}</a></li>
         </ul>
         <div class="language-dropdown" id="language-dropdown">
             <button class="language-btn" id="language-btn">
@@ -2991,6 +3009,7 @@
             <li><a href="#about" class="mobile-nav-link">{{ t.nav_about }}</a></li>
             <li><a href="#news" class="mobile-nav-link">{{ t.nav_news }}</a></li>
             <li><a href="#contact" class="mobile-nav-link">{{ t.nav_contact }}</a></li>
+            <li><a href="/customer_portal.html" class="mobile-nav-link portal-link">{{ t.customer_portal_link }}</a></li>
         </ul>
         <div class="language-dropdown" id="mobile-language-dropdown">
             <button class="language-btn" id="mobile-language-btn">
@@ -4743,7 +4762,29 @@
         // ============================================
         
         // Redirect to dashboard (placeholder)
-        function redirectToDashboard(user) {
+        async function redirectToDashboard(user) {
+            // B2B customers with registered properties belong on the portal
+            // (per-property pricing only works there). Walk-in customers without
+            // any properties stay on this page with the standard booking flow.
+            if (user && user.role === 'customer') {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    const resp = await fetch(`${API_URL}/api/properties`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (resp.ok) {
+                        const props = await resp.json();
+                        if (Array.isArray(props) && props.length > 0) {
+                            window.location.href = '/customer_portal.html';
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    // Network or auth hiccup — fall through to the existing flow
+                    console.warn('Portal eligibility check failed:', e);
+                }
+            }
+
             showMessage(`Welcome ${user.firstName}! You are now logged in.`, 'success');
             // Show booking form and hide auth forms
             document.querySelector('.auth-container').style.display = 'none';
