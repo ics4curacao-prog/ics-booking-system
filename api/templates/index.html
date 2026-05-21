@@ -4769,7 +4769,7 @@
             if (user && user.role === 'customer') {
                 try {
                     const token = localStorage.getItem('auth_token');
-                    const resp = await fetch(`${API_URL}/api/properties`, {
+                    const resp = await fetch(`${API_BASE_URL}/api/properties`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (resp.ok) {

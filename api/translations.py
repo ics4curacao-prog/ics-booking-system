@@ -31,7 +31,7 @@ translations = {
         "sign_out":         "Sign Out",
 
         # Hero Section
-        "hero_title":           "Cleaning Services in Curaçao, Better, Faster, Affordable",
+        "hero_title":           "Cleaning Services in Curaçao. Better, Faster, Affordable",
         "hero_subtitle":        "Professional cleaning for vacation rentals, homes and offices across Willemstad, Jan Thiel, Pietermaai and all of Curaçao, the only cleaning company combining trained staff with intelligent cleaning robots.",
         "hero_btn_discover":    "Discover More",
         "hero_btn_contact":     "Contact Us",
@@ -309,7 +309,7 @@ translations = {
         "sign_out":         "Cerrar Sesión",
 
         # Hero Section
-        "hero_title":           "Servicios de Limpieza en Curazao, Mejor, Más Rápido, Asequible",
+        "hero_title":           "Servicios de Limpieza en Curazao. Mejor, Más Rápido, Asequible",
         "hero_subtitle":        "Limpieza profesional para alquileres vacacionales, hogares y oficinas en Willemstad, Jan Thiel, Pietermaai y toda Curazao, la única empresa de limpieza que combina personal capacitado con robots inteligentes.",
         "hero_btn_discover":    "Descubrir Más",
         "hero_btn_contact":     "Contáctenos",
@@ -587,7 +587,7 @@ translations = {
         "sign_out":         "Uitloggen",
 
         # Hero Section
-        "hero_title":           "Schoonmaakbedrijf in Curaçao, Beter, Sneller, Betaalbaar",
+        "hero_title":           "Schoonmaakbedrijf in Curaçao. Beter, Sneller, Betaalbaar",
         "hero_subtitle":        "Professionele schoonmaak voor vakantiewoningen, huizen en kantoren in Willemstad, Jan Thiel, Pietermaai en heel Curaçao, het enige schoonmaakbedrijf dat opgeleid personeel combineert met intelligente schoonmaakrobots.",
         "hero_btn_discover":    "Ontdek Meer",
         "hero_btn_contact":     "Neem Contact Op",
