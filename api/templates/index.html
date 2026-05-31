@@ -4743,7 +4743,7 @@
         // ============================================
         
         // Redirect to dashboard (placeholder)
-        async function redirectToDashboard(user) {
+        async function redirectToDashboard(user, silent = false) {
             // B2B customers with registered properties belong on the portal
             // (per-property pricing only works there). Walk-in customers without
             // any properties stay on this page with the standard booking flow.
@@ -4766,7 +4766,9 @@
                 }
             }
 
-            showMessage(`Welcome ${user.firstName}! You are now logged in.`, 'success');
+            if (!silent) {
+                showMessage(`Welcome ${user.firstName}! You are now logged in.`, 'success');
+            }
             // Show booking form and hide auth forms
             document.querySelector('.auth-container').style.display = 'none';
             document.querySelector('.booking-info').style.display = 'none';
@@ -5200,16 +5202,11 @@
 
             if (isLoggedIn()) {
                 const userData = JSON.parse(localStorage.getItem('user_data'));
-                // Show booking form for already logged in users
-                document.querySelector('.auth-container').style.display = 'none';
-                document.querySelector('.booking-info').style.display = 'none';
-                document.getElementById('booking-form-container').classList.add('active');
-                
-                // Auto-populate booking form
-                populateBookingForm();
-                
-                // Initialize date and check availability
-                initializeBookingDate();
+                // Apply the same routing as a fresh login: B2B customers with
+                // registered properties are sent to their portal; everyone else
+                // gets the standard booking form. (silent = no "Welcome" toast on
+                // a returning visit with saved credentials.)
+                await redirectToDashboard(userData, true);
             }
         });
 
