@@ -2651,6 +2651,20 @@
                 <div class="cb-section">
                     <h3>👤 Customer Information</h3>
                     <div class="cb-grid">
+                        <div class="cb-field full-width">
+                            <label>Existing Customer <span style="color:#999; font-weight:400;">(optional — auto-fills details &amp; applies agreed prices)</span></label>
+                            <select id="cb_customer_select" onchange="onCustomerSelected()">
+                                <option value="">— New / walk-in customer (manual entry) —</option>
+                            </select>
+                        </div>
+                        <div class="cb-field full-width" id="cb_property_wrap" style="display:none;">
+                            <label>Property <span style="color:#999; font-weight:400;">(agreed rates &amp; location apply per property)</span></label>
+                            <select id="cb_property_select" onchange="onPropertySelected()">
+                                <option value="">— Select a property —</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="cb-grid">
                         <div class="cb-field">
                             <label>Full Name <span class="required">*</span></label>
                             <input type="text" id="cb_name" placeholder="e.g. Maria Martina" autocomplete="off">
@@ -2731,6 +2745,7 @@
                 <div class="cb-section">
                     <h3>🧽 Services & Pricing</h3>
                     <p style="font-size:0.82rem;color:#888;margin:-6px 0 12px;">Prices load from Pricing Management. Select a category above first.</p>
+                    <div id="cb_agreed_notice" style="display:none;font-size:0.82rem;background:#fff8e6;border:1px solid #f0d28a;color:#8a6d1f;border-radius:8px;padding:9px 12px;margin:0 0 12px;"></div>
                     <div class="cb-services-panel" id="cb_services_panel">
                         <div class="cb-svc-placeholder" id="cb_svc_placeholder">
                             ← Select a Service Category to configure services & quantities
@@ -3902,6 +3917,11 @@
         // -------------------------------------------------------
         let cbPricingData = [];
 
+        // Customer selector + per-property agreed pricing state
+        let cbAgreedPrices  = {};   // { service_name: agreed_price } for the selected property
+        let cbCustomers     = [];   // cached customer list for the dropdown
+        let cbCustomerProps = [];   // properties of the currently selected customer
+
         async function fetchPricingData() {
             try {
                 const res = await fetch(`${API_URL}/api/pricing/public`);
@@ -3915,10 +3935,184 @@
             }
         }
 
-        // Get price for a named service (returns float or fallback)
+        // Get price for a named service. An agreed (per-property) rate, when set,
+        // overrides the standard price — this is the single hook through which
+        // every service & add-on in the panel picks up the customer's agreed rates.
         function cbPrice(serviceName, fallback = 0) {
+            if (Object.prototype.hasOwnProperty.call(cbAgreedPrices, serviceName)) {
+                return parseFloat(cbAgreedPrices[serviceName]);
+            }
             const s = cbPricingData.find(x => x.service_name === serviceName);
             return s ? parseFloat(s.base_price) : fallback;
+        }
+
+        // -------------------------------------------------------
+        // Customer selector — load list, auto-fill details, apply
+        // per-property agreed prices.
+        // -------------------------------------------------------
+        async function loadCustomerOptions() {
+            const sel = document.getElementById('cb_customer_select');
+            if (!sel) return;
+            const token = checkAuth();
+            if (!token) return;
+            try {
+                const res = await fetch(`${API_URL}/api/customers`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                cbCustomers = res.ok ? await res.json() : [];
+            } catch (e) {
+                console.warn('Could not load customers:', e);
+                cbCustomers = [];
+            }
+            const opts = ['<option value="">— New / walk-in customer (manual entry) —</option>'];
+            (cbCustomers || []).forEach(c => {
+                const label = c.customer_name || `${c.first_name || ''} ${c.last_name || ''}`.trim() || c.email;
+                const rates = c.pricing_overrides > 0
+                    ? ` · ${c.pricing_overrides} agreed rate${c.pricing_overrides > 1 ? 's' : ''}` : '';
+                opts.push(`<option value="${c.id}">${escapeHtml(label)} (${escapeHtml(c.email || '')})${rates}</option>`);
+            });
+            sel.innerHTML = opts.join('');
+            sel.value = '';
+        }
+
+        function updateAgreedNotice() {
+            const notice = document.getElementById('cb_agreed_notice');
+            if (!notice) return;
+            const n = Object.keys(cbAgreedPrices).length;
+            if (n > 0) {
+                notice.style.display = 'block';
+                notice.innerHTML = `🔖 <strong>${n} agreed rate${n > 1 ? 's' : ''}</strong> applied for this property — overriding the standard prices below.`;
+            } else {
+                notice.style.display = 'none';
+                notice.innerHTML = '';
+            }
+        }
+
+        // Reset the selector UI back to manual / walk-in (used on open & edit/copy)
+        function resetCustomerSelectorUI() {
+            cbAgreedPrices = {};
+            cbCustomerProps = [];
+            const sel = document.getElementById('cb_customer_select');
+            if (sel) sel.value = '';
+            const propWrap = document.getElementById('cb_property_wrap');
+            if (propWrap) propWrap.style.display = 'none';
+            const propSel = document.getElementById('cb_property_select');
+            if (propSel) propSel.innerHTML = '<option value="">— Select a property —</option>';
+            updateAgreedNotice();
+        }
+
+        async function onCustomerSelected() {
+            const sel      = document.getElementById('cb_customer_select');
+            const cid      = sel.value;
+            const propWrap = document.getElementById('cb_property_wrap');
+            const propSel  = document.getElementById('cb_property_select');
+
+            // Any customer change resets agreed pricing first
+            cbAgreedPrices = {};
+            cbCustomerProps = [];
+            updateAgreedNotice();
+
+            if (!cid) {
+                // Walk-in / manual entry — clear auto-filled fields, hide property picker
+                propWrap.style.display = 'none';
+                propSel.innerHTML = '<option value="">— Select a property —</option>';
+                ['cb_name','cb_phone','cb_email','cb_street','cb_neighborhood'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                renderServicesPanel(document.getElementById('cb_service_type').value);
+                return;
+            }
+
+            const c = cbCustomers.find(x => String(x.id) === String(cid));
+            if (!c) return;
+
+            // Auto-fill contact details (still editable)
+            document.getElementById('cb_name').value  = c.customer_name || `${c.first_name || ''} ${c.last_name || ''}`.trim();
+            document.getElementById('cb_phone').value = c.phone || '';
+            document.getElementById('cb_email').value = c.email || '';
+
+            // Load this customer's properties
+            propWrap.style.display = '';
+            propSel.innerHTML = '<option value="">— Loading properties… —</option>';
+            const token = checkAuth();
+            try {
+                const res = await fetch(`${API_URL}/api/properties?user_id=${cid}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                cbCustomerProps = res.ok ? await res.json() : [];
+            } catch (e) {
+                console.warn('Could not load properties:', e);
+                cbCustomerProps = [];
+            }
+
+            if (!Array.isArray(cbCustomerProps) || cbCustomerProps.length === 0) {
+                // No registered properties — use the customer's main address, no agreed rates
+                propWrap.style.display = 'none';
+                propSel.innerHTML = '<option value="">— Select a property —</option>';
+                if (c.address) document.getElementById('cb_street').value = c.address;
+                renderServicesPanel(document.getElementById('cb_service_type').value);
+                return;
+            }
+
+            propSel.innerHTML = '<option value="">— Select a property —</option>' +
+                cbCustomerProps.map(p => {
+                    const label = p.label || p.street_address || 'Property';
+                    const loc   = [p.city, p.country].filter(Boolean).join(', ');
+                    return `<option value="${p.id}">${escapeHtml(label)}${loc ? ' — ' + escapeHtml(loc) : ''}</option>`;
+                }).join('');
+
+            // Auto-select the first property and apply its agreed rates
+            propSel.value = String(cbCustomerProps[0].id);
+            await onPropertySelected();
+        }
+
+        async function onPropertySelected() {
+            const propSel = document.getElementById('cb_property_select');
+            const pid     = propSel.value;
+
+            cbAgreedPrices = {};
+
+            if (!pid) {
+                updateAgreedNotice();
+                renderServicesPanel(document.getElementById('cb_service_type').value);
+                return;
+            }
+
+            // Fill location from the chosen property
+            const p = cbCustomerProps.find(x => String(x.id) === String(pid));
+            if (p) {
+                if (p.street_address) document.getElementById('cb_street').value = p.street_address;
+                if (p.city)           document.getElementById('cb_neighborhood').value = p.city;
+            }
+
+            // Fetch this property's agreed prices
+            const token = checkAuth();
+            try {
+                const res = await fetch(`${API_URL}/api/properties/${pid}/prices`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const prices = await res.json();
+                    (Array.isArray(prices) ? prices : []).forEach(pr => {
+                        if (pr.agreed_price !== null && pr.agreed_price !== undefined) {
+                            cbAgreedPrices[pr.service_name] = parseFloat(pr.agreed_price);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('Could not load agreed prices:', e);
+            }
+
+            updateAgreedNotice();
+
+            // Re-render the current category so agreed prices flow into the panel
+            renderServicesPanel(document.getElementById('cb_service_type').value);
+
+            // Glass Wall Cleaning is T&M (manual) — prefill if an agreed rate exists
+            if (cbAgreedPrices['Glass Wall Cleaning'] !== undefined) {
+                const gp = document.getElementById('cb_glass_price');
+                if (gp) { gp.value = cbAgreedPrices['Glass Wall Cleaning']; updateGlassTotal(); }
+            }
         }
 
         // -------------------------------------------------------
@@ -4331,9 +4525,11 @@
             const availStatus = document.getElementById('cb_avail_status');
             availStatus.className = 'slot-avail-status';
             availStatus.innerHTML = '';
+            resetCustomerSelectorUI();
 
             document.getElementById('createBookingModal').classList.add('active');
             await fetchPricingData();
+            await loadCustomerOptions();
             renderServicesPanel(''); // show placeholder
         }
 
@@ -4562,6 +4758,10 @@
             slotAvailabilityState = null;
             document.getElementById('pastDateNotice').classList.remove('visible');
 
+            // Editing uses the booking's saved prices — reset the customer picker
+            resetCustomerSelectorUI();
+            loadCustomerOptions();
+
             // Fill customer info
             document.getElementById('cb_name').value         = booking.customerName  || '';
             document.getElementById('cb_phone').value        = booking.customerPhone || '';
@@ -4607,6 +4807,10 @@
             availStatus.className = 'slot-avail-status'; availStatus.innerHTML = '';
             slotAvailabilityState = null;
             document.getElementById('pastDateNotice').classList.remove('visible');
+
+            // Copy uses the source booking's saved prices — reset the customer picker
+            resetCustomerSelectorUI();
+            loadCustomerOptions();
 
             // Copy customer + location + notes; clear date/time/status
             document.getElementById('cb_name').value         = booking.customerName  || '';
