@@ -2698,6 +2698,7 @@
                                 <option value="morning">🌅 Morning</option>
                                 <option value="afternoon">☀️ Afternoon</option>
                                 <option value="evening">🌙 Evening</option>
+                                <option value="fullday">🗓️ Full Day</option>
                             </select>
                             <div class="slot-avail-status" id="cb_avail_status"></div>
                         </div>
@@ -3126,7 +3127,8 @@
             const slots = {
                 'morning': 'Morning',
                 'afternoon': 'Afternoon',
-                'evening': 'Evening'
+                'evening': 'Evening',
+                'fullday': 'Full Day'
             };
             return slots[slot] || slot;
         }
@@ -4602,7 +4604,13 @@
                         const d = await r.json();
                         const avail = d.success ? (d.availability || {}) : {};
                         const dayAvail = avail[dateVal] || null;
-                        if (dayAvail && dayAvail[slot] === true) availableCount++;
+                        if (dayAvail) {
+                            if (slot === 'fullday') {
+                                if (dayAvail.morning === true && dayAvail.afternoon === true && dayAvail.evening === true) availableCount++;
+                            } else if (dayAvail[slot] === true) {
+                                availableCount++;
+                            }
+                        }
                     } catch (e) { /* ignore per-resource errors */ }
                 }));
 

@@ -1197,12 +1197,14 @@ def send_invoice_email(booking, pdf_buffer):
         
         # Compose customer details for the body
         customer_name = booking['customer_name'] or 'Geachte klant'
+        # Use only the first name in the greeting
+        customer_first_name = customer_name.split()[0] if booking['customer_name'] else 'Geachte klant'
         address_parts = [p for p in [booking['street_address'], booking.get('neighborhood')] if p]
         service_address = ', '.join(address_parts) if address_parts else 'N.v.t.'
         service_date = booking['booking_date']
 
         # Plain text version (Dutch)
-        text_body = f"""Beste {customer_name},
+        text_body = f"""Beste {customer_first_name},
 
 Hartelijk dank dat u heeft gekozen voor Intelligent Cleaning Services.
 
@@ -1236,7 +1238,7 @@ Bankrekening: MCB 36.879.307 | KvK: 173068 | Crib-nummer: 102767051
 
         <!-- Content -->
         <div style="padding: 30px;">
-            <p style="margin: 0 0 18px 0;">Beste {customer_name},</p>
+            <p style="margin: 0 0 18px 0;">Beste {customer_first_name},</p>
 
             <p style="margin: 0 0 22px 0;">Hartelijk dank dat u heeft gekozen voor Intelligent Cleaning Services.</p>
 
