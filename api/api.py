@@ -1189,62 +1189,87 @@ def send_invoice_email(booking, pdf_buffer):
         msg['Date'] = formatdate(localtime=True)
         
         invoice_number = f"INV-{str(booking['id']).zfill(6)}"
-        msg['Subject'] = f"Your ICS Invoice - {invoice_number}"
+        msg['Subject'] = f"Uw ICS-factuur - {invoice_number}"
         
         # Create alternative part for text and HTML
         msg_alternative = MIMEMultipart('alternative')
         msg.attach(msg_alternative)
         
-        # Plain text version
-        subtotal = float(booking['total_cost'] or 0)
-        ob = round(subtotal * 0.06, 2)
-        grand_total = subtotal + ob
-        
-        text_body = f"""
-INTELLIGENCE CLEANING SERVICES
-INVOICE: {invoice_number}
+        # Compose customer details for the body
+        customer_name = booking['customer_name'] or 'Geachte klant'
+        address_parts = [p for p in [booking['street_address'], booking.get('neighborhood')] if p]
+        service_address = ', '.join(address_parts) if address_parts else 'N.v.t.'
+        service_date = booking['booking_date']
 
-Hello {booking['customer_name'] or 'Valued Customer'},
+        # Plain text version (Dutch)
+        text_body = f"""Beste {customer_name},
 
-Thank you for choosing Intelligent Cleaning Services! Please find your invoice attached.
+Hartelijk dank dat u heeft gekozen voor Intelligent Cleaning Services.
 
-■ BOOKING INFORMATION
-Invoice Date: {datetime.datetime.now().strftime('%B %d, %Y')}
-Booking ID: #{booking['id']}
-Service Date: {booking['booking_date']}
-Time Slot: {format_time_slot(booking['time_slot'])}
+Naam: {customer_name}
+Adres: {service_address}
+Servicedatum: {service_date}
 
-■ CUSTOMER DETAILS
-Name: {booking['customer_name'] or 'N/A'}
-Phone: {booking['customer_phone'] or 'N/A'}
-Email: {booking.get('customer_email', '') or 'N/A'}
+Uw factuur is als bijlage aan deze e-mail toegevoegd.
 
-■ SERVICE LOCATION
-Address: {booking['street_address']}, {booking['neighborhood'] or ''}
+Wij stellen uw vertrouwen zeer op prijs en hopen u binnenkort weer van dienst te mogen zijn.
 
-■ SERVICES
-Category: {(booking['service_type'] or 'Cleaning').capitalize()}
+Met vriendelijke groet,
+Het team van Intelligent Cleaning Services
+"""
 
-TOTALS
-Sub-Total (Services): {subtotal:.2f} XCG
-OB (6%): {ob:.2f} XCG
-Total: {grand_total:.2f} XCG
+        # HTML version (Dutch) - minimal branded body
+        html_body = f"""<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11pt; line-height: 1.5; color: #2D3E50; margin: 0; padding: 20px; background: #f5f5f5;">
+    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
 
-{f"■ NOTES: {booking['notes']}" if booking.get('notes') else ''}
+        <!-- Header -->
+        <div style="padding: 25px 30px; border-bottom: 3px solid #1FAFB8;">
+            <img src="cid:logo" alt="Intelligent Cleaning Services" style="height: 50px; width: auto; max-width: 180px;" />
+        </div>
 
----
-Intelligent Cleaning Services
-Vredenberg Resort Kavel 4 z/n, Willemstad Curaçao
-Phone: +599 968 402 98 | Email: info@ics.cw | Web: ics.cw
-Chamber of Commerce: 173068 | Crib Number: 102767051 | MCB Account: 36.879.307
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <p style="margin: 0 0 18px 0;">Beste {customer_name},</p>
 
-Thank you for choosing ICS!
+            <p style="margin: 0 0 22px 0;">Hartelijk dank dat u heeft gekozen voor Intelligent Cleaning Services.</p>
 
-This is an automated email. If you have any questions, please contact us.
-        """
-        
-        # HTML version - using aligned design
-        html_body = generate_invoice_html_for_email(booking)
+            <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0; font-size: 11pt;">
+                <tr>
+                    <td style="padding: 4px 16px 4px 0; color: #1FAFB8; font-weight: 600;">Naam</td>
+                    <td style="padding: 4px 0; color: #2D3E50;">{customer_name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 16px 4px 0; color: #1FAFB8; font-weight: 600;">Adres</td>
+                    <td style="padding: 4px 0; color: #2D3E50;">{service_address}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 16px 4px 0; color: #1FAFB8; font-weight: 600;">Servicedatum</td>
+                    <td style="padding: 4px 0; color: #2D3E50;">{service_date}</td>
+                </tr>
+            </table>
+
+            <p style="margin: 0 0 22px 0;">Uw factuur is als bijlage aan deze e-mail toegevoegd.</p>
+
+            <p style="margin: 0 0 28px 0;">Wij stellen uw vertrouwen zeer op prijs en hopen u binnenkort weer van dienst te mogen zijn.</p>
+
+            <p style="margin: 0; color: #2D3E50;">Met vriendelijke groet,<br />Het team van Intelligent Cleaning Services</p>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 18px 30px; background: #2D3E50; color: #cfd8e3; font-size: 9pt; text-align: center;">
+            <p style="margin: 0;">Intelligent Cleaning Services &middot; Vredenberg Resort Kavel 4, Willemstad, Cura&ccedil;ao</p>
+            <p style="margin: 4px 0 0 0;">+599 968 402 98 &middot; info@ics.cw &middot; ics.cw</p>
+        </div>
+
+    </div>
+</body>
+</html>"""
         
         # Attach text and HTML parts
         msg_alternative.attach(MIMEText(text_body, 'plain'))
