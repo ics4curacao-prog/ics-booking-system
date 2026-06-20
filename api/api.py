@@ -1206,16 +1206,17 @@ def send_invoice_email(booking, pdf_buffer):
 
 Hartelijk dank dat u heeft gekozen voor Intelligent Cleaning Services.
 
-Naam: {customer_name}
-Adres: {service_address}
-Servicedatum: {service_date}
-
-Uw factuur is als bijlage aan deze e-mail toegevoegd.
+Uw factuur voor de schoonmaak van {service_date} aan {service_address} is als bijlage aan deze e-mail toegevoegd.
 
 Wij stellen uw vertrouwen zeer op prijs en hopen u binnenkort weer van dienst te mogen zijn.
 
 Met vriendelijke groet,
 Het team van Intelligent Cleaning Services
+
+---
+Intelligent Cleaning Services | Vredenberg Resort Kavel 4, Willemstad, Curaçao
++599 968 402 98 | info@ics.cw | ics.cw
+Bankrekening: MCB 36.879.307 | KvK: 173068 | Crib-nummer: 102767051
 """
 
         # HTML version (Dutch) - minimal branded body
@@ -1239,22 +1240,7 @@ Het team van Intelligent Cleaning Services
 
             <p style="margin: 0 0 22px 0;">Hartelijk dank dat u heeft gekozen voor Intelligent Cleaning Services.</p>
 
-            <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0; font-size: 11pt;">
-                <tr>
-                    <td style="padding: 4px 16px 4px 0; color: #1FAFB8; font-weight: 600;">Naam</td>
-                    <td style="padding: 4px 0; color: #2D3E50;">{customer_name}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 4px 16px 4px 0; color: #1FAFB8; font-weight: 600;">Adres</td>
-                    <td style="padding: 4px 0; color: #2D3E50;">{service_address}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 4px 16px 4px 0; color: #1FAFB8; font-weight: 600;">Servicedatum</td>
-                    <td style="padding: 4px 0; color: #2D3E50;">{service_date}</td>
-                </tr>
-            </table>
-
-            <p style="margin: 0 0 22px 0;">Uw factuur is als bijlage aan deze e-mail toegevoegd.</p>
+            <p style="margin: 0 0 22px 0;">Uw factuur voor de schoonmaak van {service_date} aan {service_address} is als bijlage aan deze e-mail toegevoegd.</p>
 
             <p style="margin: 0 0 28px 0;">Wij stellen uw vertrouwen zeer op prijs en hopen u binnenkort weer van dienst te mogen zijn.</p>
 
@@ -1265,6 +1251,7 @@ Het team van Intelligent Cleaning Services
         <div style="padding: 18px 30px; background: #2D3E50; color: #cfd8e3; font-size: 9pt; text-align: center;">
             <p style="margin: 0;">Intelligent Cleaning Services &middot; Vredenberg Resort Kavel 4, Willemstad, Cura&ccedil;ao</p>
             <p style="margin: 4px 0 0 0;">+599 968 402 98 &middot; info@ics.cw &middot; ics.cw</p>
+            <p style="margin: 4px 0 0 0;">Bankrekening: MCB 36.879.307 &middot; KvK: 173068 &middot; Crib-nummer: 102767051</p>
         </div>
 
     </div>
