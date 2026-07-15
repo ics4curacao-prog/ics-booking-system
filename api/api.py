@@ -2058,28 +2058,37 @@ def update_booking(current_user, booking_id):
             conn.close()
             return jsonify({'error': 'Booking not found'}), 404
         
-        cursor.execute('''
-            UPDATE bookings 
-            SET customer_name = ?, customer_phone = ?, customer_email = ?,
-                street_address = ?, neighborhood = ?, service_type = ?, 
-                services = ?, booking_date = ?, time_slot = ?, 
-                total_cost = ?, status = ?, notes = ?
-            WHERE id = ?
-        ''', (
-            data.get('customer_name'),
-            data.get('customer_phone'),
-            data.get('customer_email', ''),
-            data.get('street_address'),
-            data.get('neighborhood'),
-            data.get('service_type'),
-            str(data.get('services', [])),
-            data.get('booking_date'),
-            data.get('time_slot'),
-            float(data.get('total_cost', 0)),
-            data.get('status'),
-            data.get('notes', ''),
-            booking_id
-        ))
+        # Only update columns actually present in the request body.
+        # A partial payload (e.g. {"status": "confirmed"}) must never blank
+        # out the fields it omits.
+        ALLOWED_FIELDS = [
+            'customer_name', 'customer_phone', 'customer_email',
+            'street_address', 'neighborhood', 'service_type',
+            'services', 'booking_date', 'time_slot',
+            'total_cost', 'status', 'notes'
+        ]
+
+        fields, values = [], []
+        for key in ALLOWED_FIELDS:
+            if key not in data:
+                continue
+            fields.append(f'{key} = ?')
+            if key == 'services':
+                values.append(str(data[key]))
+            elif key == 'total_cost':
+                values.append(float(data[key] or 0))
+            else:
+                values.append(data[key])
+
+        if not fields:
+            conn.close()
+            return jsonify({'error': 'No valid fields to update'}), 400
+
+        values.append(booking_id)
+        cursor.execute(
+            f'UPDATE bookings SET {", ".join(fields)} WHERE id = ?',
+            values
+        )
         
         conn.commit()
         conn.close()

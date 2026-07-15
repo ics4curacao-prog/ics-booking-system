@@ -1178,8 +1178,8 @@
             if (!confirm(`Change booking status to ${newStatus}?`)) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
-                    method: 'PUT',
+                const response = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
