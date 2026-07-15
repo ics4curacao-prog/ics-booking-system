@@ -13,6 +13,7 @@ from email.utils import formatdate
 import io
 import os
 import logging
+import threading
 
 # Load environment variables from .env file (for local development)
 from dotenv import load_dotenv
@@ -110,6 +111,18 @@ EMAIL_CONFIG = {
 if EMAIL_CONFIG['enabled'] and (not EMAIL_CONFIG['sender_email'] or not EMAIL_CONFIG['sender_password']):
     logger.warning("Email is enabled but credentials are not configured. Set MAIL_USERNAME and MAIL_PASSWORD environment variables.")
     EMAIL_CONFIG['enabled'] = False
+
+# ============================================================
+# INTERNAL BOOKING NOTIFICATIONS
+# ============================================================
+# Recipients of the "new booking" alert. Override with the
+# BOOKING_NOTIFY_EMAILS env var (comma-separated) if needed.
+BOOKING_NOTIFY_EMAILS = [
+    e.strip() for e in os.environ.get(
+        'BOOKING_NOTIFY_EMAILS',
+        'arthur.dania@ics.cw,lina.lopez@ics.cw'
+    ).split(',') if e.strip()
+]
 
 # ============================================================
 # CONTACT FORM EMAIL CONFIGURATION
@@ -1314,6 +1327,137 @@ Bankrekening: MCB 36.879.307 | KvK: 173068 | Crib-nummer: 102767051
 # ============================================================
 
 # Health check - Used by Render to verify the app is running
+def send_new_booking_notification(booking):
+    """Send an internal alert to ICS staff when a customer submits a booking.
+
+    Never raises: a mail failure must never affect the booking itself.
+    Returns (success, message).
+    """
+    if not EMAIL_CONFIG['enabled']:
+        return False, "Email sending is disabled"
+
+    if not BOOKING_NOTIFY_EMAILS:
+        return False, "No notification recipients configured"
+
+    try:
+        invoice_number = f"INV-{str(booking['id']).zfill(6)}"
+        subtotal = float(booking.get('total_cost') or 0)
+        ob = round(subtotal * 0.06, 2)
+        grand_total = subtotal + ob
+
+        address_parts = [p for p in [booking.get('street_address'), booking.get('neighborhood')] if p]
+        service_address = ', '.join(address_parts) if address_parts else 'N/A'
+        services = parse_services(booking.get('services'))
+        time_slot = format_time_slot(booking.get('time_slot'))
+        notes = booking.get('notes') or '-'
+
+        services_text = '\n'.join(
+            f"  - {s['name']}" + (f" ({s['details']})" if s['details'] else '') + f" — XCG {s['price']:.2f}"
+            for s in services
+        )
+        services_rows = ''.join(
+            f"""<tr>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;">{s['name']}"""
+            + (f"""<br><span style="color:#777;font-size:12px;">{s['details']}</span>""" if s['details'] else '')
+            + f"""</td>
+                    <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;">XCG {s['price']:.2f}</td>
+                </tr>"""
+            for s in services
+        )
+
+        subject = (f"New booking {invoice_number} — {booking.get('customer_name') or 'Unknown'} — "
+                   f"{booking.get('booking_date')} ({time_slot})")
+
+        text_body = f"""New booking submitted via the website.
+
+Reference:     {invoice_number}  (booking #{booking['id']})
+Customer:      {booking.get('customer_name') or '-'}
+Email:         {booking.get('customer_email') or '-'}
+Phone:         {booking.get('customer_phone') or '-'}
+Address:       {service_address}
+Service type:  {booking.get('service_type') or '-'}
+Date:          {booking.get('booking_date')}
+Time slot:     {time_slot}
+Status:        {booking.get('status') or 'pending'}
+
+Services:
+{services_text}
+
+Sub-total:     XCG {subtotal:.2f}
+OB (6%):       XCG {ob:.2f}
+Total:         XCG {grand_total:.2f}
+
+Notes: {notes}
+
+Manage this booking: https://ics.cw/admin_bookings.html
+"""
+
+        html_body = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0;padding:24px;background:#f4f6f8;font-family:'DM Sans',Arial,sans-serif;color:#2D3E50;">
+  <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;">
+    <div style="background:#2D3E50;padding:18px 24px;">
+      <div style="color:#ffffff;font-size:18px;font-weight:600;">New booking received</div>
+      <div style="color:#1FAFB8;font-size:13px;margin-top:2px;">{invoice_number} &middot; submitted via ics.cw</div>
+    </div>
+    <div style="padding:24px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr><td style="padding:6px 0;color:#777;width:130px;">Customer</td><td style="padding:6px 0;font-weight:600;">{booking.get('customer_name') or '-'}</td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Email</td><td style="padding:6px 0;"><a href="mailto:{booking.get('customer_email') or ''}" style="color:#1FAFB8;">{booking.get('customer_email') or '-'}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Phone</td><td style="padding:6px 0;"><a href="tel:{booking.get('customer_phone') or ''}" style="color:#1FAFB8;">{booking.get('customer_phone') or '-'}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Address</td><td style="padding:6px 0;">{service_address}</td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Service type</td><td style="padding:6px 0;">{booking.get('service_type') or '-'}</td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Date</td><td style="padding:6px 0;font-weight:600;">{booking.get('booking_date')}</td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Time slot</td><td style="padding:6px 0;">{time_slot}</td></tr>
+        <tr><td style="padding:6px 0;color:#777;">Status</td><td style="padding:6px 0;">{booking.get('status') or 'pending'}</td></tr>
+      </table>
+
+      <div style="margin-top:20px;font-size:13px;font-weight:600;color:#777;text-transform:uppercase;letter-spacing:.5px;">Services</div>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:6px;">
+        {services_rows}
+        <tr><td style="padding:8px 0;color:#777;">Sub-total</td><td style="padding:8px 0;text-align:right;">XCG {subtotal:.2f}</td></tr>
+        <tr><td style="padding:2px 0;color:#777;">OB (6%)</td><td style="padding:2px 0;text-align:right;">XCG {ob:.2f}</td></tr>
+        <tr><td style="padding:8px 0;font-weight:700;border-top:2px solid #2D3E50;">Total</td><td style="padding:8px 0;text-align:right;font-weight:700;border-top:2px solid #2D3E50;">XCG {grand_total:.2f}</td></tr>
+      </table>
+
+      <div style="margin-top:20px;font-size:13px;font-weight:600;color:#777;text-transform:uppercase;letter-spacing:.5px;">Notes</div>
+      <div style="margin-top:6px;font-size:14px;white-space:pre-wrap;">{notes}</div>
+
+      <div style="margin-top:26px;">
+        <a href="https://ics.cw/admin_bookings.html" style="background:#1FAFB8;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:6px;font-size:14px;font-weight:600;display:inline-block;">Open in admin</a>
+      </div>
+    </div>
+    <div style="padding:14px 24px;background:#f4f6f8;color:#8a949e;font-size:11px;">
+      Automatic notification from the ICS booking system.
+    </div>
+  </div>
+</body>
+</html>"""
+
+        msg = MIMEMultipart('alternative')
+        msg['From'] = f"{EMAIL_CONFIG['sender_name']} <{EMAIL_CONFIG['sender_email']}>"
+        msg['To'] = ', '.join(BOOKING_NOTIFY_EMAILS)
+        msg['Date'] = formatdate(localtime=True)
+        msg['Subject'] = subject
+        if booking.get('customer_email'):
+            msg['Reply-To'] = booking['customer_email']
+        msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+        with smtplib.SMTP(EMAIL_CONFIG['smtp_server'], EMAIL_CONFIG['smtp_port']) as server:
+            server.starttls()
+            server.login(EMAIL_CONFIG['sender_email'], EMAIL_CONFIG['sender_password'])
+            server.send_message(msg)
+
+        logger.info(f"Booking notification sent for #{booking['id']} to {msg['To']}")
+        return True, "Notification sent"
+
+    except Exception as e:
+        logger.error(f"Booking notification failed for #{booking.get('id')}: {e}")
+        return False, str(e)
+
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint for Render deployment"""
@@ -1991,7 +2135,41 @@ def create_booking():
         conn.close()
         
         logger.info(f"New booking created: #{booking_id}")
-        
+
+        # Notify staff only for customer-submitted bookings.
+        # Admin-created bookings carry an admin Bearer token; skip those.
+        created_by_admin = False
+        auth_header = request.headers.get('Authorization') or ''
+        if auth_header.startswith('Bearer '):
+            try:
+                token_data = jwt.decode(auth_header[7:], app.config['SECRET_KEY'], algorithms=['HS256'])
+                created_by_admin = token_data.get('role') == 'admin'
+            except Exception:
+                created_by_admin = False
+
+        if not created_by_admin:
+            notification_booking = {
+                'id': booking_id,
+                'customer_name': customer_name,
+                'customer_phone': customer_phone,
+                'customer_email': customer_email,
+                'street_address': street_address,
+                'neighborhood': neighborhood,
+                'service_type': service_type,
+                'services': str(services),
+                'booking_date': booking_date,
+                'time_slot': time_slot,
+                'total_cost': float(total_cost) if total_cost else 0,
+                'status': 'pending',
+                'notes': notes
+            }
+            # Sent in the background so SMTP latency never delays the customer's confirmation
+            threading.Thread(
+                target=send_new_booking_notification,
+                args=(notification_booking,),
+                daemon=True
+            ).start()
+
         return jsonify({
             'success': True,
             'message': 'Booking created successfully',
